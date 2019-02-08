@@ -119,13 +119,13 @@ class Match:
         self.current_player = player_1
         self.other_player = player_2
         self.win_status = None
+        self.inserts = []
 
     def start(self):
         while True:
             self.frame.print_canvas()
             print(f'Current player = {self.current_player} ({self.current_player.character})')
-            positions = self.read_positions()
-            self.frame.insert(self.current_player, positions[0], positions[1])
+            self.insert(self.read_positions())
             winner = self.frame.check_winner(self.current_player, self.other_player)
             if winner is not None or self.frame.is_canvas_filled():
                 self.frame.print_canvas()
@@ -135,13 +135,18 @@ class Match:
                 return
             self.switch_players()
 
+    def insert(self, positions):
+        self.inserts.append((positions[0], positions[1], self.current_player.character))
+        self.frame.insert(self.current_player, positions[0], positions[1])
+
     def update_scores(self, winner):
         if winner is not None:
             winner.score += 1
 
     def summary(self):
         return {
-            'frame': self.frame,
+            'frame': self.frame.matrix,
+            'inserts': self.inserts,
             'win_status': self.win_status
         }
 
