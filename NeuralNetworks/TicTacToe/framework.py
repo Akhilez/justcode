@@ -1,4 +1,6 @@
 import re
+from abc import ABCMeta, abstractmethod
+import random
 
 
 class Frame:
@@ -57,7 +59,7 @@ class Frame:
         ]
 
 
-class Player:
+class Player(metaclass=ABCMeta):
     def __init__(self, name, character=Frame.X):
         self.name = name
         self.total_score = 0
@@ -65,11 +67,43 @@ class Player:
         self.character = character
         self.score = 0
 
+    @abstractmethod
+    def get_positions(self, frame):
+        pass
+
     def __str__(self):
         return self.name
 
     def __eq__(self, other):
         return self.character == other.character
+
+
+class HumanPlayer(Player):
+
+    def get_positions(self, frame):
+        while True:
+            positions = input('Enter position in "x y" format: ').strip()
+            inputs = re.match(r'([0-2])[\s,-]+([0-2])', positions)
+            if inputs is not None:
+                inputs = inputs.groups()
+                inputs = int(inputs[0]), int(inputs[1])
+                if frame.matrix[inputs[0]][inputs[1]] is not None:
+                    print('That position already has a value.')
+                    continue
+                return inputs
+            print("Wrong input.")
+
+
+class RandomPlayer(Player):
+
+    def get_positions(self, frame):
+        positions = []
+        for i in range(3):
+            for j in range(3):
+                if frame.matrix[i][j] is None:
+                    positions.append((i, j))
+        if len(positions) > 0:
+            return random.randint(0, len(positions))
 
 
 class Game:
@@ -125,7 +159,7 @@ class Match:
         while True:
             self.frame.print_canvas()
             print(f'Current player = {self.current_player} ({self.current_player.character})')
-            self.insert(self.read_positions())
+            self.insert(self.current_player.get_positions(self.frame))
             winner = self.frame.check_winner(self.current_player, self.other_player)
             if winner is not None or self.frame.is_canvas_filled():
                 self.frame.print_canvas()
@@ -167,19 +201,6 @@ class Match:
         switcher = self.current_player
         self.current_player = self.other_player
         self.other_player = switcher
-
-    def read_positions(self):
-        while True:
-            positions = input('Enter position in "x y" format: ').strip()
-            inputs = re.match(r'([0-2])[\s,-]+([0-2])', positions)
-            if inputs is not None:
-                inputs = inputs.groups()
-                inputs = int(inputs[0]), int(inputs[1])
-                if self.frame.matrix[inputs[0]][inputs[1]] is not None:
-                    print('That position already has a value.')
-                    continue
-                return inputs
-            print("Wrong input.")
 
 
 if __name__ == '__main__':
