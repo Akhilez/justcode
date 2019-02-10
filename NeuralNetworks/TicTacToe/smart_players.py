@@ -1,4 +1,4 @@
-from framework import Player
+from NeuralNetworks.TicTacToe.framework import Player
 
 
 class DenseNetworkPlayer(Player):

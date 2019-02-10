@@ -1,6 +1,11 @@
 import re
 from abc import ABCMeta, abstractmethod
 import random
+import logging
+
+logger = logging.getLogger()
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.INFO)
 
 
 class Frame:
@@ -15,15 +20,16 @@ class Frame:
         self.matrix[row][column] = player.character
 
     def print_canvas(self):
-        print('\n\t0\t1\t2')
+        output = '\n\t0\t1\t2\n'
         for i in range(3):
-            print(i, end='\t')
+            output += f'{i}\t'
             for j in range(3):
                 value = self.matrix[i][j]
                 value = value if value is not None else ' '
-                print(value, end='\t')
-            print()
-        print()
+                output += f'{value}\t'
+            output += '\n'
+        output += '\n'
+        print(output)
 
     def check_winner(self, player1, player2):
         checks = [
@@ -60,16 +66,28 @@ class Frame:
 
 
 class Player(metaclass=ABCMeta):
-    def __init__(self, name, character=Frame.X):
+
+    TYPE = 'default'
+
+    def __init__(self, name, character=None):
         self.name = name
         self.total_score = 0
         self.total_games = 0
-        self.character = character
         self.score = 0
+        self.character = self.get_character(character)
 
     @abstractmethod
     def get_positions(self, frame):
         pass
+
+    def get_character(self, character):
+        if character is None:
+            while True:
+                character = input('Enter player 1 character (X or O): ').upper()
+                if character == Frame.X or character == Frame.O:
+                    break
+                print(f'Please enter either {Frame.X} or {Frame.O}')
+        return character
 
     def __str__(self):
         return self.name
@@ -79,6 +97,8 @@ class Player(metaclass=ABCMeta):
 
 
 class HumanPlayer(Player):
+
+    TYPE = 'human'
 
     def get_positions(self, frame):
         while True:
@@ -96,6 +116,8 @@ class HumanPlayer(Player):
 
 class RandomPlayer(Player):
 
+    TYPE = 'random'
+
     def get_positions(self, frame):
         positions = []
         for i in range(3):
@@ -103,13 +125,18 @@ class RandomPlayer(Player):
                 if frame.matrix[i][j] is None:
                     positions.append((i, j))
         if len(positions) > 0:
-            return random.randint(0, len(positions))
+            random_index = random.randint(0, len(positions))
+            return positions[random_index]
 
 
 class Game:
 
-    def __init__(self):
-        self.player_1, self.player_2 = self.get_players()
+    def __init__(self, player1, player2):
+        """
+        :param player1: Player 1 (human|random|dense)
+        :param player2: Player 2 (human|random|dense)
+        """
+        self.player_1, self.player_2 = player1, player2
         self.matches = []
 
     def start(self):
@@ -125,21 +152,6 @@ class Game:
     def choose_to_replay(self):
         choice = input("Replay? (y/n):").lower()
         return choice == 'y'
-
-    def get_players(self):
-        player1_name = input('Enter player 1 name: ')
-        while True:
-            player1_character = input('Enter player 1 character (X or O): ').upper()
-            if player1_character == Frame.X or player1_character == Frame.O:
-                break
-            print(f'Please enter either {Frame.X} or {Frame.O}')
-        player2_name = input('Enter player 2 name: ')
-        player2_character = Frame.X if player1_character == Frame.O else Frame.O
-
-        return (
-            Player(player1_name, player1_character),
-            Player(player2_name, player2_character)
-        )
 
     def print_scores(self):
         print(f"Scores:\n\t{self.player_1}: {self.player_1.score}")
@@ -201,9 +213,3 @@ class Match:
         switcher = self.current_player
         self.current_player = self.other_player
         self.other_player = switcher
-
-
-if __name__ == '__main__':
-    game = Game()
-    game.start()
-    print(game.matches)
