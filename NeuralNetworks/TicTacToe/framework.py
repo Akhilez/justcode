@@ -2,6 +2,8 @@ import re
 from abc import ABCMeta, abstractmethod
 import random
 import logging
+import copy
+import json
 
 logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
@@ -64,6 +66,36 @@ class Frame:
             [None, None, None]
         ]
 
+    @staticmethod
+    def flip(matrix):
+        flipped = copy.deepcopy(matrix)
+        for i in range(3):
+            for j in range(3):
+                if matrix[i][j] is None:
+                    continue
+                if matrix[i][j] == Frame.X:
+                    flipped[i][j] = Frame.O
+                else:
+                    flipped[i][j] = Frame.X
+        return flipped
+
+    @staticmethod
+    def linear(matrix):
+        linear_matrix = []
+        for i in range(3):
+            for j in range(3):
+                linear_matrix.append(matrix[i][j])
+        return linear_matrix
+
+    @staticmethod
+    def linearize_position(row, column):
+        count = 0
+        for i in range(3):
+            for j in range(3):
+                if row == i and column == j:
+                    return count
+                count += 1
+
 
 class Player(metaclass=ABCMeta):
 
@@ -125,7 +157,7 @@ class RandomPlayer(Player):
                 if frame.matrix[i][j] is None:
                     positions.append((i, j))
         if len(positions) > 0:
-            random_index = random.randint(0, len(positions))
+            random_index = random.randint(0, len(positions)-1)
             return positions[random_index]
 
 
@@ -139,15 +171,23 @@ class Game:
         self.player_1, self.player_2 = player1, player2
         self.matches = []
 
-    def start(self):
-        match = Match(self.player_1, self.player_2)
-        match.start()
-        self.print_scores()
-        self.matches.append(match.summary())
-        if self.choose_to_replay():
-            self.start()
-        else:
-            print("Closing the game. Bye!")
+    def start(self, epocs=None):
+        while epocs is None or epocs > 0:
+            match = Match(self.player_1, self.player_2)
+            match.start()
+            self.print_scores()
+            if match.win_status != [0, 0, 1]:
+                match_summary = match.summary()
+                self.matches.append(match_summary)
+            if epocs is None:
+                if self.choose_to_replay():
+                    continue
+                else:
+                    print("Closing the game. Bye!")
+                    epocs = 0
+            else:
+                epocs -= 1
+        self.save_data()
 
     def choose_to_replay(self):
         choice = input("Replay? (y/n):").lower()
@@ -156,6 +196,10 @@ class Game:
     def print_scores(self):
         print(f"Scores:\n\t{self.player_1}: {self.player_1.score}")
         print(f"\t{self.player_2}: {self.player_2.score}")
+
+    def save_data(self):
+        with open('data.json', 'w') as data:
+            data.write(json.dumps({'game': self.matches}))
 
 
 class Match:
@@ -182,7 +226,12 @@ class Match:
             self.switch_players()
 
     def insert(self, positions):
-        self.inserts.append((positions[0], positions[1], self.current_player.character))
+        frame = copy.deepcopy(self.frame.matrix) if self.current_player.character == Frame.X else Frame.flip(self.frame.matrix)
+        self.inserts.append({
+            'current': self.current_player.character,
+            'position': [positions[0], positions[1]],
+            'frame': frame
+        })
         self.frame.insert(self.current_player, positions[0], positions[1])
 
     def update_scores(self, winner):
@@ -190,11 +239,20 @@ class Match:
             winner.score += 1
 
     def summary(self):
-        return {
-            'frame': self.frame.matrix,
-            'inserts': self.inserts,
-            'win_status': self.win_status
-        }
+        successful_inserts = self.get_successful_inserts()
+        successful_inserts = self.remove_current_character_attribute(successful_inserts)
+        return {'match': successful_inserts}
+
+    def get_successful_inserts(self):
+        successful_inserts = []
+        if self.win_status == [1, 0, 0]:
+            drop_character = Frame.O
+        else:
+            drop_character = Frame.X
+        for i in range(len(self.inserts)):
+            if self.inserts[i]['current'] != drop_character:
+                successful_inserts.append(self.inserts[i])
+        return successful_inserts
 
     def get_win_status(self, winner):
         if winner is None:
@@ -213,3 +271,8 @@ class Match:
         switcher = self.current_player
         self.current_player = self.other_player
         self.other_player = switcher
+
+    def remove_current_character_attribute(self, inserts):
+        for insert in inserts:
+            del insert['current']
+        return inserts

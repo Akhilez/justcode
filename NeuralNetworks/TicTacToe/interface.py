@@ -19,7 +19,10 @@ class TicTacToe:
         player_2_type = self.read_player_type()
         player_2_name = input('Enter player 2 name: ')
 
-        self.create_game(player_1_name, player_1_type, player_2_name, player_2_type, player_1_character)
+        self.create_game(player_1_name, player_1_type, player_2_name, player_2_type, player_1_character).start()
+
+    def create_automated_game(self, type_1, type_2):
+        self.create_game(type_1, type_1, type_2, type_2, Frame.X).start(1000)
 
     def read_character(self):
         while True:
@@ -36,16 +39,15 @@ class TicTacToe:
         player1 = self.get_player(player1_type, player1_name, player1_character)
         player2 = self.get_player(player2_type, player2_name, player2_character)
 
-        game = Game(player1, player2)
-        game.start()
+        return Game(player1, player2)
 
     def get_player(self, player_type, player_name, player_character):
         if player_type == HumanPlayer.TYPE:
             return HumanPlayer(player_name, player_character)
         if player_type == RandomPlayer.TYPE:
-            return RandomPlayer(player_type, player_character)
+            return RandomPlayer(player_name, player_character)
         if player_type == DenseNetworkPlayer.TYPE:
-            return DenseNetworkPlayer(player_type, player_character)
+            return DenseNetworkPlayer(player_name, player_character)
 
     def read_player_type(self):
         while True:
@@ -58,4 +60,4 @@ class TicTacToe:
 
 if __name__ == '__main__':
     tic_tac_toe = TicTacToe()
-    tic_tac_toe.create_console_game()
+    tic_tac_toe.create_automated_game(RandomPlayer.TYPE, RandomPlayer.TYPE)
