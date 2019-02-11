@@ -57,7 +57,20 @@ class TicTacToe:
             else:
                 return {'1': HumanPlayer.TYPE, '2': RandomPlayer.TYPE, '3': DenseNetworkPlayer.TYPE}[character]
 
+    def keep_dense_learning(self):
+        player1 = DenseNetworkPlayer('D1', Frame.X)
+        player2 = DenseNetworkPlayer('D2', Frame.O)
+
+        game = Game(player1, player2)
+        game.start(1)
+        # TODO: Append game.matches
+        # TODO: Delete 1 match from data
+        # TODO: Train.
+        # TODO: Repeat until it learns well.
+
 
 if __name__ == '__main__':
     tic_tac_toe = TicTacToe()
-    tic_tac_toe.create_automated_game(RandomPlayer.TYPE, RandomPlayer.TYPE)
+    # tic_tac_toe.create_automated_game(RandomPlayer.TYPE, RandomPlayer.TYPE)
+
+    tic_tac_toe.keep_dense_learning()

@@ -187,7 +187,6 @@ class Game:
                     epocs = 0
             else:
                 epocs -= 1
-        self.save_data()
 
     def choose_to_replay(self):
         choice = input("Replay? (y/n):").lower()
