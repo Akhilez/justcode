@@ -14,6 +14,8 @@ class Frame:
 
     X = 'X'
     O = 'O'
+    output_linear_to_2D = {0: (0, 0), 1: (0, 1), 2: (0, 2), 3: (1, 0), 4: (1, 1), 5: (1, 2), 6: (2, 0), 7: (2, 1),
+                         8: (2, 2)}
 
     def __init__(self):
         self.matrix = self.generate_empty_canvas()
@@ -65,6 +67,17 @@ class Frame:
             [None, None, None],
             [None, None, None]
         ]
+
+    @staticmethod
+    def categorize_inputs(my_list):
+        categories = {None: 0.0, 'X': 0.5, 'O': 1.0}
+        all_list = []
+        for frame in my_list:
+            category_list = []
+            for position in frame:
+                category_list.append(categories[position])
+            all_list.append(category_list)
+        return all_list
 
     @staticmethod
     def flip(matrix):
@@ -198,7 +211,28 @@ class Game:
 
     def save_data(self):
         with open('data.json', 'w') as data:
-            data.write(json.dumps({'game': self.matches}))
+            data.write(json.dumps({'games': self.matches}))
+
+    def filter_draw_matches(self):
+        return [match for match in self.matches if match.win_status != [0, 0, 1]]
+
+    @staticmethod
+    def get_data():
+        try:
+            with open('data.json', 'r') as data:
+                data_string = data.read()
+                if len(data_string) > 0:
+                    return json.loads(data_string)
+        except FileNotFoundError:
+            return
+
+    @staticmethod
+    def clear_data():
+        try:
+            with open('data.json', 'w') as data:
+                data.write('')
+        except FileNotFoundError:
+            return
 
 
 class Match:

@@ -1,5 +1,5 @@
 from NeuralNetworks.TicTacToe.framework import Frame, HumanPlayer, RandomPlayer, logger, Game
-from NeuralNetworks.TicTacToe.smart_players import DenseNetworkPlayer
+from NeuralNetworks.TicTacToe.smart_players import DenseNetworkPlayer, DenseModel
 
 
 class TicTacToe:
@@ -58,15 +58,29 @@ class TicTacToe:
                 return {'1': HumanPlayer.TYPE, '2': RandomPlayer.TYPE, '3': DenseNetworkPlayer.TYPE}[character]
 
     def keep_dense_learning(self):
+        model = DenseModel()
+        # player2 = HumanPlayer('H1', Frame.X)
         player1 = DenseNetworkPlayer('D1', Frame.X)
-        player2 = DenseNetworkPlayer('D2', Frame.O)
+        # player2 = DenseNetworkPlayer('D2', Frame.O)
+        player2 = RandomPlayer('R1', Frame.O)
 
-        game = Game(player1, player2)
-        game.start(1)
-        # TODO: Append game.matches
-        # TODO: Delete 1 match from data
-        # TODO: Train.
-        # TODO: Repeat until it learns well.
+        for i in range(10):
+            for i in range(10):
+                player_temp = player2
+                player2 = player1
+                player1 = player_temp
+
+                game = Game(player1, player2)
+
+                game.start(1)
+                old_data = Game.get_data()
+                if old_data and 'games' in old_data and old_data['games']:
+                    old_data['games'].pop(-1)
+                    game.matches.extend(old_data['games'])
+                game.save_data()
+                model.train(50)
+
+            Game.clear_data()
 
 
 if __name__ == '__main__':
