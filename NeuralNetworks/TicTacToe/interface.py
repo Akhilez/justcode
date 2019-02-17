@@ -1,5 +1,5 @@
-from NeuralNetworks.TicTacToe.framework import Frame, HumanPlayer, RandomPlayer, logger, Game
-from NeuralNetworks.TicTacToe.smart_players import DenseNetworkPlayer, DenseModel
+from NeuralNetworks.TicTacToe.framework import Frame, HumanPlayer, RandomPlayer, logger, Game, DataManager
+from NeuralNetworks.TicTacToe.players.dense import DenseNetworkPlayer, DenseModel
 
 
 class TicTacToe:
@@ -22,7 +22,9 @@ class TicTacToe:
         self.create_game(player_1_name, player_1_type, player_2_name, player_2_type, player_1_character).start()
 
     def create_automated_game(self, type_1, type_2):
-        self.create_game(type_1, type_1, type_2, type_2, Frame.X).start(1000)
+        game = self.create_game(type_1, type_1, type_2, type_2, Frame.O)
+        game.start(1)
+        DataManager().write(game.matches)
 
     def read_character(self):
         while True:
@@ -58,33 +60,35 @@ class TicTacToe:
                 return {'1': HumanPlayer.TYPE, '2': RandomPlayer.TYPE, '3': DenseNetworkPlayer.TYPE}[character]
 
     def keep_dense_learning(self):
-        model = DenseModel()
+
+        buffer_size = 10
+
         # player2 = HumanPlayer('H1', Frame.X)
-        player1 = DenseNetworkPlayer('D1', Frame.X)
-        # player2 = DenseNetworkPlayer('D2', Frame.O)
-        player2 = RandomPlayer('R1', Frame.O)
 
-        for i in range(10):
-            for i in range(10):
-                player_temp = player2
-                player2 = player1
-                player1 = player_temp
+        game = Game(
+            DenseNetworkPlayer('Dense_1', Frame.X),
+            # DenseNetworkPlayer('Dense_2', Frame.O)
+            RandomPlayer('Random', Frame.O)
+        )
 
-                game = Game(player1, player2)
+        data_manager = DataManager(max_size=buffer_size)
 
+        dense_player = game.player_1
+
+        for i in range(3):
+            for j in range((buffer_size//2)*2+1):
                 game.start(1)
-                old_data = Game.get_data()
-                if old_data and 'games' in old_data and old_data['games']:
-                    old_data['games'].pop(-1)
-                    game.matches.extend(old_data['games'])
-                game.save_data()
-                model.train(50)
-
-            Game.clear_data()
+                data_manager.enqueue(game.matches)
+                # print(f'Training {game.player_1.name}')
+                dense_player.model.train(50, data_manager)
+                game.matches.clear()
+                game.swap_players()
 
 
 if __name__ == '__main__':
     tic_tac_toe = TicTacToe()
     # tic_tac_toe.create_automated_game(RandomPlayer.TYPE, RandomPlayer.TYPE)
 
-    tic_tac_toe.keep_dense_learning()
+    for k in range(1):
+        tic_tac_toe.keep_dense_learning()
+        # tic_tac_toe.create_automated_game('random', 'random')

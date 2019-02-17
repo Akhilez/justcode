@@ -14,8 +14,6 @@ class Frame:
 
     X = 'X'
     O = 'O'
-    output_linear_to_2D = {0: (0, 0), 1: (0, 1), 2: (0, 2), 3: (1, 0), 4: (1, 1), 5: (1, 2), 6: (2, 0), 7: (2, 1),
-                         8: (2, 2)}
 
     def __init__(self):
         self.matrix = self.generate_empty_canvas()
@@ -69,17 +67,6 @@ class Frame:
         ]
 
     @staticmethod
-    def categorize_inputs(my_list):
-        categories = {None: 0.0, 'X': 0.5, 'O': 1.0}
-        all_list = []
-        for frame in my_list:
-            category_list = []
-            for position in frame:
-                category_list.append(categories[position])
-            all_list.append(category_list)
-        return all_list
-
-    @staticmethod
     def flip(matrix):
         flipped = copy.deepcopy(matrix)
         for i in range(3):
@@ -91,23 +78,6 @@ class Frame:
                 else:
                     flipped[i][j] = Frame.X
         return flipped
-
-    @staticmethod
-    def linear(matrix):
-        linear_matrix = []
-        for i in range(3):
-            for j in range(3):
-                linear_matrix.append(matrix[i][j])
-        return linear_matrix
-
-    @staticmethod
-    def linearize_position(row, column):
-        count = 0
-        for i in range(3):
-            for j in range(3):
-                if row == i and column == j:
-                    return count
-                count += 1
 
 
 class Player(metaclass=ABCMeta):
@@ -209,30 +179,13 @@ class Game:
         print(f"Scores:\n\t{self.player_1}: {self.player_1.score}")
         print(f"\t{self.player_2}: {self.player_2.score}")
 
-    def save_data(self):
-        with open('data.json', 'w') as data:
-            data.write(json.dumps({'games': self.matches}))
-
     def filter_draw_matches(self):
         return [match for match in self.matches if match.win_status != [0, 0, 1]]
 
-    @staticmethod
-    def get_data():
-        try:
-            with open('data.json', 'r') as data:
-                data_string = data.read()
-                if len(data_string) > 0:
-                    return json.loads(data_string)
-        except FileNotFoundError:
-            return
-
-    @staticmethod
-    def clear_data():
-        try:
-            with open('data.json', 'w') as data:
-                data.write('')
-        except FileNotFoundError:
-            return
+    def swap_players(self):
+        temp = self.player_1
+        self.player_1 = self.player_2
+        self.player_2 = temp
 
 
 class Match:
@@ -259,11 +212,10 @@ class Match:
             self.switch_players()
 
     def insert(self, positions):
-        frame = copy.deepcopy(self.frame.matrix) if self.current_player.character == Frame.X else Frame.flip(self.frame.matrix)
         self.inserts.append({
             'current': self.current_player.character,
             'position': [positions[0], positions[1]],
-            'frame': frame
+            'frame': copy.deepcopy(self.frame.matrix)
         })
         self.frame.insert(self.current_player, positions[0], positions[1])
 
@@ -274,7 +226,7 @@ class Match:
     def summary(self):
         successful_inserts = self.get_successful_inserts()
         successful_inserts = self.remove_current_character_attribute(successful_inserts)
-        return {'match': successful_inserts}
+        return {'inserts': successful_inserts}
 
     def get_successful_inserts(self):
         successful_inserts = []
@@ -286,6 +238,18 @@ class Match:
             if self.inserts[i]['current'] != drop_character:
                 successful_inserts.append(self.inserts[i])
         return successful_inserts
+
+    def get_successful_inserts_2(self):
+        success_inserts = []
+        winner = Frame.X if self.win_status == [1, 0, 0] else Frame.O
+        for insert in self.inserts:
+            if insert['current'] == winner:
+                copied_insert = copy.deepcopy(insert)
+                flipped_insert = copy.deepcopy(insert)
+                flipped_insert['frame'] = Frame.flip(insert['frame'])
+                success_inserts.append(copied_insert)
+                success_inserts.append(flipped_insert)
+        return success_inserts
 
     def get_win_status(self, winner):
         if winner is None:
@@ -309,3 +273,36 @@ class Match:
         for insert in inserts:
             del insert['current']
         return inserts
+
+
+class DataManager:
+
+    def __init__(self, file_name='data.json', max_size=10):
+        self.file_name = file_name
+        self.max_size = max_size
+
+    def write(self, matches):
+        with open(self.file_name, 'w') as data:
+            data.write(json.dumps({'matches': matches}))
+
+    def enqueue(self, matches):
+        old_matches = self.get()
+        matches.extend(old_matches)
+        self.write(matches[:self.max_size])
+
+    def get(self):
+        try:
+            with open(self.file_name, 'r') as data:
+                data_string = data.read()
+                if len(data_string) > 0:
+                    return json.loads(data_string)['matches']
+        except:
+            pass
+        return []
+
+    def clear(self):
+        try:
+            with open(self.file_name, 'w') as data:
+                data.write('')
+        except FileNotFoundError:
+            return
