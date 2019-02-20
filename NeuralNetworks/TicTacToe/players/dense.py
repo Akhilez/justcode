@@ -1,3 +1,5 @@
+from keras.layers import BatchNormalization, Dropout
+
 from NeuralNetworks.TicTacToe.framework import Player, Frame, Game, DataManager
 import numpy as np
 import os
@@ -55,7 +57,11 @@ class DenseModel:
             from keras.layers import Dense
             model = Sequential()
             model.add(Dense(3000, activation='relu', input_shape=(27,)))
+            model.add(BatchNormalization())
+            model.add(Dropout(0.5))
             model.add(Dense(1000, activation='relu'))
+            model.add(BatchNormalization())
+            model.add(Dropout(0.5))
             model.add(Dense(9, activation='softmax'))
             model.compile(loss='mean_squared_error', optimizer='Adam', metrics=['accuracy'])
         return model

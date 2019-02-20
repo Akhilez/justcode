@@ -89,6 +89,6 @@ if __name__ == '__main__':
     tic_tac_toe = TicTacToe()
     # tic_tac_toe.create_automated_game(RandomPlayer.TYPE, RandomPlayer.TYPE)
 
-    for k in range(1):
+    for k in range(10):
         tic_tac_toe.keep_dense_learning()
         # tic_tac_toe.create_automated_game('random', 'random')
