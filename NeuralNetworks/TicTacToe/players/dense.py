@@ -43,27 +43,23 @@ class DenseModel:
         data_manager = data_manager if data_manager else DataManager()
         matches = data_manager.get()
         x_train, x_test, y_train, y_test = self.get_inputs_and_outputs(matches)
-        model = self.get_model()
-        model.fit(x_train, y_train, batch_size=128, epochs=epochs, verbose=1, validation_data=(x_test, y_test))
-        model.save(self.model_path)
+        self.model.fit(x_train, y_train, batch_size=128, epochs=epochs, verbose=1, validation_data=(x_test, y_test))
+        self.model.save(self.model_path)
 
     def get_model(self):
         if os.path.exists(self.model_path):
             from keras.models import load_model
             model = load_model(self.model_path)
+            print("model found at "+self.model_path)
         else:
             print("model not found!")
             from keras.models import Sequential
             from keras.layers import Dense
             model = Sequential()
-            model.add(Dense(3000, activation='relu', input_shape=(27,)))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.5))
-            model.add(Dense(1000, activation='relu'))
-            model.add(BatchNormalization())
-            model.add(Dropout(0.5))
+            model.add(Dense(500, activation='relu', input_shape=(27,)))
+            model.add(Dense(300, activation='relu'))
             model.add(Dense(9, activation='softmax'))
-            model.compile(loss='mean_squared_error', optimizer='Adam', metrics=['accuracy'])
+        model.compile(loss='mean_squared_error', optimizer='Adam', metrics=['accuracy'])
         return model
 
     def get_inputs_and_outputs(self, matches):
@@ -71,6 +67,8 @@ class DenseModel:
         outputs = []
         for match in matches:
             for insert in match['inserts']:
+                if not insert['best']:
+                    continue
                 inputs.append(self.categorize_inputs(insert['frame']))
                 outputs.append(insert['position'])
         outputs = np.array(self.categorize_outputs(outputs))
@@ -96,4 +94,4 @@ class DenseModel:
 
 
 if __name__ == '__main__':
-    DenseModel('testing').train()
+    DenseModel('Dense_1').train()

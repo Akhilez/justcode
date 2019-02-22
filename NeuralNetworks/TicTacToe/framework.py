@@ -4,6 +4,7 @@ import random
 import logging
 import copy
 import json
+from functools import reduce
 
 logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
@@ -11,9 +12,19 @@ logger.setLevel(logging.INFO)
 
 
 class Frame:
-
     X = 'X'
     O = 'O'
+
+    win_lines = [
+        [(0, 0), (1, 1), (2, 2)],  # [\]
+        [(0, 2), (1, 1), (2, 0)],  # [/]
+        [(0, 0), (1, 0), (2, 0)],  # [|  ]
+        [(0, 1), (1, 1), (2, 1)],  # [ | ]
+        [(0, 2), (1, 2), (2, 2)],  # [  |]
+        [(0, 0), (0, 1), (0, 2)],  # [```]
+        [(1, 0), (1, 1), (1, 2)],  # [---]
+        [(2, 0), (2, 1), (2, 2)],  # [...]
+    ]
 
     def __init__(self):
         self.matrix = self.generate_empty_canvas()
@@ -34,20 +45,10 @@ class Frame:
         print(output)
 
     def check_winner(self, player1, player2):
-        checks = [
-            [(0, 0), (1, 1), (2, 2)],  # [\]
-            [(0, 2), (1, 1), (2, 0)],  # [/]
-            [(0, 0), (1, 0), (2, 0)],  # [|  ]
-            [(0, 1), (1, 1), (2, 1)],  # [ | ]
-            [(0, 2), (1, 2), (2, 2)],  # [  |]
-            [(0, 0), (0, 1), (0, 2)],  # [```]
-            [(1, 0), (1, 1), (1, 2)],  # [---]
-            [(2, 0), (2, 1), (2, 2)],  # [...]
-        ]
-        for check in checks:
-            num1 = self.matrix[check[0][0]][check[0][1]]
-            num2 = self.matrix[check[1][0]][check[1][1]]
-            num3 = self.matrix[check[2][0]][check[2][1]]
+        for win_line in Frame.win_lines:
+            num1 = self.matrix[win_line[0][0]][win_line[0][1]]
+            num2 = self.matrix[win_line[1][0]][win_line[1][1]]
+            num3 = self.matrix[win_line[2][0]][win_line[2][1]]
 
             if num1 is not None and num1 == num2 and num2 == num3:
                 return player1 if player1.character == num1 else player2
@@ -81,7 +82,6 @@ class Frame:
 
 
 class Player(metaclass=ABCMeta):
-
     TYPE = 'default'
 
     def __init__(self, name, character=None):
@@ -112,7 +112,6 @@ class Player(metaclass=ABCMeta):
 
 
 class HumanPlayer(Player):
-
     TYPE = 'human'
 
     def get_positions(self, frame):
@@ -130,7 +129,6 @@ class HumanPlayer(Player):
 
 
 class RandomPlayer(Player):
-
     TYPE = 'random'
 
     def get_positions(self, frame):
@@ -140,11 +138,12 @@ class RandomPlayer(Player):
                 if frame.matrix[i][j] is None:
                     positions.append((i, j))
         if len(positions) > 0:
-            random_index = random.randint(0, len(positions)-1)
+            random_index = random.randint(0, len(positions) - 1)
             return positions[random_index]
 
 
 class Game:
+    num_matches = 0
 
     def __init__(self, player1, player2):
         """
@@ -156,12 +155,13 @@ class Game:
 
     def start(self, epocs=None):
         while epocs is None or epocs > 0:
-            match = Match(self.player_1, self.player_2)
+            match = Match(self.player_1, self.player_2, Game.num_matches)
             match.start()
+            Game.num_matches += 1
             self.print_scores()
-            if match.win_status != [0, 0, 1]:
-                match_summary = match.summary()
-                self.matches.append(match_summary)
+            # if match.win_status != [0, 0, 1]:
+            match_summary = match.summary()
+            self.matches.append(match_summary)
             if epocs is None:
                 if self.choose_to_replay():
                     continue
@@ -190,14 +190,16 @@ class Game:
 
 class Match:
 
-    def __init__(self, player_1, player_2):
+    def __init__(self, player_1, player_2, id=None):
         self.frame = Frame()
         self.current_player = player_1
         self.other_player = player_2
         self.win_status = None
         self.inserts = []
+        self.id = id
 
     def start(self):
+        print(f"Match ID: {self.id}")
         while True:
             self.frame.print_canvas()
             print(f'Current player = {self.current_player} ({self.current_player.character})')
@@ -207,7 +209,7 @@ class Match:
                 self.frame.print_canvas()
                 self.print_winner(winner)
                 self.update_scores(winner)
-                self.win_status = self.get_win_status(winner)
+                self.win_status = self.get_win_status(None if winner is None else winner.character)
                 return
             self.switch_players()
 
@@ -219,46 +221,52 @@ class Match:
         })
         self.frame.insert(self.current_player, positions[0], positions[1])
 
-    def update_scores(self, winner):
+    @staticmethod
+    def update_scores(winner):
         if winner is not None:
             winner.score += 1
 
     def summary(self):
-        successful_inserts = self.get_successful_inserts()
-        successful_inserts = self.remove_current_character_attribute(successful_inserts)
-        return {'inserts': successful_inserts}
+        successful_inserts = self.get_best_inserts()
+        # successful_inserts = self.remove_current_character_attribute(successful_inserts)
+        return {'inserts': successful_inserts, 'id': self.id}
 
-    def get_successful_inserts(self):
-        successful_inserts = []
-        if self.win_status == [1, 0, 0]:
-            drop_character = Frame.O
-        else:
-            drop_character = Frame.X
-        for i in range(len(self.inserts)):
-            if self.inserts[i]['current'] != drop_character:
-                successful_inserts.append(self.inserts[i])
-        return successful_inserts
-
-    def get_successful_inserts_2(self):
-        success_inserts = []
-        winner = Frame.X if self.win_status == [1, 0, 0] else Frame.O
+    def get_best_inserts(self):
+        """
+        Criteria to decide which inserts were the best:
+        - Remove opportunity given
+        - Remove missed opportunities
+        - Add winner's inserts
+        """
+        best_inserts = []
+        winner = self.get_winner(self.win_status)
         for insert in self.inserts:
-            if insert['current'] == winner:
-                copied_insert = copy.deepcopy(insert)
-                flipped_insert = copy.deepcopy(insert)
-                flipped_insert['frame'] = Frame.flip(insert['frame'])
-                success_inserts.append(copied_insert)
-                success_inserts.append(flipped_insert)
-        return success_inserts
+            frame = Frame.flip(insert['frame']) if insert['current'] == Frame.O else copy.deepcopy(insert['frame'])
+            new_insert = copy.deepcopy(insert)
+            new_insert['frame'] = frame
+            if all([
+                # insert['current'] == winner,
+                not self.has_missed_opportunity(frame, insert['current']),
+                not self.is_opportunity_given(frame, insert['current']),
+            ]):
+                new_insert['best'] = True
+            else:
+                new_insert['best'] = False
+            best_inserts.append(new_insert)
+        return best_inserts
 
-    def get_win_status(self, winner):
-        if winner is None:
-            return [0, 0, 1]
-        if winner.character == Frame.X:
-            return [1, 0, 0]
-        return [0, 1, 0]
+    @staticmethod
+    def get_win_status(winner):
+        win_status_getter = {Frame.X: [1, 0, 0], Frame.O: [0, 1, 0], None: [0, 0, 1]}
+        return win_status_getter[winner]
 
-    def print_winner(self, winner):
+    @staticmethod
+    def get_winner(win_status):
+        winner_getter = {(1, 0, 0): Frame.X, (0, 1, 0): Frame.O, (0, 0, 1): None}
+        return winner_getter[tuple(win_status)]
+
+    @staticmethod
+    def print_winner(winner):
         if winner is None:
             print('Draw!')
         else:
@@ -269,10 +277,49 @@ class Match:
         self.current_player = self.other_player
         self.other_player = switcher
 
-    def remove_current_character_attribute(self, inserts):
+    @staticmethod
+    def remove_current_character_attribute(inserts):
         for insert in inserts:
             del insert['current']
         return inserts
+
+    @staticmethod
+    def is_opportunity_given(frame, current_position):
+        """
+        O O     O O
+            ->
+        X       X X
+        Steps:
+        - If current == O, flip the frame.
+        - Check if O's have an opportunity:
+            - In each win-line:
+                - If it contains two O's and 1 None's and X is not placed in None: return True
+        """
+        for win_line in Frame.win_lines:
+            num_o = sum(frame[position[0]][position[1]] == Frame.O for position in win_line)
+            none_pos = [position for position in win_line if frame[position[0]][position[1]] is None]
+            if num_o == 2 and len(none_pos) == 1 and none_pos[0] != current_position:
+                return True
+        return False
+
+    @staticmethod
+    def has_missed_opportunity(frame, current_position):
+        """
+        X X      X X
+             ->  X
+        OO       OO
+        Steps:
+        - If current == 0, flip the frame.
+        - Check if X has missed an opportunity to win, but missed it.
+            - In each win_line:
+                - If it contains 2 X's and 1 None, and X is not placed in None: return True
+        """
+        for win_line in Frame.win_lines:
+            num_x = sum(frame[position[0]][position[1]] == Frame.X for position in win_line)
+            none_pos = [position for position in win_line if frame[position[0]][position[1]] is None]
+            if num_x == 2 and len(none_pos) == 1 and none_pos[0] != current_position:
+                return True
+        return False
 
 
 class DataManager:

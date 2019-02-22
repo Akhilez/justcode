@@ -21,9 +21,9 @@ class TicTacToe:
 
         self.create_game(player_1_name, player_1_type, player_2_name, player_2_type, player_1_character).start()
 
-    def create_automated_game(self, type_1, type_2):
+    def create_automated_game(self, type_1, type_2, num_matches=1):
         game = self.create_game(type_1, type_1, type_2, type_2, Frame.O)
-        game.start(1)
+        game.start(num_matches)
         DataManager().write(game.matches)
 
     def read_character(self):
@@ -61,7 +61,7 @@ class TicTacToe:
 
     def keep_dense_learning(self):
 
-        buffer_size = 10
+        buffer_size = 100
 
         # player2 = HumanPlayer('H1', Frame.X)
 
@@ -75,12 +75,12 @@ class TicTacToe:
 
         dense_player = game.player_1
 
-        for i in range(3):
+        for i in range(1):
             for j in range((buffer_size//2)*2+1):
                 game.start(1)
                 data_manager.enqueue(game.matches)
                 # print(f'Training {game.player_1.name}')
-                dense_player.model.train(50, data_manager)
+                dense_player.model.train(20, data_manager)
                 game.matches.clear()
                 game.swap_players()
 
@@ -89,6 +89,6 @@ if __name__ == '__main__':
     tic_tac_toe = TicTacToe()
     # tic_tac_toe.create_automated_game(RandomPlayer.TYPE, RandomPlayer.TYPE)
 
-    for k in range(10):
+    for k in range(1):
         tic_tac_toe.keep_dense_learning()
-        # tic_tac_toe.create_automated_game('random', 'random')
+        # tic_tac_toe.create_automated_game('random', 'random', num_matches=100)
