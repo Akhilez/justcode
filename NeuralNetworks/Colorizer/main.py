@@ -11,14 +11,16 @@ from skimage.io import imsave
 
 print("imported successfully")
 
+
 def resize_image(img, width, height):
     with open(img, 'r+b') as f_image:
         with Image.open(f_image) as image:
             cover = resizeimage.resize_cover(image, [width, height])
             cover.save(img, image.format)
 
+
 def preprocess_img(image_path):
-    print ("image under preprocess: "+image_path)
+    print("image under preprocess: " + image_path)
 
     # saving the image as a 256x256 image
     resize_image(image_path, 256, 256)
@@ -39,8 +41,8 @@ def preprocess_img(image_path):
 
     return image
 
-def get_model():
 
+def get_model():
     model = Sequential()
     model.add(InputLayer(input_shape=(None, None, 1)))
     model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
@@ -63,19 +65,20 @@ def get_model():
     return model
 
 
-def preprocess_dir (images_path):
-    #return np.array([preprocess_img(images_path+'/'+image_name) for image_name in os.listdir(images_path)])
+def preprocess_dir(images_path):
+    # return np.array([preprocess_img(images_path+'/'+image_name) for image_name in os.listdir(images_path)])
 
     images = []
 
     for image_name in os.listdir(images_path):
-        images.append(preprocess_img(images_path+'/'+image_name))
+        images.append(preprocess_img(images_path + '/' + image_name))
 
     images = np.array(images)
 
     return images
 
-def batch_generator (images, batch_size):
+
+def batch_generator(images, batch_size):
     image_generator = ImageDataGenerator(
         shear_range=0.2,
         zoom_range=0.2,
@@ -90,6 +93,7 @@ def batch_generator (images, batch_size):
 
         yield L, ab
 
+
 def process(images_path, train=False):
     images = preprocess_dir(images_path)
 
@@ -99,23 +103,24 @@ def process(images_path, train=False):
         model = get_trained_model()
         postprocess(images, model)
 
-def train_new_model (images):
 
+def train_new_model(images):
     batch_size = 2
     num_images = len(images)
     steps_per_epoch = int(num_images / batch_size)
 
-    batch_generator_object = batch_generator (images, batch_size)
+    batch_generator_object = batch_generator(images, batch_size)
 
-    model = get_model ()
+    model = get_model()
     model.fit_generator(batch_generator_object, epochs=10, steps_per_epoch=steps_per_epoch)
 
     model.save("models/model.h5")
 
 
-def get_trained_model ():
+def get_trained_model():
     model = load_model("models/model.h5")
     return model
+
 
 def postprocess(images, model):
     L = images[:, :, :, :1]
@@ -135,7 +140,7 @@ def postprocess(images, model):
 
         color_image = lab2rgb(color_image)
 
-        imsave("results/img_"+str(i)+".jpg", color_image)
+        imsave("results/img_" + str(i) + ".jpg", color_image)
 
 
 process("Train", train=True)

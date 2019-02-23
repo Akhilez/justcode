@@ -1,4 +1,10 @@
 TODO:
+  - Better data:
+    - Write a static-algo-player where the decisions are logically hardcoded.
+    - Generate data with this algorithm.
+    - Train the model with this "good" data.
+    - Now our model should predict some good positions.
+    - If the model still sucks, then there's a problem with the model's design.
   - 1 vs 1 training:
       - Make 2 smart players play 10 matches.
       - Store their successful data on top of old data, remove the oldest played 10 matches.
