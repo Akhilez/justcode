@@ -11,14 +11,16 @@ class Game:
         """
         self.player_1, self.player_2 = player1, player2
         self.matches = []
+        self.current_match = None
 
     def start(self, epocs=None):
         while epocs is None or epocs > 0:
             match = Match(self.player_1, self.player_2, Game.num_matches)
+            self.current_match = match
             match.start()
             Game.num_matches += 1
             self.print_scores()
-            # if match.win_status != [0, 0, 1]:
+            # if match.winner is not None:
             match_summary = match.summary()
             self.matches.append(match_summary)
             if epocs is None:
@@ -40,7 +42,7 @@ class Game:
         print(f"\t{self.player_2}: {self.player_2.score}")
 
     def filter_draw_matches(self):
-        return [match for match in self.matches if match.win_status != [0, 0, 1]]
+        return [match for match in self.matches if match.winner is not None]
 
     def swap_players(self):
         temp = self.player_1

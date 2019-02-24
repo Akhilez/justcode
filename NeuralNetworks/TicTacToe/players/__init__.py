@@ -25,7 +25,7 @@ class Player(metaclass=ABCMeta):
         return character
 
     def __str__(self):
-        return self.name
+        return self.character
 
     def __eq__(self, other):
         return self.character == other.character

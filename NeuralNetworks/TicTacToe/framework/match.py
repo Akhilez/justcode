@@ -10,7 +10,7 @@ class Match:
         self.frame = Frame()
         self.current_player = player_1
         self.other_player = player_2
-        self.win_status = None
+        self.winner = None
         self.inserts = []
         self.id = match_id
 
@@ -23,9 +23,9 @@ class Match:
             winner = self.frame.check_winner(self.current_player, self.other_player)
             if winner is not None or self.frame.is_canvas_filled():
                 self.frame.print_canvas()
+                self.winner = winner
                 self.print_winner(winner)
                 self.update_scores(winner)
-                self.win_status = self.get_win_status(None if winner is None else winner.character)
                 return
             self.switch_players()
 
@@ -45,7 +45,7 @@ class Match:
     def summary(self):
         successful_inserts = self.get_best_inserts()
         # successful_inserts = self.remove_current_character_attribute(successful_inserts)
-        return {'inserts': successful_inserts, 'id': self.id}
+        return {'inserts': successful_inserts, 'id': self.id, 'winner': self.winner}
 
     def get_best_inserts(self):
         """
@@ -55,7 +55,6 @@ class Match:
         - Add winner's inserts
         """
         best_inserts = []
-        # winner = self.get_winner(self.win_status)
         for insert in self.inserts:
             frame = Frame.flip(insert['frame']) if insert['current'] == Frame.O else copy.deepcopy(insert['frame'])
             new_insert = copy.deepcopy(insert)
@@ -66,16 +65,6 @@ class Match:
                 new_insert['best'] = False
             best_inserts.append(new_insert)
         return best_inserts
-
-    @staticmethod
-    def get_win_status(winner):
-        win_status_getter = {Frame.X: [1, 0, 0], Frame.O: [0, 1, 0], None: [0, 0, 1]}
-        return win_status_getter[winner]
-
-    @staticmethod
-    def get_winner(win_status):
-        winner_getter = {(1, 0, 0): Frame.X, (0, 1, 0): Frame.O, (0, 0, 1): None}
-        return winner_getter[tuple(win_status)]
 
     @staticmethod
     def print_winner(winner):

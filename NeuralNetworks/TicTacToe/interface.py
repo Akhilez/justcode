@@ -96,9 +96,10 @@ class TicTacToe:
 
         for i in range(1000):
             game.start(1)
-            data_manager.enqueue(game.matches)
-            # print(f'Training {game.player_1.name}')
-            dense_player.model.train(5, data_manager)
+            if game.current_match.winner is not None:
+                data_manager.enqueue(game.matches)
+                # print(f'Training {game.player_1.name}')
+                dense_player.model.train(5, data_manager)
             game.matches.clear()
             game.swap_players()
 
