@@ -32,7 +32,8 @@ class TicTacToe:
     def create_automated_game(type_1, type_2, num_matches=1):
         game = TicTacToe.create_game(type_1, type_1, type_2, type_2, Frame.O)
         game.start(num_matches)
-        DataManager().write(game.matches)
+        with DataManager() as data_manager:
+            data_manager.data = game.matches
 
     @staticmethod
     def read_character():
@@ -96,12 +97,13 @@ class TicTacToe:
 
         for i in range(1000):
             game.start(1)
-            if game.current_match.winner is not None:
-                data_manager.enqueue(game.matches)
-                # print(f'Training {game.player_1.name}')
-                dense_player.model.train(5, data_manager)
+            # if game.current_match.winner is not None:
+            data_manager.enqueue(game.matches)
+            dense_player.model.train(15, data_manager)
             game.matches.clear()
             game.swap_players()
+
+        data_manager.write()
 
 
 def main():

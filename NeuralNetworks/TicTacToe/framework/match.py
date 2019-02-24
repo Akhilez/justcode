@@ -18,7 +18,7 @@ class Match:
         print(f"Match ID: {self.id}")
         while True:
             self.frame.print_canvas()
-            print(f'Current player = {self.current_player} ({self.current_player.character})')
+            print(f'Current player = {self.current_player}')
             self.insert(self.current_player.get_positions(self.frame))
             winner = self.frame.check_winner(self.current_player, self.other_player)
             if winner is not None or self.frame.is_canvas_filled():
@@ -45,7 +45,10 @@ class Match:
     def summary(self):
         successful_inserts = self.get_best_inserts()
         # successful_inserts = self.remove_current_character_attribute(successful_inserts)
-        return {'inserts': successful_inserts, 'id': self.id, 'winner': self.winner}
+        return {
+            'inserts': successful_inserts,
+            'id': self.id,
+            'winner': None if self.winner is None else self.winner.character}
 
     def get_best_inserts(self):
         """

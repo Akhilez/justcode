@@ -24,8 +24,8 @@ class ConvolutionalModel:
             from keras.models import Sequential
             from keras.layers import Dense
             model = Sequential()
-            model.add(Conv2D(40, (2, 2), activation='relu', input_shape=(3, 3, 3)))
-            model.add(Conv2D(40, (2, 2), activation='relu'))
+            model.add(Conv2D(64, (2, 2), activation='relu', input_shape=(3, 3, 3)))
+            model.add(Conv2D(64, (2, 2), activation='relu'))
             model.add(Flatten())
             model.add(Dense(9, activation='softmax'))
         model.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy'])

@@ -20,7 +20,6 @@ class Game:
             match.start()
             Game.num_matches += 1
             self.print_scores()
-            # if match.winner is not None:
             match_summary = match.summary()
             self.matches.append(match_summary)
             if epocs is None:

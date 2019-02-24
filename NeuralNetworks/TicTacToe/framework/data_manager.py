@@ -13,7 +13,8 @@ class DataManager:
             data.write(json.dumps({'matches': self.data}))
 
     def enqueue(self, matches):
-        matches.extend(self.data)
+        if self.data is not None:
+            matches.extend(self.data)
         self.data = matches[:self.max_size]
 
     def get(self):
@@ -35,7 +36,7 @@ class DataManager:
         except FileNotFoundError:
             return
 
-    def __enter__(self):  
+    def __enter__(self):
         pass
 
     def __exit__(self, type, value, traceback):

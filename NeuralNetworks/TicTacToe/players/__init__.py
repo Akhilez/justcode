@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+from NeuralNetworks.TicTacToe.framework.frame import Frame
+
 
 class Player(metaclass=ABCMeta):
     TYPE = 'default'
@@ -25,7 +27,7 @@ class Player(metaclass=ABCMeta):
         return character
 
     def __str__(self):
-        return self.character
+        return f'{self.name} ({self.character})'
 
     def __eq__(self, other):
-        return self.character == other.character
+        return self.character == other.name
