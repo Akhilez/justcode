@@ -31,9 +31,7 @@ class DenseModel:
             from keras.models import Sequential
             from keras.layers import Dense
             model = Sequential()
-            model.add(Dense(1500, activation='relu', input_shape=(27,)))
-            model.add(Dense(1000, activation='relu'))
-            model.add(Dense(1000, activation='relu'))
+            model.add(Dense(9, activation='relu', input_shape=(18,)))
             model.add(Dense(9, activation='softmax'))
         model.compile(loss='mean_squared_error', optimizer='Adam', metrics=['accuracy'])
         return model
@@ -48,7 +46,7 @@ class DenseModel:
                 inputs.append(Frame.categorize_inputs(insert['frame']))
                 outputs.append(insert['position'])
         outputs = np.array(Frame.categorize_outputs(outputs))
-        inputs = np.array(inputs).reshape(len(inputs), 27)
+        inputs = np.array(inputs).reshape(len(inputs), 18)
 
         return train_test_split(inputs, outputs, test_size=0.2)
 

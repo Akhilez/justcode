@@ -86,8 +86,8 @@ class TicTacToe:
             ConvolutionalPlayer('Conv_1', Frame.X),
             # DenseNetworkPlayer('Dense_1', Frame.X),
             # DenseNetworkPlayer('Dense_1', Frame.O)
-            # RandomPlayer('Random', Frame.O)
-            StaticPlayer('Static', Frame.O)
+            RandomPlayer('Random', Frame.O)
+            # StaticPlayer('Static', Frame.O)
             # HumanPlayer('Human', Frame.O)
         )
 
