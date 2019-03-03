@@ -8,8 +8,6 @@ class Player(metaclass=ABCMeta):
 
     def __init__(self, name, character=None):
         self.name = name
-        self.total_score = 0
-        self.total_games = 0
         self.score = 0
         self.character = self.get_character(character)
 

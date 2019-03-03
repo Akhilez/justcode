@@ -37,34 +37,40 @@ class Snake:
         self.body = []
         self.frame = frame
 
-    def move(self):
+    def move(self, direction):
+        self.frame.direction = direction
         self.enqueue()
-        self.dequeue()
+        if self.is_food_available():
+            self.eat()
+        else:
+            self.dequeue()
 
     def dequeue(self):
         if len(self.body) > 3:
             self.body.pop()
 
     def eat(self):
-        self.enqueue()
+        self.frame.add_food(self)
 
     def enqueue(self):
+        self.body.insert(0, self.get_next_block())
+
+    def get_next_block(self):
         if len(self.body) == 0:
-            self.body.insert(0, self.frame.get_random_block())
+            return self.frame.get_random_block()
         else:
-            head = self.body[0]
-            self.body.insert(0, (
-                head[0] + self.frame.direction[0],
-                head[1] + self.frame.direction[1]
-            ))
+            return (
+                self.body[0][0] + self.frame.direction[0],
+                self.body[0][1] + self.frame.direction[1]
+            )
 
     def is_food_available(self):
         return len(self.frame.food_blocks) == 0 or self.body[0] == self.frame.food_blocks[-1]
 
     def is_dead(self):
-        return self.has_eated_itself() or self.is_out_of_window()
+        return self.has_bitten_itself() or self.is_out_of_window()
 
-    def has_eated_itself(self):
+    def has_bitten_itself(self):
         return len(self.body) > 0 and self.body[0] in self.body[1:]
 
     def is_out_of_window(self):
