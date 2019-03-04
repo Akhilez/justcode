@@ -17,7 +17,28 @@ class UI:
             self.to_position(self.frame.width),
             self.to_position(self.frame.height)
         ))
+        self.clock = pygame.time.Clock()
         pygame.display.set_caption('Snake')
+
+    def update(self, snake, frame):
+        self.sync_display(snake, frame)
+        pygame.display.update()
+        self.clock.tick(self.speed)
+
+    def sync_display(self, snake, frame):
+        self.display.fill(self.BG_COLOR)
+
+        for snake_block in snake.body:
+            pygame.draw.rect(self.display, self.SNAKE_COLOR, (
+            self.to_position(snake_block[0]), self.to_position(snake_block[1]), self.scale, self.scale), 0)
+
+        if len(frame.food_blocks) > 0:
+            pygame.draw.rect(self.display, self.FOOD_COLOR,
+                             (self.to_position(frame.food_blocks[-1][0]), self.to_position(frame.food_blocks[-1][1]),
+                              self.scale, self.scale), 0)
+
+    def quit(self):
+        pygame.quit()
 
     def to_position(self, coordinate):
         return coordinate * self.scale

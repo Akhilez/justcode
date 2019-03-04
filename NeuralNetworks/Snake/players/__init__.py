@@ -4,10 +4,9 @@ from abc import ABCMeta, abstractmethod
 class Player(metaclass=ABCMeta):
     TYPE = 'default'
 
-    def __init__(self, name, pygame):
+    def __init__(self, name):
         self.name = name
         self.score = 0
-        self.pygame = pygame
 
     @abstractmethod
     def get_direction(self, snake, ui):

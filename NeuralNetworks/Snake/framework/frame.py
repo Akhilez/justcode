@@ -29,6 +29,7 @@ class Frame:
         random_block = self.get_random_block()
         while random_block in snake.body:
             random_block = self.get_random_block()
+        return random_block
 
 
 class Snake:
@@ -74,6 +75,8 @@ class Snake:
         return len(self.body) > 0 and self.body[0] in self.body[1:]
 
     def is_out_of_window(self):
+        if len(self.body) == 0:
+            return False
         return any((
             self.body[0][0] >= self.frame.width,
             self.body[0][0] < 0,
