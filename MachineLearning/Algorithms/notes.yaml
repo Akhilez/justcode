@@ -26,12 +26,16 @@ Types of ML algorithms:
           - Entropy
     - SVM:
         Desc: For n parameters, there are n dimensions. Then we predict a line/plane/volume to separate the classes.
-
-    - Naive Bayes
-    - kNN
+    - Naive Bayes:
+        Desc: This is based off of bayes theorem. Used for classification into multiple classes.
+        Bayes Theorem: A new probability is found based up on previous probability. Next probability is based on current.
+        Formula: p(A|B) = ( P(B|A) * P(A) ) / P(B)
+    - kNN:
+        - Both classification and regression.
+        - Ask your crush's friends to know about her/him. -> know about near neighbours to know about the point.(?)
     - Random Forest: Bagging (ensembling)
     - Dimensionality Reduction Algorithms
-    - Gradient Boosting algorithms: Ensembling techniques
+    - Gradient Boosting algorithms (Ensembling techniques):
       - GBM
       - XGBoost
       - LightGBM
