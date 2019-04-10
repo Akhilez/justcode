@@ -1,0 +1,3 @@
+[submodule "NeuralNetworks/Snake"]
+	path = NeuralNetworks/Snake
+	url = git@github.com:Akhilez/smart-snake.git
