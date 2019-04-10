@@ -1,3 +1,7 @@
 [submodule "NeuralNetworks/Snake"]
 	path = NeuralNetworks/Snake
 	url = git@github.com:Akhilez/smart-snake.git
+
+[submodule "NeuralNetworks/TicTacToe"]
+	path = NeuralNetworks/TicTacToe
+	url = git@github.com:Akhilez/tic-tac-toe.git
