@@ -1,0 +1,46 @@
+Links:
+  Analytics-vidhya: https://www.analyticsvidhya.com/blog/2017/09/common-machine-learning-algorithms/
+Types of ML algorithms:
+  - Supervised:
+    - Linear Regression:
+        Desc: |
+          Predicts values for parameters.
+          The goal is to find a and b in the equation by minimizing the squared error distance from the equation line.
+        Equation: y = ax + b
+        Types:
+          - Simple: Single x (independent variable)
+          - Multiple: Multiple independent variables
+          - Polynomial
+          - Curvilinear
+    - Logistic Regression:
+        Desc: Used to predict class labels - probability of an event occuring.
+        equation: logit(p) = ln(p/(1-p)) = b0 + b1 X1 + b2 X2 + b3 X3 .... + bk Xk
+        Types:
+          - Linear Discriminant Analysis
+    - Decision Tree:
+        Desc: This is awesome. Based on the values of the parameters, it makes the splits in the decision tree.
+        Techniques:
+          - Gini
+          - Information Gain
+          - Chi-square
+          - Entropy
+    - SVM:
+        Desc: For n parameters, there are n dimensions. Then we predict a line/plane/volume to separate the classes.
+    - Naive Bayes:
+        Desc: This is based off of bayes theorem. Used for classification into multiple classes.
+        Bayes Theorem: A new probability is found based up on previous probability. Next probability is based on current.
+        Formula: p(A|B) = ( P(B|A) * P(A) ) / P(B)
+    - kNN:
+        - Both classification and regression.
+        - Ask your crush's friends to know about her/him. -> know about near neighbours to know about the point.(?)
+    - Random Forest: Bagging (ensembling)
+    - Dimensionality Reduction Algorithms
+    - Gradient Boosting algorithms (Ensembling techniques):
+      - GBM
+      - XGBoost
+      - LightGBM
+      - CatBoost
+  - Unsupervised:
+      - Apriori
+      - K-Means
+      - Principal Component Analysis
