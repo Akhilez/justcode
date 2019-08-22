@@ -1,7 +1,4 @@
-import math
-
-
-class Neuron:
+class LinearGD:
 
     # Equation of the line => y = wx + b
     # Equation of the error => f(x, y) = (y - (wx + b))**2
@@ -29,7 +26,7 @@ class Neuron:
         return x * self.w + self.b
 
     def error(self, guess, y):
-        return (y - guess)**2
+        return (y - guess) ** 2
 
     def error_diff_w(self, guess, y, x):
         return (y - guess) * x
@@ -52,23 +49,9 @@ class Neuron:
                 self.w += lr * self.error_diff_w(guess, self.y[i], self.x[i])
                 self.b += lr * self.error_diff_b(guess, self.y[i])
 
-    def sigmoid(self, a):
-        return 1 / (1 + math.e ** -a)
-
-    def differentiated_sigmoid(self, a):
-        sigmoid_answer = self.sigmoid(a)
-        return sigmoid_answer * (1 - sigmoid_answer)
-
-    def get_loss(self, y, fx):
-        return (y - fx) ** 2
-
 
 def main():
-    neuron = Neuron()
-    # neuron.load_data([-1, -0.2, 0.2, 0.8], [0.08, 0.38, 0.62, 0.88])  # This is sigmoid data
-    # neuron.train()
-    # print(f'for 0.5, fx = {neuron.sigmoid(neuron.w * 0.5)}, y = 0.77')
-
+    neuron = LinearGD()
     # Equation of the current line => y = 2x - 5
     neuron.load_data([-1, -0.7, 0.2, 0.8, 3, 4], [-7, -6.4, -4.6, -3.4, 1, 3])  # This is a line data
     neuron.learn()
