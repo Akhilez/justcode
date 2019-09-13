@@ -1,0 +1,5 @@
+For the applied voltage of 0 to 20 in 0.25 steps for 1000 ms:
+  - firing doesn't start until input = 0.5, but 0.5 is not enough for the neuron to get excited enough to fire again for 1000 time steps.
+  - At 0.75 input, the neuron starts firing at a constant rate. About 8 times per 1000 time steps.
+  - With every increase in input value, the rate of firing of the neuron increases.
+  - For the first 2-3 fires, the refractory period seems to be lower than the succeeding fires.
