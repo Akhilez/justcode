@@ -5,37 +5,46 @@ import matplotlib.pyplot as plt
 
 
 class SpikingNeuron:
-    def __init__(self):
-        self.a = 0.02
-        self.b = 0.25
-        self.c = -65
-        self.d = 6
+    TYPES = {'regular': {'a': 0.02,'b': 0.25, 'c': -65, 'd': 6}}
+
+    def __init__(self, neuron_type='regular'):
+        self.a = SpikingNeuron.TYPES[neuron_type]['a']
+        self.b = SpikingNeuron.TYPES[neuron_type]['b']
+        self.c = SpikingNeuron.TYPES[neuron_type]['c']
+        self.d = SpikingNeuron.TYPES[neuron_type]['d']
         self.voltage = -64
         self.recovery = self.b * self.voltage
         self.vt_graph = Grapher()
         self.spike_times = []
 
-    def simulate_input(self, input_voltage_function, time_span, time_step):
+    def simulate_input(self, input_time_function, time_span, time_step, record_values=True, yield_values=False):
         for time_i in np.arange(0, time_span + time_step, time_step):
-            current_voltage = input_voltage_function(time_i)
 
-            # Applying the input voltage
-            self.voltage += time_step * (
-                    0.04 * self.voltage ** 2 + 5 * self.voltage + 140 - self.recovery + current_voltage)
-            self.recovery += time_step * self.a * (self.b * self.voltage - self.recovery)
+            input_voltage = input_time_function(time_i)
+            self.apply_input_voltage(time_step, input_voltage)
 
-            if self.voltage > 30:
-                # Recording the voltage
-                self.vt_graph.record(time_i, 30)
+            is_spike = self.voltage > 30
 
-                # Recording the time of spike
-                self.spike_times.append(time_i)
+            if record_values:
+                self.vt_graph.record(time_i, 30 if is_spike else self.voltage)
+                if is_spike:
+                    self.spike_times.append(time_i)
 
-                # Refractory period
-                self.voltage = self.c
-                self.recovery += self.d
-            else:
-                self.vt_graph.record(time_i, self.voltage)
+            if yield_values:
+                yield self.voltage
+
+            if is_spike:
+                self.calm_down()
+
+    def apply_input_voltage(self, time_step, input_voltage):
+        self.voltage += time_step * (
+                0.04 * self.voltage ** 2 + 5 * self.voltage + 140 - self.recovery + input_voltage)
+        self.recovery += time_step * self.a * (self.b * self.voltage - self.recovery)
+
+    def calm_down(self):
+        # Refractory period
+        self.voltage = self.c
+        self.recovery += self.d
 
     def get_spiking_rate(self, time_span=1000, percentage_from_last=80):
         discarded_steps = int((1 - percentage_from_last / 100) * time_span)
@@ -73,7 +82,7 @@ class Grapher:
 
 
 def regular_spiking():
-    neuron = SpikingNeuron()
+    neuron = SpikingNeuron(neuron_type='regular')
     neuron.simulate_input(lambda time: 1 if time > 50 else 0, time_span=1000, time_step=0.25)
     fig, axs = neuron.vt_graph.create_figure(num_rows=1, num_columns=1, figure_number=1)
     neuron.vt_graph.plot(axs[0][0])
@@ -92,7 +101,7 @@ def simulate_constant_inputs_range(min_input, max_input, voltage_step, time_span
             input_voltage = min_input + voltage_step * i + (fig_i * num_rows * num_cols * voltage_step)
             if input_voltage > max_input:
                 break
-            neuron = SpikingNeuron()
+            neuron = SpikingNeuron(neuron_type='regular')
             neuron.simulate_input(lambda time: input_voltage, time_span=time_span, time_step=time_step)
             neuron.vt_graph.plot(axs[i], title=f"Input = {input_voltage}", xlabel="time step", ylabel="V_m", ylim=(-90, 40))
             spike_rate = neuron.get_spiking_rate()
@@ -114,7 +123,7 @@ def simulate_constant_inputs(inputs, time_span=1000, time_step=0.25, save_figure
     fig.suptitle(f'Regular Spiking Neuron Figure 6', fontsize=16)
     for i in range(len(inputs)):
         input_voltage = inputs[i]
-        neuron = SpikingNeuron()
+        neuron = SpikingNeuron(neuron_type='regular')
         neuron.simulate_input(lambda time: input_voltage, time_span=time_span, time_step=time_step)
         neuron.vt_graph.plot(axs[i], title=f"Input = {input_voltage}", xlabel="time step", ylabel="V_m", ylim=(-90, 40))
         neuron.vt_graph.clear_data()
@@ -123,16 +132,47 @@ def simulate_constant_inputs(inputs, time_span=1000, time_step=0.25, save_figure
     plt.show()
 
 
-'''
-simulate_constant_inputs(voltage_step=0.25,
-                         min_input=0,
-                         max_input=20,
-                         num_rows=4,
-                         num_cols=5
-                         )
-'''
+def accumulate_inputs(time, neuron_a, neuron_b, weight):
+    time_index = int(time * 0.25)
+    voltage_a = neuron_a.vt_graph.x[time_index]
+    voltage_b = neuron_b.vt_graph.x[time_index]
 
-simulate_constant_inputs(inputs=[1, 5, 10, 15, 20], save_figures=False)
+    input_a = weight if voltage_a >= 30 else 0
+    input_b = weight if voltage_b >= 30 else 0
+
+    return input_a + input_b
 
 
-# regular_spiking()
+def test():
+    weights = range(50, 151, 10)
+    for weight in weights:
+        neuron_a = SpikingNeuron()
+        a_gen = neuron_a.simulate_input(lambda time: 5, 1000, 0.25, yield_values=True)
+
+        neuron_b = SpikingNeuron()
+        b_gen = neuron_b.simulate_input(lambda time: 15, 1000, 0.25, yield_values=True)
+
+        neuron_c = SpikingNeuron()
+        c_gen = neuron_c.simulate_input(lambda time: accumulate_inputs(time, neuron_a, neuron_b, weight), 1000, 0.25)
+
+        for i in range(4001):
+            next(a_gen)
+            next(b_gen)
+            next(c_gen)
+
+
+
+
+
+def main():
+    # regular_spiking()
+
+    # simulate_constant_inputs_range(voltage_step=0.25, min_input=0, max_input=20, num_rows=4, num_cols=5)
+
+    # simulate_constant_inputs(inputs=[1, 5, 10, 15, 20], save_figures=False)
+
+    pass
+
+
+if __name__ == "__main__":
+    main()
