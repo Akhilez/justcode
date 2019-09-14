@@ -80,8 +80,8 @@ def regular_spiking():
     plt.show()
 
 
-def simulate_constant_inputs_range(min_input, max_input, voltage_step, time_span=1000, time_step=0.25, num_rows=1, num_cols=1,
-                                   save_figures=False):
+def simulate_constant_inputs_range(min_input, max_input, voltage_step, time_span=1000, time_step=0.25, num_rows=1,
+                                   num_cols=1, save_figures=False):
     num_figures = math.ceil((max_input - min_input) / voltage_step / num_rows / num_rows)
     rt_graph = Grapher()
     for fig_i in range(num_figures):

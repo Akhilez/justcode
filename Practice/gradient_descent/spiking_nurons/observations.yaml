@@ -3,3 +3,5 @@ For the applied voltage of 0 to 20 in 0.25 steps for 1000 ms:
   - At 0.75 input, the neuron starts firing at a constant rate. About 8 times per 1000 time steps.
   - With every increase in input value, the rate of firing of the neuron increases.
   - For the first 2-3 fires, the refractory period seems to be lower than the succeeding fires.
+  - The relationship between the spiking rate and the input voltage seems to be linear from 0 to 500. Then it gradually starts saturating. Starting from 2000 input voltage, the spiking rate saturates to 4 spikes per time unit
+  -
