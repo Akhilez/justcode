@@ -132,46 +132,8 @@ def simulate_constant_inputs(inputs, time_span=1000, time_step=0.25, save_figure
     plt.show()
 
 
-def accumulate_inputs(time, neuron_a, neuron_b, weight):
-    time_index = int(time * 0.25)
-    voltage_a = neuron_a.vt_graph.x[time_index]
-    voltage_b = neuron_b.vt_graph.x[time_index]
-
-    input_a = weight if voltage_a >= 30 else 0
-    input_b = weight if voltage_b >= 30 else 0
-
-    return input_a + input_b
-
-
-def test():
-    weights = range(50, 151, 10)
-    for weight in weights:
-        neuron_a = SpikingNeuron()
-        a_gen = neuron_a.simulate_input(lambda time: 5, 1000, 0.25, yield_values=True)
-
-        neuron_b = SpikingNeuron()
-        b_gen = neuron_b.simulate_input(lambda time: 15, 1000, 0.25, yield_values=True)
-
-        neuron_c = SpikingNeuron()
-        c_gen = neuron_c.simulate_input(lambda time: accumulate_inputs(time, neuron_a, neuron_b, weight), 1000, 0.25)
-
-        for i in range(4001):
-            next(a_gen)
-            next(b_gen)
-            next(c_gen)
-
-
-
-
-
 def main():
-    # regular_spiking()
-
-    # simulate_constant_inputs_range(voltage_step=0.25, min_input=0, max_input=20, num_rows=4, num_cols=5)
-
-    # simulate_constant_inputs(inputs=[1, 5, 10, 15, 20], save_figures=False)
-
-    pass
+    regular_spiking()
 
 
 if __name__ == "__main__":
