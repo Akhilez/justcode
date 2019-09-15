@@ -6,7 +6,7 @@ figure_number = 1
 
 
 def accumulate_inputs(time, neuron_a, neuron_b, weight):
-    time_index = int(time * 0.25)
+    time_index = int(time / 0.25)
     voltage_a = neuron_a.vt_graph.y[time_index]
     voltage_b = neuron_b.vt_graph.y[time_index]
 
@@ -18,7 +18,7 @@ def accumulate_inputs(time, neuron_a, neuron_b, weight):
 
 def plot_neurons(neuron_a, neuron_b, neuron_c, weight):
     global figure_number
-    fig, axs = Grapher.create_figure(num_rows=3, num_columns=1, figure_number=figure_number, figsize=(16, 8))
+    fig, axs = Grapher.create_figure(num_rows=3, num_columns=1, figure_number=figure_number, figsize=(4, 6))
     figure_number += 1
     fig.suptitle(f"Simple network of 3 neurons. Weight: {weight}")
 
@@ -28,9 +28,10 @@ def plot_neurons(neuron_a, neuron_b, neuron_c, weight):
 
 
 def plot_spiking_rate(spike_rate, weights):
-    fig, axs = Grapher.create_figure(1, 1, 10000, (10, 10))
+    fig, axs = Grapher.create_figure(1, 1, 10000, (4, 4))
     axs.set_xlabel("Weights")
     axs.set_ylabel("Spike Rate")
+    axs.set_xticks(range(50, 151, 25))
     axs.set_title("Spike rate vs Weights")
     axs.plot(weights, spike_rate)
 
@@ -54,7 +55,7 @@ def main():
             next(c_gen)
 
         plot_neurons(neuron_a, neuron_b, neuron_c, weight)
-        plt.savefig(f"figures/simple_network_{weight}")
+        # plt.savefig(f"figures/simple_network_{weight}")
         spike_rates.append(neuron_c.get_spiking_rate())
 
     plot_spiking_rate(spike_rates, weights)
