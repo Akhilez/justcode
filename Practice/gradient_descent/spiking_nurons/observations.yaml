@@ -6,7 +6,7 @@ For the applied voltage of 0 to 20 in 0.25 steps for 1000 ms:
   - The relationship between the spiking rate and the input voltage seems to be linear from 0 to 500. Then it gradually starts saturating. Starting from 2000 input voltage, the spiking rate saturates to 4 spikes per time unit
 
 For the simple network of 3 neurons:
-  - The pattern looks to be irregular for the time period of 0 to 1000ms
-  - The pattern of spikes of neuron C is the same for the weights ranging from 50 to 150.
-  - However, the number of spikes kept increasing linearly and then seems to be saturating at 15 spikes per second.
+  - In the last 200 ms, the neuron C seems to fire a single burst of 3 to 5 spikes.
+  - The pattern of spikes in neuron C for the entire time period of 0 to 1000ms looks to be irregular and similar for all the weights ranging from 50 to 150.
+  - However, the number of spikes kept increasing linearly with increase in weights and then seems to saturate at 15 spikes per second as seen in the "Rate vs Weight" graph.
   - The spikes occur in bursts. There is a considerabe gap between two bursts.

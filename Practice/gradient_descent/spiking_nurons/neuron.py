@@ -65,13 +65,14 @@ class Grapher:
         self.x.append(x_value)
         self.y.append(y_value)
 
-    def plot(self, axis, title='Title', xlabel="x", ylabel="y", ylim=None):
+    def plot(self, axis, title='Title', xlabel="x", ylabel="y", ylim=None, percentage_from_last=100):
+        starting_index = int((1-percentage_from_last/100) * len(self.x))
         axis.set_xlabel(xlabel)
         axis.set_ylabel(ylabel)
         if ylim:
             axis.set_ylim(ylim)
         axis.set_title(title)
-        axis.plot(self.x, self.y)
+        axis.plot(self.x[starting_index:], self.y[starting_index:])
 
     def clear_data(self):
         self.__init__()

@@ -22,9 +22,9 @@ def plot_neurons(neuron_a, neuron_b, neuron_c, weight):
     figure_number += 1
     fig.suptitle(f"Simple network of 3 neurons. Weight: {weight}")
 
-    neuron_a.vt_graph.plot(axis=axs[0], xlabel="time step", ylabel="V_m", ylim=(-90, 40), title="Neuron A. Input: 5")
-    neuron_b.vt_graph.plot(axis=axs[1], xlabel="time step", ylabel="V_m", ylim=(-90, 40), title="Neuron B. Input: 15")
-    neuron_c.vt_graph.plot(axis=axs[2], xlabel="time step", ylabel="V_m", ylim=(-90, 40), title=f"Neuron C. Weight: {weight}")
+    neuron_a.vt_graph.plot(axis=axs[0], xlabel="time step", ylabel="V_m", ylim=(-90, 40), title="Neuron A. Input: 5", percentage_from_last=20)
+    neuron_b.vt_graph.plot(axis=axs[1], xlabel="time step", ylabel="V_m", ylim=(-90, 40), title="Neuron B. Input: 15", percentage_from_last=20)
+    neuron_c.vt_graph.plot(axis=axs[2], xlabel="time step", ylabel="V_m", ylim=(-90, 40), title=f"Neuron C. Weight: {weight}", percentage_from_last=20)
 
 
 def plot_spiking_rate(spike_rate, weights):
@@ -54,7 +54,7 @@ def main():
             next(c_gen)
 
         plot_neurons(neuron_a, neuron_b, neuron_c, weight)
-        # plt.savefig(f"figures/simple_network_{weight}")
+        plt.savefig(f"figures/simple_network_{weight}")
         spike_rates.append(neuron_c.get_spiking_rate())
 
     plot_spiking_rate(spike_rates, weights)
