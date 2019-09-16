@@ -1,5 +1,4 @@
 import math
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -84,10 +83,10 @@ class Grapher:
 
 
 def regular_spiking():
-    neuron = SpikingNeuron(neuron_type='regular')
-    neuron.simulate_input(lambda time: 1 if time > 50 else 0, time_span=1000, time_step=0.25)
+    neuron = SpikingNeuron()
+    next(neuron.simulate_input(lambda time: 1 if time > 50 else 0, time_span=1000, time_step=0.25))
     fig, axs = neuron.vt_graph.create_figure(num_rows=1, num_columns=1, figure_number=1)
-    neuron.vt_graph.plot(axs[0][0])
+    neuron.vt_graph.plot(axs)
     plt.show()
 
 
