@@ -1,4 +1,4 @@
-all_data = csvread('../iris.txt');
+all_data = csvread('iris.txt');
 
 % Use the CACC to discretize the floating point numbers.
 
