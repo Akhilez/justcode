@@ -6,8 +6,6 @@ all_data = csvread('iris.txt');
 
 [nrows, ncols] = size(discretized_data);
 
-% discretized_data = round(all_data);
-
 disp('Starting Decision Tree creations');
 for i = (1:5)
     
