@@ -1,0 +1,85 @@
+% Data structure
+{
+    H: {h1, h2, h3, h4, h5, h6},
+    C: {red, ivo, gre, yel, blu, pin},
+    N: {eng, spa, hun, nor, ukr, jap},
+    E: {hsh, kk, sma, sni, pim, mw},
+    P: {dog, cat, fox, snail, horse},
+    D: {orj, tea, cof, milk, grp}
+}
+
+% Rules:
+((lives N C))
+((owns N P))
+((colored H C))
+((left C C))
+((next C C))
+((eats N E))
+((drinks N D))
+
+% Facts:
+%  Houses are in order.
+((houses h1 h2 h3 h4 h5 h6))
+
+%  The Englishman lives in the red house.
+((lives eng red))
+
+%  The Spaniard owns the dog.
+((owns spa dog))
+
+%   The Hungarian owns the cat.
+((owns hun cat))
+
+%  The Norwegian lives in the first house on the left.
+((lives nor C)(colored h1 C))
+
+%  The green house is immediately to the right of the ivory house.
+((left ivo gre))
+((next ivo gre))
+
+%  The man who eats Hershey-bars lives in the house next to the man with the fox.
+((eats N hsh)(lives N C1)(next C1 C2)(lives N2 C2)(owns N2 fox))
+
+%  Kit-Kats are eaten in the yellow house.
+((eats N kk)(lives N yel))
+
+%  The Norwegian lives next to the blue house.
+((next C blu) (lives nor C))
+
+%  The Smarties eater owns snails.
+((owns N snail) (eats N sma))
+
+%  The Snickers eater drinks orange juice.
+((drinks N orj)(eats N sni))
+
+%  The Ukrainian drinks tea.
+((drinks ukr tea))
+
+%  Pim’s candies are eaten in the pink house.
+((eats N pim)(lives N pin))
+
+% The Japanese eats Milky-Ways.
+((eats jap mw))
+
+% Kit-Kats are eaten in a house next to the house where the horse is kept.
+((eats N kk)(lives N C1)(next C1 C2)(lives N2 C2)(owns N2 horse))
+
+% Coffee is drunk in the green house.
+((drinks N cof)(lives N gre))
+
+% Milk is drunk in the middle house.
+((drinks N milk)(lives N C)(colored h3 C))
+((drinks N milk)(lives N C)(colored h4 C))
+
+% Grape juice is drunk in the house next to the last
+((drinks N grp)(lives N C)(colored h4 C))
+
+
+% questions:
+%   What color is the house in which the Norwegian lives?
+%   What color is the house in which the zebra lives?
+%   In which house is wine drank?
+%   In which house are Smarties eaten and orange juice drank?
+%   Who lives in the pink house?
+%   What color is the fifth house (last house on the right)?
+%   Who drinks what?
