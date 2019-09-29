@@ -1,25 +1,30 @@
 % Data structure
-{
-    H: {h1, h2, h3, h4, h5, h6},
-    C: {red, ivo, gre, yel, blu, pin},
-    N: {eng, spa, hun, nor, ukr, jap},
-    E: {hsh, kk, sma, sni, pim, mw},
-    P: {dog, cat, fox, snail, horse},
-    D: {orj, tea, cof, milk, grp}
-}
+%{
+%    H: {h1, h2, h3, h4, h5, h6},
+%    C: {red, ivo, gre, yel, blu, pin},
+%    N: {eng, spa, hun, nor, ukr, jap},
+%    E: {hsh, kk, sma, sni, pim, mw},
+%    P: {dog, cat, fox, snail, horse},
+%    D: {orj, tea, cof, milk, grp, wine}
+%}
 
 % Rules:
-((lives N C))
-((owns N P))
-((colored H C))
-((left C C))
-((next C C))
-((eats N E))
-((drinks N D))
+% ((lives N C))
+% ((owns N P))
+% ((colored H C))
+% ((left C C))
+% ((next C C))
+% ((eats N E))
+% ((drinks N D))
 
 % Facts:
 %  Houses are in order.
-((houses h1 h2 h3 h4 h5 h6))
+((house h1))
+((house h2))
+((house h3))
+((house h4))
+((house h5))
+((house h6))
 
 %  The Englishman lives in the red house.
 ((lives eng red))
@@ -77,9 +82,22 @@
 
 % questions:
 %   What color is the house in which the Norwegian lives?
+?((lives nor X)(pp X))
+
 %   What color is the house in which the zebra lives?
+?((owns N zebra)(lives N C)(pp C))
+
 %   In which house is wine drank?
+?((drinks N wine)(pp N))
+
 %   In which house are Smarties eaten and orange juice drank?
+?((eats N sma)(drinks N orj)(pp N))
+
 %   Who lives in the pink house?
+?((lives N pin)(pp N))
+
 %   What color is the fifth house (last house on the right)?
+?((colored h5 C)(pp C))
+
 %   Who drinks what?
+?((drinks N D)(p N)(p drinks)(p C)(pp))
