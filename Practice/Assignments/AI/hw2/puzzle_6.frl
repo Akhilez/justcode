@@ -1,22 +1,3 @@
-% Data structure
-%{
-%    H: {h1, h2, h3, h4, h5, h6},
-%    C: {red, ivo, gre, yel, blu, pin},
-%    N: {eng, spa, hun, nor, ukr, jap},
-%    E: {hsh, kk, sma, sni, pim, mw},
-%    P: {dog, cat, fox, snail, horse},
-%    D: {orj, tea, cof, milk, grp, wine}
-%}
-
-% Rules:
-% ((lives N C))
-% ((owns N P))
-% ((colored H C))
-% ((left C C))
-% ((next C C))
-% ((eats N E))
-% ((drinks N D))
-
 % Facts:
 %  Houses are in order.
 ((house h1))
@@ -26,8 +7,79 @@
 ((house h5))
 ((house h6))
 
+((next h1 h2))
+((next h2 h1))
+((next h2 h3))
+((next h3 h2))
+((next h3 h4))
+((next h4 h3))
+((next h4 h5))
+((next h5 h6))
+((next h6 h5))
+
+((left h1 h2))
+((left h2 h3))
+((left h3 h4))
+((left h4 h5))
+((left h5 h6))
+
+((color red))
+((color ivo))
+((color gre))
+((color yel))
+((color blu))
+((color pin))
+
+((nation eng))
+((nation spa))
+((nation hun))
+((nation nor))
+((nation ukr))
+((nation jap))
+
+((food hsh))
+((food kk))
+((food sma))
+((food sni))
+((food pim))
+((food mw))
+
+((pet dog))
+((pet cat))
+((pet fox))
+((pet snail))
+((pet horse))
+
+((drink orj))
+((drink tea))
+((drink cof))
+((drink milk))
+((drink grp))
+((drink wine))
+
+% Data summary
+%{
+%    house: {h1, h2, h3, h4, h5, h6},
+%    color: {red, ivo, gre, yel, blu, pin},
+%    nation: {eng, spa, hun, nor, ukr, jap},
+%    food: {hsh, kk, sma, sni, pim, mw},
+%    pet: {dog, cat, fox, snail, horse},
+%    drink: {orj, tea, cof, milk, grp, wine}
+%}
+
+% Rules:
+% ((lives N C)(nation N)(color C))
+% ((owns N P)(nation N)(pet P))
+% ((colored H C)(house H)(color C))
+% ((left H1 H2)(house H1)(house H2))
+% ((next H1 H2)(house H1)(house H2))
+% ((eats N E)(nation N)(food E))
+% ((drinks N D)(nation N)(drink D))
+
 %  The Englishman lives in the red house.
 ((lives eng red))
+% ?((lives X Y)(pp "lives")(pp X)(pp Y)(pp "End lives"))
+% ?((color C)(lives eng C)(p "eng color = ")(pp C))
 
 %  The Spaniard owns the dog.
 ((owns spa dog))
@@ -36,68 +88,73 @@
 ((owns hun cat))
 
 %  The Norwegian lives in the first house on the left.
-((lives nor C)(colored h1 C))
+((lives nor C)(colored h1 C)(color C))
 
 %  The green house is immediately to the right of the ivory house.
-((left ivo gre))
-((next ivo gre))
+((left H1 H2)(colored H1 ivo)(colored H2 gre)(house H1)(house H2))
 
 %  The man who eats Hershey-bars lives in the house next to the man with the fox.
-((eats N hsh)(lives N C1)(next C1 C2)(lives N2 C2)(owns N2 fox))
+((eats N hsh)(lives N C1)(colored H1 C1)(next H1 H2)(lives N2 C2)(colored C2 H2)(owns N2 fox)(house H1)(house H2)(color C1)(color C2)(nation N)(nation N2))
 
 %  Kit-Kats are eaten in the yellow house.
-((eats N kk)(lives N yel))
+((eats N kk)(lives N yel)(nation N))
 
 %  The Norwegian lives next to the blue house.
-((next C blu) (lives nor C))
+((next H1 H2)(colored H1 C)(colored H2 blu)(lives nor C)(color C)(house H1)(house H2))
 
 %  The Smarties eater owns snails.
-((owns N snail) (eats N sma))
+((owns N snail)(eats N sma)(nation N))
 
 %  The Snickers eater drinks orange juice.
-((drinks N orj)(eats N sni))
+((drinks N orj)(eats N sni)(nation N))
 
 %  The Ukrainian drinks tea.
 ((drinks ukr tea))
 
 %  Pim’s candies are eaten in the pink house.
-((eats N pim)(lives N pin))
+((eats N pim)(lives N pin)(nation N))
 
 % The Japanese eats Milky-Ways.
 ((eats jap mw))
 
 % Kit-Kats are eaten in a house next to the house where the horse is kept.
-((eats N kk)(lives N C1)(next C1 C2)(lives N2 C2)(owns N2 horse))
+((eats N kk)(lives N C1)(next H1 H2)(colored H1 C1)(colored H2 C2)(lives N2 C2)(owns N2 horse)(house H1)(house H2)(nation N)(nation N2)(color C1)(color C2))
 
 % Coffee is drunk in the green house.
-((drinks N cof)(lives N gre))
+((drinks N cof)(lives N gre)(nation N))
 
 % Milk is drunk in the middle house.
-((drinks N milk)(lives N C)(colored h3 C))
-((drinks N milk)(lives N C)(colored h4 C))
+((drinks N milk)(lives N C)(colored h3 C)(nation N)(color C))
+((drinks N milk)(lives N C)(colored h4 C)(nation N)(color C))
 
 % Grape juice is drunk in the house next to the last
-((drinks N grp)(lives N C)(colored h4 C))
+((drinks N grp)(lives N C)(colored h4 C)(nation N)(color C))
 
 
 % questions:
+
+?((lives N C)(pp)(p "lives list: ")(p N)(p " lives in ")(p C)(fail))
+?((eats N F)(pp)(p "eats list: ")(p N)(p " eats ")(p F)(fail))
+?((owns N P)(pp)(p "owns list: ")(p N)(p " owns ")(p P)(fail))
+?((colored H C)(pp)(p "colors list: ")(p H)(p " colored ")(p C)(fail))
+
 %   What color is the house in which the Norwegian lives?
-?((lives nor X)(pp X))
+?((lives nor X)(p "Nor lives in ")(pp X))
 
 %   What color is the house in which the zebra lives?
-?((owns N zebra)(lives N C)(pp C))
+?((owns N zebra)(lives N C)(p "Zebra lives in ")(pp C))
 
 %   In which house is wine drank?
-?((drinks N wine)(pp N))
+?((drinks N wine)(p "Wine is drank in ")(pp N))
 
 %   In which house are Smarties eaten and orange juice drank?
-?((eats N sma)(drinks N orj)(pp N))
+?((eats N sma)(drinks N orj)(p "Smarties are eaten and orj is drank in ")(pp N))
 
 %   Who lives in the pink house?
-?((lives N pin)(pp N))
+?((lives N pin)(p "Who lives in pink house? : ")(pp N))
 
 %   What color is the fifth house (last house on the right)?
-?((colored h5 C)(pp C))
+?((colored h5 C)(p "5th house color: ")(pp C))
 
 %   Who drinks what?
-?((drinks N D)(p N)(p drinks)(p C)(pp))
+?((drinks N D)(pp)(p "drinks list: ")(p N)(p " drinks ")(p D))
