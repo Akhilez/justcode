@@ -57,6 +57,8 @@
 ((drink grp))
 ((drink wine))
 
+((legal H C N F P D)(lives N C)(owns N P)(colored H C)(eats N E)(drinks N D))
+
 % Data summary
 %{
 %    house: {h1, h2, h3, h4, h5, h6},
@@ -78,17 +80,19 @@
 
 %  The Englishman lives in the red house.
 ((lives eng red))
-% ?((lives X Y)(pp "lives")(pp X)(pp Y)(pp "End lives"))
-% ?((color C)(lives eng C)(p "eng color = ")(pp C))
+% ((H red eng F P D))
 
 %  The Spaniard owns the dog.
 ((owns spa dog))
+% ((H C spa F dog D))
 
 %   The Hungarian owns the cat.
 ((owns hun cat))
+% ((H C hun F cat D))
 
 %  The Norwegian lives in the first house on the left.
 ((lives nor C)(colored h1 C)(color C))
+% ((h1 C nor F P D))
 
 %  The green house is immediately to the right of the ivory house.
 ((left H1 H2)(colored H1 ivo)(colored H2 gre)(house H1)(house H2))
@@ -98,30 +102,37 @@
 
 %  Kit-Kats are eaten in the yellow house.
 ((eats N kk)(lives N yel)(nation N))
+% ((H yel N kk P D))
 
 %  The Norwegian lives next to the blue house.
 ((next H1 H2)(colored H1 C)(colored H2 blu)(lives nor C)(color C)(house H1)(house H2))
 
 %  The Smarties eater owns snails.
 ((owns N snail)(eats N sma)(nation N))
+% ((H C N sma snail D))
 
 %  The Snickers eater drinks orange juice.
 ((drinks N orj)(eats N sni)(nation N))
+% ((H C N sni P orj))
 
 %  The Ukrainian drinks tea.
 ((drinks ukr tea))
+% ((H ukr N F P tea))
 
 %  Pim’s candies are eaten in the pink house.
 ((eats N pim)(lives N pin)(nation N))
+% ((H pin N pim P D))
 
 % The Japanese eats Milky-Ways.
 ((eats jap mw))
+% ((H C jap mw P D))
 
 % Kit-Kats are eaten in a house next to the house where the horse is kept.
 ((eats N kk)(lives N C1)(next H1 H2)(colored H1 C1)(colored H2 C2)(lives N2 C2)(owns N2 horse)(house H1)(house H2)(nation N)(nation N2)(color C1)(color C2))
 
 % Coffee is drunk in the green house.
 ((drinks N cof)(lives N gre)(nation N))
+% ((H gre N F P cof))
 
 % Milk is drunk in the middle house.
 ((drinks N milk)(lives N C)(colored h3 C)(nation N)(color C))
@@ -129,6 +140,7 @@
 
 % Grape juice is drunk in the house next to the last
 ((drinks N grp)(lives N C)(colored h4 C)(nation N)(color C))
+% ((h5 C N F P grp))
 
 
 % questions:
@@ -158,3 +170,5 @@
 
 %   Who drinks what?
 ?((drinks N D)(pp)(p "drinks list: ")(p N)(p " drinks ")(p D))
+
+?((legal H C N F P D)(pp H)(pp C)(pp N)(pp F)(pp P)(pp D))
