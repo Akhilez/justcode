@@ -4,6 +4,8 @@ all_data = csvread('iris.txt');
 
 discretized_data = round(all_data);
 
+[nrows, ncols] = size(discretized_data);
+
 disp('Starting Decision Tree creations');
 for i = (1:5)
     
@@ -28,17 +30,12 @@ for i = (1:5)
 
     results = classify(test_set, nodes, edges, parents);
 
-    %disp(results);
-    %disp('reality: ');
-    %disp(test_set(:, end));
+    accuracy = classperf(results, test_set(:, end));
+    disp('accuracy in percentage: ')
+    disp(accuracy.CorrectRate * 100);
 
     confusion_matrix = confusionmat(test_set(:, end), results);
     disp('confusion matrix = ');
     disp(confusion_matrix);
-
-    error = sum((test_set(:, end) - results).^2);
-
-    disp('MSE: ');
-    disp(error);
 
 end
