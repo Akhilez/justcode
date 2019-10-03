@@ -35,3 +35,11 @@ class DataManager:
     def get_randomized_indices(min_, max_):
         # TODO: Randomize the indices
         return [x for x in range(min_, max_)]
+
+    @staticmethod
+    def remove_rows(data, indices):
+        new_data = []
+        for i in range(len(data)):
+            if i not in indices:
+                new_data.append(data[i])
+        return new_data
