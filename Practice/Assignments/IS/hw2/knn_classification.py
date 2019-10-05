@@ -6,9 +6,12 @@ def main():
     data_manager = DataManager('hw2_dataProblem.txt')
     data = data_manager.get_data()
 
-    actual_ys = []
-    predicted_ys = []
-    for k in range(1, 15, 2):
+    for k in range(1, 20, 2):
+
+        print(f'k = {k}')
+
+        actual_ys = []
+        predicted_ys = []
 
         knn = KNearestNeighbours(k)
 
@@ -23,8 +26,8 @@ def main():
             actual_y = [data[i][-1]]
             actual_ys.append(actual_y)
 
-    hit_rate = KNearestNeighbours.get_hit_rate(predicted_ys, actual_ys)
-    print(hit_rate)
+        hit_rate = KNearestNeighbours.get_hit_rate(predicted_ys, actual_ys)
+        print(f'Hit Rate = {hit_rate}')
 
 
 if __name__ == "__main__":
