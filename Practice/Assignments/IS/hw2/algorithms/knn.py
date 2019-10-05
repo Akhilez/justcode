@@ -30,20 +30,8 @@ class KNearestNeighbours:
         return classes
 
     def get_best_class(self, neighbours):
-        return self.mode(neighbours)
-
-    @staticmethod
-    def mode(elements):
-        counts = {}
-        for neighbour in elements:
-            if counts.get(neighbour) is None:
-                count = 0
-                for i in elements:
-                    if neighbour == i:
-                        count += 1
-                counts[neighbour] = count
-
-        return max(counts.values())
+        import statistics
+        return statistics.mode(neighbours)
 
     def get_k_neighbours_indices(self, x):
 
@@ -55,12 +43,11 @@ class KNearestNeighbours:
         while True:
 
             # From x, create a radius of x - std and x + std
-            ranges = [range(x[i] - radius * standard_deviations, x[i] + radius * standard_deviations) for i in
-                      range(len(standard_deviations))]
+            ranges = [range(int(x[i] - radius * standard_deviations[i]), int(x[i] + radius * standard_deviations[i])) for i in range(len(standard_deviations))]
 
             # Find all the points in this radius.
             points_in_ranges_indices = [i for i in range(len(self.x)) if
-                                all([int(self.x[i][j]) in ranges[j] for j in range(len(ranges))])]
+                                        all([int(self.x[i][j]) in ranges[j] for j in range(len(ranges))])]
 
             # If these points are more than k, stop.
             if len(points_in_ranges_indices) > self.k:
@@ -74,7 +61,7 @@ class KNearestNeighbours:
         # Pick the shortest k distances and return their indices
         min_distance_indices = []
         distances_copy = list(distances)
-        for i in range(self.k - 1):
+        for i in range(self.k):
             min_distance_index = distances_copy.index(min(distances_copy))
             min_distance_indices.append(min_distance_index)
             del distances_copy[min_distance_index]
@@ -90,14 +77,19 @@ class KNearestNeighbours:
 
         stds = []
 
-        for i in range(self.x[0]):
+        for i in range(len(self.x[0])):
             column = [j[i] for j in self.x]
-            avg = sum(column)
-            std = (sum([(avg - i) ** 2 for i in column]) / len(column)) ** 0.5
-            stds.append(std)
+            avg = sum(column)//len(column)
+            std = (sum([(avg - i) ** 2 for i in column]) // len(column)) ** 0.5
+            stds.append(int(std))
 
         return stds
 
-    def find_distance(self, x1, x2):
-        # TODO: Find euclidian distance between these two points.
-        return 0
+    @staticmethod
+    def find_distance(x1, x2):
+        # Find euclidean distance between these two points.
+        distance = 0
+        for i in range(len(x1)):
+            distance += (x1[i] - x2[i]) ** 2
+        distance = distance ** 0.5
+        return distance

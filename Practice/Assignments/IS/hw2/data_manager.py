@@ -3,8 +3,14 @@ class DataManager:
         self.path = path_to_data_file
 
     def get_data(self):
-        return [[1, 2, 9], [3, 4, 8], [5, 6, 9]]
-        # TODO: Get the data from the data file.
+        data = []
+        with open(self.path) as file:
+            lines = file.read().split('\n')[3:]
+            for i, line in enumerate(lines):
+                elements = line.split()
+                if len(elements) > 0:
+                    data.append([float(i) for i in elements])
+        return data
 
     def test_train_split(self, data, train_split_percentage=80):
         """
@@ -17,8 +23,8 @@ class DataManager:
 
         randomized_indices = self.get_randomized_indices(0, len(data))
 
-        x = [x[:len(data) - 1] for x in data]
-        y = [x[len(data) - 1] for x in data]
+        x = [x[:len(x) - 1] for x in data]
+        y = [i[len(i) - 1] for i in data]
 
         rand_x = [x[i] for i in randomized_indices]
         rand_y = [y[i] for i in randomized_indices]
@@ -33,8 +39,10 @@ class DataManager:
 
     @staticmethod
     def get_randomized_indices(min_, max_):
-        # TODO: Randomize the indices
-        return [x for x in range(min_, max_)]
+        indices = [i for i in range(min_, max_)]
+        import random
+        random.shuffle(indices)
+        return indices
 
     @staticmethod
     def remove_rows(data, indices):
