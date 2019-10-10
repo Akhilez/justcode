@@ -5,24 +5,29 @@ from data_manager import DataManager
 def main():
     data_manager = DataManager('hw2_dataProblem.txt')
     data = data_manager.get_data()
+    scaling_function = data_manager.get_scaling_function(data)
+    data = data_manager.get_rescaled_data(data, scaling_function)
+
     grapher = NeighbourhoodClassifier.Grapher()
     fig, axs = grapher.create_figure(1, 1, 1, figsize=(6, 4))
 
-    for radius in range(5, 20):
+    for radius in range(1, 15):
 
+        radius = radius/100
         print(f'Radius = {radius}')
 
         actual_ys = []
         predicted_ys = []
 
-        knn = NeighbourhoodClassifier(radius)
+        radius_classifier = NeighbourhoodClassifier(radius)
 
         for i in range(len(data)):
             train_data = data_manager.remove_rows(data, [i])
-            x, y, x_test, y_test = data_manager.test_train_split(train_data, train_split_percentage=100, randomize=False)
-            knn.load_data(x, y)
+            x, y, x_test, y_test = data_manager.test_train_split(train_data, train_split_percentage=100,
+                                                                 randomize=False)
+            radius_classifier.load_data(x, y)
 
-            predicted_y = knn.classify([data[i][:len(data[i])-1]])
+            predicted_y = radius_classifier.classify([data[i][:len(data[i]) - 1]])
             predicted_ys.append(predicted_y)
 
             actual_y = [data[i][-1]]
@@ -33,7 +38,8 @@ def main():
 
         grapher.record(radius, hit_rate)
 
-    grapher.plot(axs, title='Neighbourhood Classification: Radius vs Hit-Rate', xlabel="Radius", ylabel="Hit-Rate", xticks=grapher.x)
+    grapher.plot(axs, title='Neighbourhood Classification: Radius vs Hit-Rate', xlabel="Radius", ylabel="Hit-Rate",
+                 xticks=grapher.x)
     grapher.save_figure('figures/neighbourhood.png')
     grapher.show()
 

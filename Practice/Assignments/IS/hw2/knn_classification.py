@@ -5,10 +5,12 @@ from data_manager import DataManager
 def main():
     data_manager = DataManager('hw2_dataProblem.txt')
     data = data_manager.get_data()
+    data = data_manager.get_rescaled_data(data)
+
     grapher = KNearestNeighbours.Grapher()
     fig, axs = grapher.create_figure(1, 1, 1, figsize=(6, 4))
 
-    for k in range(1, 30, 2):
+    for k in range(1, 32, 2):
 
         print(f'k = {k}')
 
@@ -19,7 +21,8 @@ def main():
 
         for i in range(len(data)):
             train_data = data_manager.remove_rows(data, [i])
-            x, y, x_test, y_test = data_manager.test_train_split(train_data, train_split_percentage=100, randomize=False)
+            x, y, x_test, y_test = data_manager.test_train_split(train_data, train_split_percentage=100,
+                                                                 randomize=False)
             knn.load_data(x, y)
 
             predicted_y = knn.classify([data[i][:len(data[i]) - 1]])

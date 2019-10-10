@@ -20,7 +20,7 @@ class DataManager:
         :param train_split_percentage: percentage out of 100 to be in the training set.
         :return: x_train, y_train, x_test, y_test
         """
-        split_index = int(train_split_percentage/100 * len(data))
+        split_index = int(train_split_percentage / 100 * len(data))
 
         indices = self.get_randomized_indices(0, len(data)) if randomize else [i for i in range(len(data))]
 
@@ -51,4 +51,42 @@ class DataManager:
         for i in range(len(data)):
             if i not in indices:
                 new_data.append(data[i])
+        return new_data
+
+    @staticmethod
+    def get_scaling_function(data):
+        if len(data) == 0:
+            return data
+        new_data = list(data)
+
+        mins = []
+        maxs = []
+
+        for k in range(len(data[0])-1):
+            column = [x[k] for x in data]
+            min_ = min(column)
+            max_ = max(column)
+            mins.append(min_)
+            maxs.append(max_)
+
+        min_ = min(mins)
+        max_ = max(maxs)
+        period = max_ - min_
+
+        def scaled_data(data_x):
+            return (data_x - min_) / period
+        return scaled_data
+
+    @staticmethod
+    def get_rescaled_data(data, scaling_function):
+        """
+        :param scaling_function: Function that scaled x
+        :param data: The unscaled data
+        :return: Scaled data
+        """
+        new_data = list(data)
+        for i in range(len(data)):
+            for j in range(len(data[i])-1):
+                new_data[i][j] = scaling_function(data[i][j])
+
         return new_data
