@@ -19,6 +19,8 @@ class NeighbourhoodClassifier(KNearestNeighbours):
 
         distances = [distance for distance in distances if distance <= radius]
 
+        # print(f"Points = {len(distances)}")
+
         # Pick the shortest k distances and return their indices
         min_distance_indices = []
         distances_copy = list(distances)

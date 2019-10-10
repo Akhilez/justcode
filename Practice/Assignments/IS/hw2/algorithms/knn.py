@@ -30,8 +30,9 @@ class KNearestNeighbours:
         return classes
 
     def get_best_class(self, neighbours):
-        import statistics
-        return statistics.mode(neighbours)
+        if len(neighbours) == 0:
+            return
+        return max(neighbours, key=neighbours.count)
 
     def get_k_neighbours_indices(self, x):
 
