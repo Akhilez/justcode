@@ -6,6 +6,7 @@ def main():
     data_manager = DataManager('hw2_dataProblem.txt')
     data = data_manager.get_data()
     grapher = NeighbourhoodClassifier.Grapher()
+    fig, axs = grapher.create_figure(1, 1, 1, figsize=(6, 4))
 
     for radius in range(5, 20):
 
@@ -18,7 +19,7 @@ def main():
 
         for i in range(len(data)):
             train_data = data_manager.remove_rows(data, [i])
-            x, y, x_test, y_test = data_manager.test_train_split(train_data, train_split_percentage=100)
+            x, y, x_test, y_test = data_manager.test_train_split(train_data, train_split_percentage=100, randomize=False)
             knn.load_data(x, y)
 
             predicted_y = knn.classify([data[i][:len(data[i])-1]])
@@ -32,7 +33,8 @@ def main():
 
         grapher.record(radius, hit_rate)
 
-    grapher.plot()
+    grapher.plot(axs, title='Neighbourhood Classification: Radius vs Hit-Rate', xlabel="Radius", ylabel="Hit-Rate", xticks=grapher.x)
+    grapher.save_figure('figures/neighbourhood.png')
     grapher.show()
 
 
