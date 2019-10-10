@@ -5,8 +5,7 @@ from data_manager import DataManager
 def main():
     data_manager = DataManager('hw2_dataProblem.txt')
     data = data_manager.get_data()
-    scaling_function = data_manager.get_scaling_function(data)
-    data = data_manager.get_rescaled_data(data, scaling_function)
+    data = data_manager.get_rescaled_data(data, data_manager.get_scaling_function(data))
 
     grapher = NeighbourhoodClassifier.Grapher()
     fig, axs = grapher.create_figure(1, 1, 1, figsize=(6, 4))

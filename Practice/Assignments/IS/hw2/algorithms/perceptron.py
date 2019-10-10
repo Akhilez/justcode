@@ -1,6 +1,8 @@
 import numpy as np
 import random
 
+from algorithms.knn import KNearestNeighbours
+
 
 class Perceptron:
 
@@ -14,6 +16,9 @@ class Perceptron:
     def equation(self):
         return self.adjusted_xs.T.dot(self.weights)
 
+    def equation_i(self, data_point):
+        return data_point.dot(self.weights)
+
     def error(self, guess):
         return ((self.ys - guess) ** 2).sum()
 
@@ -21,12 +26,23 @@ class Perceptron:
         weight_adjustment = self.adjusted_xs.dot(self.ys - guess)
         return weight_adjustment
 
-    def learn(self, epochs, lr):
+    def learn(self, epochs, lr, grapher=None):
+
         # print(f'X:\n{self.adjusted_xs}\nY:\n{self.ys}')
         for epoch in range(epochs):
-            fx = self.equation()
-            self.weights += lr * self.error_diff(fx)
-            print(f'\nGuess:\nfx\nWeights:\n{self.weights}\nError = {self.error(fx)}')
+            xs = self.adjusted_xs.T
+            guesses = []
+            for i in range(len(xs)):
+                fx = self.equation_i(xs[i])
+                guesses.append(fx)
+                for j in range(len(self.weights)):
+                    err = self.ys[i][0] - fx
+                    self.weights[j] += lr * err * xs[i][j]
+            error = self.error(np.array(guesses))
+            print(f'\nGuess:\nfx\nWeights:\n{self.weights}\nError = {error}')
+
+            if grapher and epoch % 10 == 0:
+                grapher.record(epoch, error)
 
     def test(self, x):
         return self.get_adjusted_x(np.array(x).T).T.dot(self.weights)
@@ -40,7 +56,7 @@ class Perceptron:
 
     @staticmethod
     def generate_random_coefficients(num_inputs):
-        return np.random.uniform(-1, 1, (num_inputs + 1, 1))
+        return np.random.uniform(-10, 10, (num_inputs + 1, 1))
 
     @staticmethod
     def generate_random_data(coefficients, data_size):
@@ -67,4 +83,3 @@ def main():
     guesses = neuron.test(test_x)
 
     print(f'\nTest: Real = {test_y}\nGuess = {guesses}')
-

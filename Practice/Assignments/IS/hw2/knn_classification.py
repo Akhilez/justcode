@@ -5,7 +5,7 @@ from data_manager import DataManager
 def main():
     data_manager = DataManager('hw2_dataProblem.txt')
     data = data_manager.get_data()
-    data = data_manager.get_rescaled_data(data)
+    data = data_manager.get_rescaled_data(data, data_manager.get_scaling_function(data))
 
     grapher = KNearestNeighbours.Grapher()
     fig, axs = grapher.create_figure(1, 1, 1, figsize=(6, 4))
