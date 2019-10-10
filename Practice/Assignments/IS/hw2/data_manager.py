@@ -12,22 +12,23 @@ class DataManager:
                     data.append([float(i) for i in elements])
         return data
 
-    def test_train_split(self, data, train_split_percentage=80):
+    def test_train_split(self, data, train_split_percentage=80, randomize=True):
         """
         Splits a dataset randomly into test and train datasets.
+        :param randomize: Will randomize the data points.
         :param data: The list of lists.
         :param train_split_percentage: percentage out of 100 to be in the training set.
         :return: x_train, y_train, x_test, y_test
         """
         split_index = int(train_split_percentage/100 * len(data))
 
-        randomized_indices = self.get_randomized_indices(0, len(data))
+        indices = self.get_randomized_indices(0, len(data)) if randomize else [i for i in range(len(data))]
 
         x = [x[:len(x) - 1] for x in data]
         y = [i[len(i) - 1] for i in data]
 
-        rand_x = [x[i] for i in randomized_indices]
-        rand_y = [y[i] for i in randomized_indices]
+        rand_x = [x[i] for i in indices]
+        rand_y = [y[i] for i in indices]
 
         x_train = rand_x[:split_index]
         y_train = rand_y[:split_index]

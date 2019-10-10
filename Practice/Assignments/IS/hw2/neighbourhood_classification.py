@@ -5,6 +5,7 @@ from data_manager import DataManager
 def main():
     data_manager = DataManager('hw2_dataProblem.txt')
     data = data_manager.get_data()
+    grapher = NeighbourhoodClassifier.Grapher()
 
     for radius in range(5, 20):
 
@@ -28,6 +29,11 @@ def main():
 
         hit_rate = NeighbourhoodClassifier.get_hit_rate(predicted_ys, actual_ys)
         print(f'Hit Rate = {hit_rate}')
+
+        grapher.record(radius, hit_rate)
+
+    grapher.plot()
+    grapher.show()
 
 
 if __name__ == "__main__":
