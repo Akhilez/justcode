@@ -8,9 +8,49 @@ Members:
 Date: 10/11/2019
 */
 
-% (houses ((Color Nationality Food Pet Drink) _ _ _ _ _))
-% X is a list of all 6 house patterns
+% Data summary
+%{
+%    house: {h1, h2, h3, h4, h5, h6},
+%    color: {red, ivo, gre, yel, blu, pin},
+%    nation: {eng, spa, hun, nor, ukr, jap},
+%    food: {hsh, kk, sma, sni, pim, mw},
+%    pet: {dog, cat, fox, snail, horse},
+%    drink: {orj, tea, cof, milk, grp, wine}
+%}
 
+% Order of properties
+% (houses ((Color Nationality Food Pet Drink) _ _ _ _ _))
+
+% Rules
+
+% Middle house can be 3rd or 4rd in the list of 6 houses.
+% X is a list of the 5 properties (Color Nationality Food Pet Drink)
+((middle X (_ _ X _ _ _)))
+((middle X (_ _ _ X _ _)))
+
+% X house is immediately left of Y house.
+% X and Y are lists of the 5 properties.
+((left X Y (X Y _ _ _ _)))
+((left X Y (_ X Y _ _ _)))
+((left X Y (_ _ X Y _ _)))
+((left X Y (_ _ _ X Y _)))
+((left X Y (_ _ _ _ X Y)))
+
+% Next to each other = X and be immediately left of Y, or Y can be immediately left of X
+% Z is the list of 6 houses.
+((next X Y Z)(left X Y Z))
+((next X Y Z)(left Y X Z))
+
+% X house pattern is a member of the list if it is in the list.
+((member X (X _ _ _ _ _)))
+((member X (_ X _ _ _ _)))
+((member X (_ _ X _ _ _)))
+((member X (_ _ _ X _ _)))
+((member X (_ _ _ _ X _)))
+((member X (_ _ _ _ _ X)))
+
+% Knowledge base representation
+% X is a list of all 6 house patterns
 ((solve X)
 	(member (Red English _ _ _) X)
 	(member (_ Spaniard _ Dog _) X)
@@ -29,25 +69,6 @@ Date: 10/11/2019
 	(member (Green _ _ _ Coffee) X)
 	(middle (_ _ _ _ Milk) X)
 	(eq X (_ _ _ _ _ (_ _ _ _ GrapeJuice))))
-
-((middle X (_ _ X _ _ _)))
-((middle X (_ _ _ X _ _)))
-
-((left X Y (X Y _ _ _ _)))
-((left X Y (_ X Y _ _ _)))
-((left X Y (_ _ X Y _ _)))
-((left X Y (_ _ _ X Y _)))
-((left X Y (_ _ _ _ X Y)))
-
-((next X Y L)(left X Y L))
-((next X Y L)(left Y X L))
-
-((member X (X _ _ _ _ _)))
-((member X (_ X _ _ _ _)))
-((member X (_ _ X _ _ _)))
-((member X (_ _ _ X _ _)))
-((member X (_ _ _ _ X _)))
-((member X (_ _ _ _ _ X)))
 
 ?((solve X)(addcl ((solutions X))))
 
@@ -137,3 +158,27 @@ Date: 10/11/2019
 ?((pp)(pinkHouse))
 ?((pp)(fifthColor))
 ?((pp)(drinkers))
+
+% Sample run
+/*
+
+Fril >load hw2
+
+The Norwegian's house is Yellow in color.
+The Zebra lives in the Green house.
+Wine is drank in the Yellow house.
+The 'smarties and orange juice' query cannot be answered based on this knowledge base.
+Hungarian lives in the Pink house.
+The fifth house is Green in color.
+
+Norwegian drinks _22
+Ukrainian drinks Tea
+English drinks Milk
+Spaniard drinks OrangeJuice
+Japanese drinks Coffee
+Hungarian drinks GrapeJuice
+
+yes
+Fril >
+
+*/

@@ -1,5 +1,0 @@
-((mystery X (X|Y)))
-((mystery X (H|T))(mystery X T))
-
-tq((mystery A (1,2)))
-tq((mystery 3 (1, X, 4)))
