@@ -1,4 +1,15 @@
+/*
+Artificial Intelligence Assignment 2
+
+Group: DevarashettiGhotra
+Members:
+    1. Akhil Devarashetti
+    2. Sandeep Ghotra
+Date: 10/11/2019
+*/
+
 % (houses ((Color Nationality Food Pet Drink) _ _ _ _ _))
+% X is a list of all 6 house patterns
 
 ((solve X)
 	(member (Red English _ _ _) X)
@@ -11,7 +22,7 @@
 	(next (_ Norwegian _ _ _) (Blue _ _ _ _) X)
 	(member (_ _ Smarties Snails _) X)
 	(member (_ _ Snickers _ OrangeJuice) X)
-	(member (_ Ukranian _ _ Tea) X)
+	(member (_ Ukrainian _ _ Tea) X)
 	(member (Pink _ PimsCandies _ _) X)
 	(member (_ Japanese MilkyWays _ _) X)
 	(next (_ _ KitKats _ _) (_ _ _ Horse _) X)
@@ -19,9 +30,9 @@
 	(middle (_ _ _ _ Milk) X)
 	(eq X (_ _ _ _ _ (_ _ _ _ GrapeJuice))))
 
+((middle X (_ _ X _ _ _)))
+((middle X (_ _ _ X _ _)))
 
-% Helper constraint predicates
-% Hard coded pattern matching for efficiency
 ((left X Y (X Y _ _ _ _)))
 ((left X Y (_ X Y _ _ _)))
 ((left X Y (_ _ X Y _ _)))
@@ -30,9 +41,6 @@
 
 ((next X Y L)(left X Y L))
 ((next X Y L)(left Y X L))
-
-((middle X (_ _ X _ _ _)))
-((middle X (_ _ _ X _ _)))
 
 ((member X (X _ _ _ _ _)))
 ((member X (_ X _ _ _ _)))
@@ -45,6 +53,7 @@
 
 
 % Queries
+% Storing the query result as a predicate member.
 
 ((norColor)
 	(solutions X)
