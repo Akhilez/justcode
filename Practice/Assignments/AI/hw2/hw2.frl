@@ -1,43 +1,12 @@
-/*
-facts:
-  The Englishman lives in the red house.
-  The Spaniard owns the dog.
-  The Hungarian owns the cat.
-  The Norwegian lives in the first house on the left.
-  The green house is immediately to the right of the ivory house.
-  The man who eats Hershey-bars lives in the house next to the man with the fox.
-  Kit-Kats are eaten in the yellow house.
-  The Norwegian lives next to the blue house.
-  The Smarties eater owns snails.
-  The Snickers eater drinks orange juice.
-  The Ukrainian drinks tea.
-  Pim’s candies are eaten in the pink house.
-  The Japanese eats Milky-Ways.
-  Kit-Kats are eaten in a house next to the house where the horse is kept.
-  Coffee is drunk in the green house.
-  Milk is drunk in the middle house.
-  Grape juice is drunk in the house next to the last
 
+% (houses ((Color Nationality Food Pet Drink) _ _ _ _ _))
 
-questions:
-  What color is the house in which the Norwegian lives?
-  What color is the house in which the zebra lives?
-  In which house is wine drank?
-  In which house are Smarties eaten and orange juice drank?
-  Who lives in the pink house?
-  What color is the fifth house (last house on the right)?
-  Who drinks what?
-
-*/
-
-% The solution will be a list, H, of houses
-%
-
-% Order -> (Color  Race  Candy  Pet  Drink)
-((solve H)
+(
+    (solve H)
 	(member (Red English _ _ _) H)
 	(member (_ Spaniard _ Dog _) H)
-	(eq H ((_ Norwegian _ _ _) _ _ _ _))
+	(member (_ Hungarian _ Cat _) H)
+	(eq H ((_ Norwegian _ _ _) _ _ _ _ _))
 	(left (Ivory _ _ _ _) (Green _ _ _ _) H)
 	(next (_ _ Hersheys _ _) (_ _ _ Fox _) H)
 	(member (Yellow _ KitKats _ _) H)
@@ -45,27 +14,35 @@ questions:
 	(member (_ _ Smarties Snails _) H)
 	(member (_ _ Snickers _ OrangeJuice) H)
 	(member (_ Ukranian _ _ Tea) H)
+	(member (Pink _ PimsCandies _ _) H)
 	(member (_ Japanese MilkyWays _ _) H)
 	(next (_ _ KitKats _ _) (_ _ _ Horse _) H)
 	(member (Green _ _ _ Coffee) H)
-	(eq H (_ _ (_ _ _ _ Milk) _ _)))
+	(eq H (_ _ (_ _ _ _ Milk) _ _ _))
+	(eq H (_ _ _ _ _ (_ _ _ _ GrapeJuice)))
+)
 
 
 % Helper constraint predicates
 % Hard coded pattern matching for efficiency
-((left A B (A B _ _ _)))
-((left A B (_ A B _ _)))
-((left A B (_ _ A B _)))
-((left A B (_ _ _ A B)))
+((left A B (A B _ _ _ _)))
+((left A B (_ A B _ _ _)))
+((left A B (_ _ A B _ _)))
+((left A B (_ _ _ A B _)))
+((left A B (_ _ _ _ A B)))
 
 ((next A B L)(left A B L))
 ((next A B L)(left B A L))
 
-((member X (X _ _ _ _) ))
-((member X (_ X _ _ _) ))
-((member X (_ _ X _ _) ))
-((member X (_ _ _ X _) ))
-((member X (_ _ _ _ X) ))
+((middle A (_ _ A _ _ _)))
+((middle A (_ _ _ A _ _)))
+
+((member X (X _ _ _ _ _)))
+((member X (_ X _ _ _ _)))
+((member X (_ _ X _ _ _)))
+((member X (_ _ _ X _ _)))
+((member X (_ _ _ _ X _)))
+((member X (_ _ _ _ _ X)))
 
 
 % ------------------------------------------------------------ %
@@ -121,14 +98,9 @@ questions:
 	(member (C R Smarties _ OrangeJuice) H)
 	(p "The " R " in the " C " house may eat smarties and drink orange juice")(pp)
 	(fail))
-((smarties-oj-house)
-	(solutions H)
-	(negg member (C R Smarties _ OrangeJuice) H)
-	(pp "No one eats smarties AND drinks orange juice")
-	(fail))
 
 ((last-house-color)
-	(solutions (_ _ _ _ (COLOR _ _ _ _)))
+	(solutions (_ _ _ _ (COLOR _ _ _ _) _))
 	(p "The last house is " COLOR)(pp))
 
 ((who-drinks-what)
