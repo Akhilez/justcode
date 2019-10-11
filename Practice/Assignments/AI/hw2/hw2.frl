@@ -30,11 +30,9 @@ Date: 10/11/2019
 
 % X house is immediately left of Y house.
 % X and Y are lists of the 5 properties.
-((left X Y (X Y _ _ _ _)))
-((left X Y (_ X Y _ _ _)))
-((left X Y (_ _ X Y _ _)))
-((left X Y (_ _ _ X Y _)))
-((left X Y (_ _ _ _ X Y)))
+((left X Y (X Y | T)))
+((left E1 E2 (X | T))
+    (left E1 E2 T))
 
 % Next to each other = X and be immediately left of Y, or Y can be immediately left of X
 % Z is the list of 6 houses.
@@ -42,6 +40,9 @@ Date: 10/11/2019
 ((next X Y Z)(left Y X Z))
 
 % X house pattern is a member of the list if it is in the list.
+%((member X (X | T)))
+%((member E (X | T))
+%     (member E T))
 ((member X (X _ _ _ _ _)))
 ((member X (_ X _ _ _ _)))
 ((member X (_ _ X _ _ _)))
