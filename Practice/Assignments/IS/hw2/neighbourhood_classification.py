@@ -1,5 +1,6 @@
 from algorithms.neighbourhood import NeighbourhoodClassifier
 from data_manager import DataManager
+from grapher import Grapher
 
 
 def main():
@@ -7,7 +8,7 @@ def main():
     data = data_manager.get_data()
     data = data_manager.get_column_wise_rescaled_data(data)
 
-    grapher = NeighbourhoodClassifier.Grapher()
+    grapher = Grapher()
     fig, axs = grapher.create_figure(1, 1, 1, figsize=(6, 4))
 
     for radius in range(1, 15):
@@ -32,7 +33,7 @@ def main():
             actual_y = [data[i][-1]]
             actual_ys.append(actual_y)
 
-        hit_rate = NeighbourhoodClassifier.get_hit_rate(predicted_ys, actual_ys)
+        hit_rate = DataManager.get_hit_rate(predicted_ys, actual_ys)
         print(f'Hit Rate = {hit_rate}')
 
         grapher.record(radius, hit_rate)

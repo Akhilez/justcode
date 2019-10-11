@@ -55,42 +55,12 @@ class DataManager:
         return new_data
 
     @staticmethod
-    def get_scaling_function(data):
-        if len(data) == 0:
-            return data
-        new_data = list(data)
-
-        mins = []
-        maxs = []
-
-        for k in range(len(data[0])-1):
-            column = [x[k] for x in data]
-            min_ = min(column)
-            max_ = max(column)
-            mins.append(min_)
-            maxs.append(max_)
-
-        min_ = min(mins)
-        max_ = max(maxs)
-        period = max_ - min_
-
-        def scaled_data(data_x):
-            return (data_x - min_) / period
-        return scaled_data
-
-    @staticmethod
-    def get_rescaled_data(data, scaling_function):
-        """
-        :param scaling_function: Function that scaled x
-        :param data: The unscaled data
-        :return: Scaled data
-        """
-        new_data = list(data)
-        for i in range(len(data)):
-            for j in range(len(data[i])-1):
-                new_data[i][j] = scaling_function(data[i][j])
-
-        return new_data
+    def get_hit_rate(predicted, actual):
+        hits = 0
+        for i in range(len(predicted)):
+            if predicted[i] == actual[i]:
+                hits += 1
+        return hits / len(predicted)
 
     @staticmethod
     def get_column_wise_rescaled_data(data):
