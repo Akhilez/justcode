@@ -42,6 +42,7 @@ class DataManager:
     def get_randomized_indices(min_, max_):
         indices = [i for i in range(min_, max_)]
         import random
+        random.seed(2)
         random.shuffle(indices)
         return indices
 
@@ -88,5 +89,30 @@ class DataManager:
         for i in range(len(data)):
             for j in range(len(data[i])-1):
                 new_data[i][j] = scaling_function(data[i][j])
+
+        return new_data
+
+    @staticmethod
+    def get_column_wise_rescaled_data(data):
+        """
+        For each column
+            find min and max
+            period = max - min
+            for each point in column
+                x_new = (x-min) / period
+        :param data: The unscaled data
+        :return: Scaled data
+        """
+        if len(data) == 0:
+            return data
+        new_data = list(data)
+        for i in range(len(data[0])):
+            column = [x[i] for x in data]
+            min_ = min(column)
+            max_ = max(column)
+            period = max_ - min_
+
+            for j in range(len(column)):
+                new_data[j][i] = (data[j][i] - min_) / period
 
         return new_data

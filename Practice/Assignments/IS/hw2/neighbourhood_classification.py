@@ -5,14 +5,14 @@ from data_manager import DataManager
 def main():
     data_manager = DataManager('hw2_dataProblem.txt')
     data = data_manager.get_data()
-    data = data_manager.get_rescaled_data(data, data_manager.get_scaling_function(data))
+    data = data_manager.get_column_wise_rescaled_data(data)
 
     grapher = NeighbourhoodClassifier.Grapher()
     fig, axs = grapher.create_figure(1, 1, 1, figsize=(6, 4))
 
     for radius in range(1, 15):
 
-        radius = radius/100
+        radius = radius/20
         print(f'Radius = {radius}')
 
         actual_ys = []
