@@ -72,7 +72,7 @@ class PerformanceAnalyzer:
         train_graph = Grapher()
         test_graph = Grapher()
         model = Perceptron(x_train, y_train)
-        model.learn(70, 0.01, x_test, y_test, train_graph, test_graph)
+        model.learn(50, 0.01, x_test, y_test, train_graph, test_graph)
 
         y_pred = model.test(x_test)
         tp, tn, fp, fn = self.get_confusion_metrics(y_test, y_pred)
@@ -151,11 +151,12 @@ class PerformanceAnalyzer:
             graphs[3].record(metrics[i]['train']['NPV'], metrics[i]['test']['NPV'])
 
         for i in range(4):
-            axs[i].bar(trails_count, graphs[i].x, color='b', label='Train', width=0.35)
-            axs[i].bar([t + 0.35 for t in trails_count], graphs[i].y, color='g', label='Test', width=0.35)
+            axs[i].bar(trails_count, graphs[i].x, label='Train', width=0.35)
+            axs[i].bar([t + 0.35 for t in trails_count], graphs[i].y, label='Test', width=0.35)
             axs[i].set_xticks(trails_count)
             axs[i].set_xlabel('Trails')
             axs[i].legend(['Train', 'Test'])
+            axs[i].set_ylim([0.6, 1.01])
 
         fig.suptitle(title)
 
@@ -181,6 +182,7 @@ class PerformanceAnalyzer:
             axs[i].bar(graphs[i].x, graphs[i].y)
             axs[i].set_xticks(graphs[i].x)
             axs[i].set_xlabel('Trails')
+            axs[i].set_ylim([0.6, 1.01])
 
         fig.suptitle(title)
 
@@ -240,6 +242,7 @@ class PerformanceAnalyzer:
         # fig.patch.set_visible(False)
         ax.axis('off')
         ax.axis('tight')
+        ax.set_title('Averaged Performance On Trails')
 
         ax.table(data, colLabels=col_labels, rowLabels=row_labels, loc='center')
 
@@ -435,10 +438,18 @@ class PerformanceAnalyzer:
     def get_straight_line_xs(a, b, c, ys):
         return [(-b * y - c) / a for y in ys]
 
+    @staticmethod
+    def save_metrics(metrics):
+        import json
+        with open('metrics.json', 'w') as fp:
+            json.dump(metrics, fp)
+
 
 def main():
     performance = PerformanceAnalyzer()
     performance.run()
+
+    # PerformanceAnalyzer.save_metrics(performance.metrics)
 
     # performance.plot_trails()
     # performance.plot_average_performance()
