@@ -23,8 +23,8 @@ class PerformanceAnalyzer:
             self.metrics['neighbourhood'].append(self.run_neighbourhood(x_train, y_train, x_test, y_test))
             self.metrics['perceptron'].append(self.run_perceptron(x_train, y_train, x_test, y_test))
 
-        self.plot_trails()
-        self.plot_average_performance()
+        # self.plot_trails()
+        # self.plot_average_performance()
         self.plot_training_error()
         self.plot_mean_training_error()
         self.plot_knn_decision_boundary()
@@ -32,13 +32,13 @@ class PerformanceAnalyzer:
         self.plot_perceptron_boundary()
 
     def run_knn(self, x_train, y_train, x_test, y_test):
-        return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4}}
+        return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4, 'hit-rate': 0.91}}
 
     def run_neighbourhood(self, x_train, y_train, x_test, y_test):
-        return {'test': {'sensitivity': 0, 'specificity': 0, 'PPV': 0, 'NPV': 0}}
+        return {'test': {'sensitivity': 0, 'specificity': 0, 'PPV': 0, 'NPV': 0, 'hit-rate': 0.92}}
 
     def run_perceptron(self, x_train, y_train, x_test, y_test):
-        return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4},
+        return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4, 'hit-rate': 0.93},
                 'train': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4},
                 'train-error': {'epocs': [1, 10, 20], 'error': [0.9, 0.8, 0.5]}}
 
@@ -117,7 +117,56 @@ class PerformanceAnalyzer:
         Each table will have five data rows – one for each metric – and three data columns - one for each
         algorithm.
         """
-        pass
+        sensitivities = [[], [], []]
+        specificities = [[], [], []]
+        ppvs = [[], [], []]
+        npvs = [[], [], []]
+        hit_rates = [[], [], []]
+        for i in range(len(self.metrics['knn'])):
+            sensitivities[0].append(self.metrics['knn'][i]['test']['sensitivity'])
+            sensitivities[1].append(self.metrics['neighbourhood'][i]['test']['sensitivity'])
+            sensitivities[2].append(self.metrics['perceptron'][i]['test']['sensitivity'])
+
+            specificities[0].append(self.metrics['knn'][i]['test']['specificity'])
+            specificities[1].append(self.metrics['neighbourhood'][i]['test']['specificity'])
+            specificities[2].append(self.metrics['perceptron'][i]['test']['specificity'])
+
+            ppvs[0].append(self.metrics['knn'][i]['test']['PPV'])
+            ppvs[1].append(self.metrics['neighbourhood'][i]['test']['PPV'])
+            ppvs[2].append(self.metrics['perceptron'][i]['test']['PPV'])
+
+            npvs[0].append(self.metrics['knn'][i]['test']['NPV'])
+            npvs[1].append(self.metrics['neighbourhood'][i]['test']['NPV'])
+            npvs[2].append(self.metrics['perceptron'][i]['test']['NPV'])
+
+            hit_rates[0].append(self.metrics['knn'][i]['test']['hit-rate'])
+            hit_rates[1].append(self.metrics['neighbourhood'][i]['test']['hit-rate'])
+            hit_rates[2].append(self.metrics['perceptron'][i]['test']['hit-rate'])
+
+        sensitivities_avg = [self.get_avg_with_std(x) for x in sensitivities]
+        specificities_avg = [self.get_avg_with_std(x) for x in specificities]
+        ppvs_avg = [self.get_avg_with_std(x) for x in ppvs]
+        npvs_avg = [self.get_avg_with_std(x) for x in npvs]
+        hit_rates_avg = [self.get_avg_with_std(x) for x in hit_rates]
+
+        data = [sensitivities_avg, specificities_avg, ppvs_avg, npvs_avg, hit_rates_avg]
+        row_labels = ['sensitivity', 'specificity', 'PPV', 'NPV', 'hit-rate']
+        col_labels = ['knn', 'neighbourhood', 'perceptron']
+
+        fig, ax = plt.subplots(figsize=(7, 3))
+
+        fig.patch.set_visible(False)
+        ax.axis('off')
+        ax.axis('tight')
+
+        ax.table(data, colLabels=col_labels, rowLabels=row_labels, loc='center')
+
+    @staticmethod
+    def get_avg_with_std(data):
+        avg = round(sum(data) / len(data), 2)
+        # TODO: Get standard deviation
+        std = 0.23
+        return f'{avg} ± {std}'
 
     def plot_training_error(self):
         """
