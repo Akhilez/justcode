@@ -25,7 +25,7 @@ class PerformanceAnalyzer:
 
         # self.plot_trails()
         # self.plot_average_performance()
-        self.plot_training_error()
+        # self.plot_training_error()
         self.plot_mean_training_error()
         self.plot_knn_decision_boundary()
         self.plot_best_neighbourhood_boundary()
@@ -164,9 +164,13 @@ class PerformanceAnalyzer:
     @staticmethod
     def get_avg_with_std(data):
         avg = round(sum(data) / len(data), 2)
-        # TODO: Get standard deviation
-        std = 0.23
+        std = PerformanceAnalyzer.get_standard_deviation(data, avg)
         return f'{avg} ± {std}'
+
+    @staticmethod
+    def get_standard_deviation(data, mean):
+        # TODO: Get standard deviation
+        return 0.23
 
     def plot_training_error(self):
         """
@@ -188,6 +192,9 @@ class PerformanceAnalyzer:
             lines.append(line)
 
         plt.legend(lines, [f'Trail {i + 1}' for i in range(len(lines))])
+        axs.set_title('Perceptron training error for each epoch')
+        axs.set_xlabel('Epochs')
+        axs.set_ylabel('Error')
 
     def plot_mean_training_error(self):
         """
@@ -197,7 +204,31 @@ class PerformanceAnalyzer:
         of the 9 points at the corresponding time in the graph above. At each plotted point, put error bars
         indicating the ± standard deviation over the 9 trials.
         """
-        pass
+        num_trails = len(self.metrics['perceptron'])
+        if num_trails == 0:
+            return
+        epochs = self.metrics['perceptron'][0]['train-error']['epochs']
+        num_epochs = len(epochs)
+
+        avg_errors = []
+        error_labels = []
+        for epoch_i in range(num_epochs):
+            errors = []
+            for trail_j in range(num_trails):
+                errors.append(self.metrics['perceptron'][trail_j]['train-error']['error'][epoch_i])
+            avg = round(sum(errors) / num_trails, 2)
+            avg_errors.append(avg)
+            error_labels.append(f'{avg} ± {self.get_standard_deviation(errors, avg)}')
+
+        fig, axs = Grapher.create_figure(1, 1, 1, figsize=(6, 4))
+        axs.plot(epochs, avg_errors)
+
+        for i in range(len(error_labels)):
+            axs.annotate(error_labels[i], (epochs[i], avg_errors[i]))
+
+        axs.set_title('Perceptron average training error')
+        axs.set_xlabel('Epochs')
+        axs.set_ylabel('Error')
 
     def plot_knn_decision_boundary(self):
         """
