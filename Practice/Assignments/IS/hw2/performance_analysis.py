@@ -40,7 +40,7 @@ class PerformanceAnalyzer:
     def run_perceptron(self, x_train, y_train, x_test, y_test):
         return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4, 'hit-rate': 0.93},
                 'train': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4},
-                'train-error': {'epocs': [1, 10, 20], 'error': [0.9, 0.8, 0.5]}}
+                'train-error': {'epochs': [1, 10, 20], 'error': [0.9, 0.8, 0.5]}}
 
     def plot_trails(self):
         """
@@ -176,7 +176,18 @@ class PerformanceAnalyzer:
         epoch. You should plot all nine curves on the same graph. You should choose graph properties (line
         thicknesses, colors, etc.) for maximum clarity.
         """
-        pass
+        fig, axs = Grapher.create_figure(1, 1, PerformanceAnalyzer.figure_number, figsize=(6, 4))
+        PerformanceAnalyzer.figure_number += 1
+
+        lines = []
+
+        for i in range(len(self.metrics['perceptron'])):
+            x = self.metrics['perceptron'][i]['train-error']['epochs']
+            y = self.metrics['perceptron'][i]['train-error']['error']
+            line, = axs.plot(x, y, label=f'Trail {i + 1}', linewidth=(len(self.metrics['perceptron']) - i))
+            lines.append(line)
+
+        plt.legend(lines, [f'Trail {i + 1}' for i in range(len(lines))])
 
     def plot_mean_training_error(self):
         """
