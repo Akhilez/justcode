@@ -35,15 +35,88 @@ class PerformanceAnalyzer:
         self.plot_perceptron_boundary()
 
     def run_knn(self, x_train, y_train, x_test, y_test):
-        return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4, 'hit-rate': 0.91}, 'model': None}
+        knn = KNearestNeighbours(k=15)
+        knn.load_data(x_train, y_train)
+
+        y_pred = knn.classify(x_test)
+
+        tp, tn, fp, fn = self.get_confusion_metrics(y_test, y_pred)
+
+        metrics = {
+            'test': {
+                'sensitivity': tp / (tp + fn) if (tp + fn) != 0 else 999,
+                'specificity': tn / (fp + tn) if (fp + tn) != 0 else 999,
+                'PPV': tp / (tp + fp) if (tp + fp) != 0 else 999,
+                'NPV': tn / (tn + fn) if (tn + fn) != 0 else 999,
+                'hit-rate': (tp + tn) / (fp + fn + tp + tn)
+            },
+            'model': knn
+        }
+
+        return metrics
 
     def run_neighbourhood(self, x_train, y_train, x_test, y_test):
-        return {'test': {'sensitivity': 0, 'specificity': 0, 'PPV': 0, 'NPV': 0, 'hit-rate': 0.92}, 'model': None}
+        model = NeighbourhoodClassifier(k=0.15)
+        model.load_data(x_train, y_train)
+
+        y_pred = model.classify(x_test)
+
+        tp, tn, fp, fn = self.get_confusion_metrics(y_test, y_pred)
+
+        metrics = {
+            'test': {
+                'sensitivity': tp / (tp + fn) if (tp + fn) != 0 else 999,
+                'specificity': tn / (fp + tn) if (fp + tn) != 0 else 999,
+                'PPV': tp / (tp + fp) if (tp + fp) != 0 else 999,
+                'NPV': tn / (tn + fn) if (tn + fn) != 0 else 999,
+                'hit-rate': (tp + tn) / (fp + fn + tp + tn)
+            },
+            'model': model
+        }
+
+        return metrics
 
     def run_perceptron(self, x_train, y_train, x_test, y_test):
-        return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4, 'hit-rate': 0.93},
-                'train': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4},
-                'train-error': {'epochs': [1, 10, 20], 'error': [0.9, 0.8, 0.5]}, 'model': None}
+        model = NeighbourhoodClassifier(k=0.15)
+        model.load_data(x_train, y_train)
+
+        y_pred = model.classify(x_test)
+
+        metrics = {
+            'test': {
+                'sensitivity': self.get_sensitivity(y_test, y_pred),
+                'specificity': self.get_specificity(y_test, y_pred), 'PPV': self.get_ppv(y_test, y_pred),
+                'NPV': self.get_npv(y_test, y_pred), 'hit-rate': DataManager.get_hit_rate(y_pred, y_test)
+            },
+            'train': {
+                'sensitivity': self.get_sensitivity(y_test, y_pred),
+                'specificity': self.get_specificity(y_test, y_pred), 'PPV': self.get_ppv(y_test, y_pred),
+                'NPV': self.get_npv(y_test, y_pred), 'hit-rate': DataManager.get_hit_rate(y_pred, y_test)
+            },
+            'model': model,
+            'train-error': {'epochs': [1, 10, 20], 'error': [0.9, 0.8, 0.5]}
+        }
+
+        return metrics
+
+    @staticmethod
+    def get_confusion_metrics(y_test, y_pred):
+        tp = 0
+        tn = 0
+        fn = 0
+        fp = 0
+
+        for i in range(len(y_test)):
+            if y_test[i] == 1 and y_pred[i] == 1:
+                tp += 1
+            elif y_test[i] == 0 and y_pred[i] == 0:
+                tn += 1
+            elif y_test[i] == 1 and y_pred[i] == 0:
+                fn += 1
+            elif y_test[i] == 0 and y_pred[i] == 1:
+                fp += 1
+
+        return tp, tn, fp, fn
 
     def plot_trails(self):
         """
