@@ -6,7 +6,6 @@ from data_manager import DataManager
 class Perceptron:
 
     def __init__(self, xs, ys):
-        random.seed(6)
         self.xs = self.get_adjusted_x(xs)
         self.ys = ys
         self.weights = self.generate_random_coefficients(len(self.xs[0]))
@@ -62,4 +61,5 @@ class Perceptron:
 
     @staticmethod
     def generate_random_coefficients(num_inputs):
+        random.seed(0)
         return [random.uniform(-1, 1) for i in range(num_inputs)]

@@ -26,14 +26,6 @@ class PerformanceAnalyzer:
             self.metrics['neighbourhood'].append(self.run_neighbourhood(x_train, y_train, x_test, y_test))
             self.metrics['perceptron'].append(self.run_perceptron(x_train, y_train, x_test, y_test))
 
-        # self.plot_trails()
-        # self.plot_average_performance()
-        # self.plot_training_error()
-        # self.plot_mean_training_error()
-        # self.plot_knn_decision_boundary()
-        # self.plot_best_neighbourhood_boundary()
-        self.plot_perceptron_boundary()
-
     def run_knn(self, x_train, y_train, x_test, y_test):
         knn = KNearestNeighbours(k=15)
         knn.load_data(x_train, y_train)
@@ -77,24 +69,34 @@ class PerformanceAnalyzer:
         return metrics
 
     def run_perceptron(self, x_train, y_train, x_test, y_test):
-        model = NeighbourhoodClassifier(k=0.15)
-        model.load_data(x_train, y_train)
+        train_graph = Grapher()
+        test_graph = Grapher()
+        model = Perceptron(x_train, y_train)
+        model.learn(70, 0.01, x_test, y_test, train_graph, test_graph)
 
-        y_pred = model.classify(x_test)
+        y_pred = model.test(x_test)
+        tp, tn, fp, fn = self.get_confusion_metrics(y_test, y_pred)
+
+        y_pred_train = model.test(x_train)
+        tp_train, tn_train, fp_train, fn_train = self.get_confusion_metrics(y_train, y_pred_train)
 
         metrics = {
             'test': {
-                'sensitivity': self.get_sensitivity(y_test, y_pred),
-                'specificity': self.get_specificity(y_test, y_pred), 'PPV': self.get_ppv(y_test, y_pred),
-                'NPV': self.get_npv(y_test, y_pred), 'hit-rate': DataManager.get_hit_rate(y_pred, y_test)
+                'sensitivity': tp / (tp + fn) if (tp + fn) != 0 else 999,
+                'specificity': tn / (fp + tn) if (fp + tn) != 0 else 999,
+                'PPV': tp / (tp + fp) if (tp + fp) != 0 else 999,
+                'NPV': tn / (tn + fn) if (tn + fn) != 0 else 999,
+                'hit-rate': (tp + tn) / (fp + fn + tp + tn)
             },
             'train': {
-                'sensitivity': self.get_sensitivity(y_test, y_pred),
-                'specificity': self.get_specificity(y_test, y_pred), 'PPV': self.get_ppv(y_test, y_pred),
-                'NPV': self.get_npv(y_test, y_pred), 'hit-rate': DataManager.get_hit_rate(y_pred, y_test)
+                'sensitivity': tp_train / (tp_train + fn_train) if (tp_train + fn_train) != 0 else 999,
+                'specificity': tn_train / (fp_train + tn_train) if (fp_train + tn_train) != 0 else 999,
+                'PPV': tp_train / (tp_train + fp_train) if (tp_train + fp_train) != 0 else 999,
+                'NPV': tn_train / (tn_train + fn_train) if (tn_train + fn_train) != 0 else 999,
+                'hit-rate': (tp_train + tn_train) / (fp_train + fn_train + tp_train + tn_train)
             },
             'model': model,
-            'train-error': {'epochs': [1, 10, 20], 'error': [0.9, 0.8, 0.5]}
+            'train-error': {'epochs': train_graph.x, 'error': train_graph.y}
         }
 
         return metrics
@@ -149,8 +151,8 @@ class PerformanceAnalyzer:
             graphs[3].record(metrics[i]['train']['NPV'], metrics[i]['test']['NPV'])
 
         for i in range(4):
-            axs[i].bar(trails_count, graphs[i].x, color='b', label='Train', width=0.25)
-            axs[i].bar([t + 0.25 for t in trails_count], graphs[i].y, color='g', label='Test', width=0.25)
+            axs[i].bar(trails_count, graphs[i].x, color='b', label='Train', width=0.35)
+            axs[i].bar([t + 0.35 for t in trails_count], graphs[i].y, color='g', label='Test', width=0.35)
             axs[i].set_xticks(trails_count)
             axs[i].set_xlabel('Trails')
             axs[i].legend(['Train', 'Test'])
@@ -161,6 +163,8 @@ class PerformanceAnalyzer:
         axs[1].set_title('specificity')
         axs[2].set_title('ppv')
         axs[3].set_title('npv')
+
+        fig.savefig(f'figures/{title}_metric_bars.png')
 
     @staticmethod
     def plot_trails_single_bars(metrics, title):
@@ -184,6 +188,8 @@ class PerformanceAnalyzer:
         axs[1].set_title('specificity')
         axs[2].set_title('ppv')
         axs[3].set_title('npv')
+
+        fig.savefig(f'figures/{title}_metric_bars.png')
 
     def plot_average_performance(self):
         """
@@ -231,11 +237,13 @@ class PerformanceAnalyzer:
 
         fig, ax = plt.subplots(figsize=(7, 3))
 
-        fig.patch.set_visible(False)
+        # fig.patch.set_visible(False)
         ax.axis('off')
         ax.axis('tight')
 
         ax.table(data, colLabels=col_labels, rowLabels=row_labels, loc='center')
+
+        fig.savefig('figures/average_performances.png')
 
     @staticmethod
     def get_avg_with_std(data):
@@ -245,8 +253,7 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def get_standard_deviation(data, mean):
-        # TODO: Get standard deviation
-        return 0.23
+        return round((sum([(x-mean)**2 for x in data])/len(data)) ** 0.5, 2)
 
     def plot_training_error(self):
         """
@@ -264,13 +271,15 @@ class PerformanceAnalyzer:
         for i in range(len(self.metrics['perceptron'])):
             x = self.metrics['perceptron'][i]['train-error']['epochs']
             y = self.metrics['perceptron'][i]['train-error']['error']
-            line, = axs.plot(x, y, label=f'Trail {i + 1}', linewidth=(len(self.metrics['perceptron']) - i))
+            line, = axs.plot(x, y, label=f'Trail {i + 1}', linewidth=(2 - i/10))
             lines.append(line)
 
         plt.legend(lines, [f'Trail {i + 1}' for i in range(len(lines))])
         axs.set_title('Perceptron training error for each epoch')
         axs.set_xlabel('Epochs')
         axs.set_ylabel('Error')
+
+        fig.savefig('figures/training_error.png')
 
     def plot_mean_training_error(self):
         """
@@ -306,6 +315,8 @@ class PerformanceAnalyzer:
         axs.set_xlabel('Epochs')
         axs.set_ylabel('Error')
 
+        fig.savefig('figures/mean_training_error.png')
+
     @staticmethod
     def get_sample_space(num_points):
         x = [i / num_points for i in range(num_points + 1)]
@@ -326,13 +337,6 @@ class PerformanceAnalyzer:
         best_metric = self.get_best_model(self.metrics['knn'])
         model = best_metric['model']
 
-        # TODO: Remove hardcoded model
-        model = KNearestNeighbours(15)
-        data_manager = DataManager('hw2_dataProblem.txt')
-        x_train, y_train, x_test, y_test = data_manager.test_train_split(
-            data_manager.get_column_wise_rescaled_data(data_manager.get_data()), randomize=False)
-        model.load_data(x_train, y_train)
-
         sample = self.get_sample_space(20)
         classes = model.classify(sample)
 
@@ -347,7 +351,7 @@ class PerformanceAnalyzer:
         axs.set_ylabel('P')
         axs.legend(['0', '1'])
 
-        plt.savefig('figures/knn_decision_boundary.png')
+        fig.savefig('figures/knn_decision_boundary.png')
 
     @staticmethod
     def split_sample_with_classes(sample, classes):
@@ -379,13 +383,6 @@ class PerformanceAnalyzer:
         best_metric = self.get_best_model(self.metrics['neighbourhood'])
         model = best_metric['model']
 
-        # TODO: Remove hardcoded model
-        model = NeighbourhoodClassifier(0.15)
-        data_manager = DataManager('hw2_dataProblem.txt')
-        x_train, y_train, x_test, y_test = data_manager.test_train_split(
-            data_manager.get_column_wise_rescaled_data(data_manager.get_data()), randomize=False)
-        model.load_data(x_train, y_train)
-
         sample = self.get_sample_space(20)
         classes = model.classify(sample)
 
@@ -400,7 +397,7 @@ class PerformanceAnalyzer:
         axs.set_ylabel('P')
         axs.legend(['0', '1'])
 
-        plt.savefig('figures/neighbourhood_decision_boundary.png')
+        fig.savefig('figures/neighbourhood_decision_boundary.png')
 
     def plot_perceptron_boundary(self):
         """
@@ -409,15 +406,8 @@ class PerformanceAnalyzer:
         Your figure size and L-P coordinate ranges for this figure and the previous two figures should be the
         same so the three figures can be compared.
         """
-        best_metric = self.get_best_model(self.metrics['neighbourhood'])
+        best_metric = self.get_best_model(self.metrics['perceptron'])
         model = best_metric['model']
-
-        # TODO: Remove hardcoded model
-        data_manager = DataManager('hw2_dataProblem.txt')
-        x_train, y_train, x_test, y_test = data_manager.test_train_split(
-            data_manager.get_column_wise_rescaled_data(data_manager.get_data()), randomize=False)
-        model = Perceptron(x_train, y_train)
-        model.learn(70, 0.01)
 
         sample = self.get_sample_space(20)
         classes = model.test(sample)
@@ -439,7 +429,7 @@ class PerformanceAnalyzer:
         axs.set_ylabel('P')
         axs.legend(['Decision Boundary', '0', '1'])
 
-        plt.savefig('figures/perceptron_decision_boundary.png')
+        fig.savefig('figures/perceptron_decision_boundary.png')
 
     @staticmethod
     def get_straight_line_xs(a, b, c, ys):
@@ -449,6 +439,14 @@ class PerformanceAnalyzer:
 def main():
     performance = PerformanceAnalyzer()
     performance.run()
+
+    # performance.plot_trails()
+    # performance.plot_average_performance()
+    # performance.plot_training_error()
+    # performance.plot_mean_training_error()
+    # performance.plot_knn_decision_boundary()
+    # performance.plot_best_neighbourhood_boundary()
+    # performance.plot_perceptron_boundary()
 
 
 if __name__ == "__main__":

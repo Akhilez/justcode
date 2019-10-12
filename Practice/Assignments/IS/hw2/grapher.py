@@ -32,8 +32,7 @@ class Grapher:
 
     @staticmethod
     def create_figure(num_rows, num_columns, figure_number, figsize=(16, 10)):
-        return plt.subplots(num_rows, num_columns, constrained_layout=True, num=figure_number, figsize=figsize,
-                            dpi=80)
+        return plt.subplots(num_rows, num_columns, num=figure_number, figsize=figsize, dpi=80, constrained_layout=True)
 
     @staticmethod
     def show():

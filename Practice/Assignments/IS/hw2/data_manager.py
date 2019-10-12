@@ -1,4 +1,7 @@
 class DataManager:
+
+    seed = 1
+
     def __init__(self, path_to_data_file):
         self.path = path_to_data_file
 
@@ -42,7 +45,8 @@ class DataManager:
     def get_randomized_indices(min_, max_):
         indices = [i for i in range(min_, max_)]
         import random
-        random.seed(2)
+        random.seed(DataManager.seed)
+        DataManager.seed += 1
         random.shuffle(indices)
         return indices
 
