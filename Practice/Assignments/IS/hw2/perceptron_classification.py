@@ -10,7 +10,7 @@ def main():
 
     grapher = Grapher()
     test_grapher = Grapher()
-    fig, axs = grapher.create_figure(1, 1, 1, figsize=(6, 4))
+    fig, axs = Grapher.create_figure(1, 1, 1, figsize=(6, 4))
 
     x_train, y_train, x_test, y_test = data_manager.test_train_split(data)
 

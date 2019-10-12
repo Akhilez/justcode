@@ -1,6 +1,9 @@
 from data_manager import DataManager
 from grapher import Grapher
 import matplotlib.pyplot as plt
+from algorithms.knn import KNearestNeighbours
+from algorithms.neighbourhood import NeighbourhoodClassifier
+from algorithms.perceptron import Perceptron
 
 
 class PerformanceAnalyzer:
@@ -26,21 +29,21 @@ class PerformanceAnalyzer:
         # self.plot_trails()
         # self.plot_average_performance()
         # self.plot_training_error()
-        self.plot_mean_training_error()
-        self.plot_knn_decision_boundary()
-        self.plot_best_neighbourhood_boundary()
+        # self.plot_mean_training_error()
+        # self.plot_knn_decision_boundary()
+        # self.plot_best_neighbourhood_boundary()
         self.plot_perceptron_boundary()
 
     def run_knn(self, x_train, y_train, x_test, y_test):
-        return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4, 'hit-rate': 0.91}}
+        return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4, 'hit-rate': 0.91}, 'model': None}
 
     def run_neighbourhood(self, x_train, y_train, x_test, y_test):
-        return {'test': {'sensitivity': 0, 'specificity': 0, 'PPV': 0, 'NPV': 0, 'hit-rate': 0.92}}
+        return {'test': {'sensitivity': 0, 'specificity': 0, 'PPV': 0, 'NPV': 0, 'hit-rate': 0.92}, 'model': None}
 
     def run_perceptron(self, x_train, y_train, x_test, y_test):
         return {'test': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4, 'hit-rate': 0.93},
                 'train': {'sensitivity': 1, 'specificity': 2, 'PPV': 3, 'NPV': 4},
-                'train-error': {'epochs': [1, 10, 20], 'error': [0.9, 0.8, 0.5]}}
+                'train-error': {'epochs': [1, 10, 20], 'error': [0.9, 0.8, 0.5]}, 'model': None}
 
     def plot_trails(self):
         """
@@ -230,13 +233,68 @@ class PerformanceAnalyzer:
         axs.set_xlabel('Epochs')
         axs.set_ylabel('Error')
 
+    @staticmethod
+    def get_sample_space(num_points):
+        x = [i / num_points for i in range(num_points + 1)]
+
+        points = []
+        for i in x:
+            for j in x:
+                points.append((i, j))
+
+        return points
+
     def plot_knn_decision_boundary(self):
         """
         Best k-NN Decision Boundary: For k-NN only: a plot of the data in the feature space indicating
         the decision boundaries found by the classifier in the best trial. This will involve sampling the feature
         space as we discussed in class, and will only give an approximate boundary.
         """
-        pass
+        best_metric = self.get_best_model(self.metrics['knn'])
+        model = best_metric['model']
+
+        # TODO: Remove hardcoded model
+        model = KNearestNeighbours(15)
+        data_manager = DataManager('hw2_dataProblem.txt')
+        x_train, y_train, x_test, y_test = data_manager.test_train_split(
+            data_manager.get_column_wise_rescaled_data(data_manager.get_data()), randomize=False)
+        model.load_data(x_train, y_train)
+
+        sample = self.get_sample_space(20)
+        classes = model.classify(sample)
+
+        x0, y0, x1, y1 = self.split_sample_with_classes(sample, classes)
+
+        fig, axs = Grapher.create_figure(1, 1, 1, figsize=(5, 5))
+        axs.scatter([i[0] for i in x0], [i[1] for i in x0])
+        axs.scatter([i[0] for i in x1], [i[1] for i in x1])
+
+        axs.set_title('KNN Decision Boundary')
+        axs.set_xlabel('L')
+        axs.set_ylabel('P')
+        axs.legend(['0', '1'])
+
+        plt.savefig('figures/knn_decision_boundary.png')
+
+    @staticmethod
+    def split_sample_with_classes(sample, classes):
+        x1 = []
+        x0 = []
+        y0 = []
+        y1 = []
+        for i in range(len(classes)):
+            if classes[i] == 0:
+                x0.append(sample[i])
+                y0.append(classes[i])
+            else:
+                x1.append(sample[i])
+                y1.append(classes[i])
+        return x0, y0, x1, y1
+
+    @staticmethod
+    def get_best_model(metrics):
+        max_metric = max(metrics, key=lambda metric: metric['test']['hit-rate'])
+        return max_metric
 
     def plot_best_neighbourhood_boundary(self):
         """
@@ -245,7 +303,31 @@ class PerformanceAnalyzer:
         best trial. The approach used will be the same as for k-NN, i.e., sample the feature space to get
         classification.
         """
-        pass
+        best_metric = self.get_best_model(self.metrics['neighbourhood'])
+        model = best_metric['model']
+
+        # TODO: Remove hardcoded model
+        model = NeighbourhoodClassifier(0.15)
+        data_manager = DataManager('hw2_dataProblem.txt')
+        x_train, y_train, x_test, y_test = data_manager.test_train_split(
+            data_manager.get_column_wise_rescaled_data(data_manager.get_data()), randomize=False)
+        model.load_data(x_train, y_train)
+
+        sample = self.get_sample_space(20)
+        classes = model.classify(sample)
+
+        x0, y0, x1, y1 = self.split_sample_with_classes(sample, classes)
+
+        fig, axs = Grapher.create_figure(1, 1, 1, figsize=(5, 5))
+        axs.scatter([i[0] for i in x0], [i[1] for i in x0])
+        axs.scatter([i[0] for i in x1], [i[1] for i in x1])
+
+        axs.set_title('Neighbourhood Decision Boundary')
+        axs.set_xlabel('L')
+        axs.set_ylabel('P')
+        axs.legend(['0', '1'])
+
+        plt.savefig('figures/neighbourhood_decision_boundary.png')
 
     def plot_perceptron_boundary(self):
         """
@@ -254,7 +336,41 @@ class PerformanceAnalyzer:
         Your figure size and L-P coordinate ranges for this figure and the previous two figures should be the
         same so the three figures can be compared.
         """
-        pass
+        best_metric = self.get_best_model(self.metrics['neighbourhood'])
+        model = best_metric['model']
+
+        # TODO: Remove hardcoded model
+        data_manager = DataManager('hw2_dataProblem.txt')
+        x_train, y_train, x_test, y_test = data_manager.test_train_split(
+            data_manager.get_column_wise_rescaled_data(data_manager.get_data()), randomize=False)
+        model = Perceptron(x_train, y_train)
+        model.learn(70, 0.01)
+
+        sample = self.get_sample_space(20)
+        classes = model.test(sample)
+        x0, y0, x1, y1 = self.split_sample_with_classes(sample, classes)
+
+        c, a, b = model.weights
+        c = c - 0.5
+        sample_ys = [x[1] for x in sample]
+        boundary_line_xs = self.get_straight_line_xs(a, b, c, sample_ys)
+
+        fig, axs = Grapher.create_figure(1, 1, 1, figsize=(5, 5))
+
+        axs.scatter([i[0] for i in x0], [i[1] for i in x0])
+        axs.scatter([i[0] for i in x1], [i[1] for i in x1])
+        axs.plot(boundary_line_xs, sample_ys, 'g')
+
+        axs.set_title('Perceptron Decision Boundary')
+        axs.set_xlabel('L')
+        axs.set_ylabel('P')
+        axs.legend(['Decision Boundary', '0', '1'])
+
+        plt.savefig('figures/perceptron_decision_boundary.png')
+
+    @staticmethod
+    def get_straight_line_xs(a, b, c, ys):
+        return [(-b * y - c) / a for y in ys]
 
 
 def main():
