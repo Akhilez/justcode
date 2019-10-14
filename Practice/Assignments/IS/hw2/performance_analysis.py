@@ -256,7 +256,7 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def get_standard_deviation(data, mean):
-        return round((sum([(x-mean)**2 for x in data])/len(data)) ** 0.5, 2)
+        return round((sum([(x - mean) ** 2 for x in data]) / len(data)) ** 0.5, 2)
 
     def plot_training_error(self):
         """
@@ -274,7 +274,7 @@ class PerformanceAnalyzer:
         for i in range(len(self.metrics['perceptron'])):
             x = self.metrics['perceptron'][i]['train-error']['epochs']
             y = self.metrics['perceptron'][i]['train-error']['error']
-            line, = axs.plot(x, y, label=f'Trail {i + 1}', linewidth=(2 - i/10))
+            line, = axs.plot(x, y, label=f'Trail {i + 1}', linewidth=((len(self.metrics['perceptron']) - i) / 2))
             lines.append(line)
 
         plt.legend(lines, [f'Trail {i + 1}' for i in range(len(lines))])
@@ -456,7 +456,7 @@ def main():
     # performance.plot_training_error()
     # performance.plot_mean_training_error()
     # performance.plot_knn_decision_boundary()
-    performance.plot_best_neighbourhood_boundary()
+    # performance.plot_best_neighbourhood_boundary()
     # performance.plot_perceptron_boundary()
 
 

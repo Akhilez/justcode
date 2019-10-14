@@ -61,5 +61,5 @@ class Perceptron:
 
     @staticmethod
     def generate_random_coefficients(num_inputs):
-        random.seed(0)
+        random.seed(1)
         return [random.uniform(-1, 1) for i in range(num_inputs)]
