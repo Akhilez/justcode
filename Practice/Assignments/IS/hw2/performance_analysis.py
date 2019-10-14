@@ -366,7 +366,7 @@ class PerformanceAnalyzer:
             if classes[i] == 0:
                 x0.append(sample[i])
                 y0.append(classes[i])
-            else:
+            elif classes[i] == 1:
                 x1.append(sample[i])
                 y1.append(classes[i])
         return x0, y0, x1, y1
@@ -456,7 +456,7 @@ def main():
     # performance.plot_training_error()
     # performance.plot_mean_training_error()
     # performance.plot_knn_decision_boundary()
-    # performance.plot_best_neighbourhood_boundary()
+    performance.plot_best_neighbourhood_boundary()
     # performance.plot_perceptron_boundary()
 
 
