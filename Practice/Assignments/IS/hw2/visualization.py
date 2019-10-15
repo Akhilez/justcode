@@ -10,10 +10,17 @@ def main():
     ones = [x[:2] for x in data if x[2] == 1]
     zeros = [x[:2] for x in data if x[2] == 0]
 
-    plt.scatter([x[0] for x in ones], [x[1] for x in ones])
-    plt.scatter([x[0] for x in zeros], [x[1] for x in zeros])
+    plt.figure(figsize=(4, 4), constrained_layout=True)
 
-    # plt.savefig('figures/scatter.png')
+    plt.scatter([x[0] for x in ones], [x[1] for x in ones], s=10)
+    plt.scatter([x[0] for x in zeros], [x[1] for x in zeros], s=10)
+
+    plt.title("Data visualization")
+    plt.xlabel("L")
+    plt.ylabel("P")
+    plt.legend(['1', '0'])
+
+    plt.savefig('figures/scatter.png')
     plt.show()
 
 
