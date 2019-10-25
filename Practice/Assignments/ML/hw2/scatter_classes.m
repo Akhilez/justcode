@@ -1,6 +1,6 @@
 function res = scatter_classes(x, y)
   p_index = y == 1;
-  n_index = y == 0;
+  n_index = y == -1;
   
   x1p = x(p_index, 1);
   x2p = x(p_index, 2);
