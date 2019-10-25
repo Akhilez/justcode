@@ -2,7 +2,7 @@ function y = equation(x)
   %{
   parameter x is a matrix of two columns!
   
-  x1 + 2 * x2 − 2 > 0
+  (1)*x1 + (2)*x2 − 2 > 0
   
   %}
   a = 1;
