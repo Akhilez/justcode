@@ -3,13 +3,11 @@
 nrows = 300;
 a = 0.2;
 b = 1.2;
-x_train = (b-a).*rand(nrows,2) + a;
-y_train = equation(x_train);
+x_train = (b-a).*randn(nrows,2) + a;
+y_train = equation(x_train, 1, 2, -2);
 
-% scatter_classes(x_train, y_train)
-
-x_test = (b-a).*rand(50,2) + a;
-y_test = equation(x_test);
+%figure(3)
+%scatter_classes(x_train, y_train);
 
 % -------------------Perceptron--------------------
 
@@ -19,23 +17,32 @@ p.weights = rand(1, 3);
 disp('weights');
 disp(p.weights);
 
-
 % -------------------TRAINING--------------------
 
-errors = p.train_incremental(x_train, y_train, 500, 0.001);
+tic
 
-plot(1:length(errors), errors);
+errors = p.train_incremental(x_train, y_train, 25, 0.001);
+
+disp('training time:')
+disp(toc);
+
+
+% ------------------PLOTTING--------------------------
+
+figure(1)
+plot(1:length(errors), errors)
+title('Training Error vs Epochs')
+xlabel('Epochs')
+ylabel('Training MSE')
+saveas(gcf, 'figures/incremental_error.png');
 
 disp('weights');
 disp(p.weights);
 
-
 % ------------------TESTING--------------------------
 
-y_pred = p.test(x_test);
+y_pred = p.test(x_train);
 
-% scatter_classes(x_test, y_pred);
-
-confusion_matrix = confusionmat(y_test, y_pred);
+confusion_matrix = confusionmat(y_train, y_pred);
 disp(confusion_matrix);
 

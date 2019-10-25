@@ -19,8 +19,12 @@ disp(p.weights);
 
 
 % -------------------TRAINING--------------------
+tic
 
-metrics = p.train_batch(x_train, y_train, 250, 0.0001);
+metrics = p.train_batch(x_train, y_train, 25, 0.001);
+
+disp('training time:')
+disp(toc);
 
 weights_arr = metrics(:, 1:end-1);
 errors = metrics(:, end);
