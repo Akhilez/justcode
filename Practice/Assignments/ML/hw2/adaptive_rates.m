@@ -19,12 +19,8 @@ disp(p.weights);
 
 
 % -------------------TRAINING--------------------
-tic
 
-errors = p.train_batch(x_train, y_train, 25, 0.001);
-
-disp('training time:')
-disp(toc);
+errors = p.train_adaptive_lr(x_train, y_train, 25, 0.001, 0.999, 1.001);
 
 % ------------------PLOTTING--------------------------
 
@@ -33,15 +29,10 @@ plot(1:length(errors), errors)
 title('Training Error vs Epochs')
 xlabel('Epochs')
 ylabel('Training MSE')
-saveas(gcf, 'figures/error.png');
+saveas(gcf, 'figures/adaptive_rates_error.png');
 
 disp('weights');
 disp(p.weights);
-
-decision_y_pred = line_equation(x_train(:, 1), p.weights(1), p.weights(2), p.weights(3));
-decision_y_real = line_equation(x_train(:, 1), 1, 2, -2);
-
-scatter_classes_with_boundary(x_train, y_train, x_train(:, 1), decision_y_pred, x_train(:, 1), decision_y_real, 2);
 
 % ------------------TESTING--------------------------
 

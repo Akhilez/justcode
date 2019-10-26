@@ -46,3 +46,6 @@ y_pred = p.test(x_train);
 confusion_matrix = confusionmat(y_train, y_pred);
 disp(confusion_matrix);
 
+hit_rate = p.get_hit_rate(y_pred, y_train);
+disp('hit_rate:');
+disp(hit_rate);
