@@ -19,7 +19,10 @@ errors = gd2.train(x, y, 50, 0.1);
 disp('error = ');
 disp(errors(end));
 
-disp('weights')
+disp('real weights');
+disp(gd1.weights);
+
+disp('learned weights')
 disp(gd2.weights);
 
 plot(1:length(errors), errors);
