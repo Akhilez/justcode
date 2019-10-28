@@ -1,30 +1,26 @@
-mov(['a', 'b', 'c'], ['1','2','3']).
-mov(['a', 'b', 'c'], ['11','22','33']).
-mov(['a', 'b', 'c'], ['111','222','333']).
-
-?- mov(['a', 'b', 'c'], Next), write(Next), nl.
-
-foo([listing(mov)]).
-
-?- foo(X), write(X), nl.
-
-/*
 :- dynamic on/2.
 
+mov([on(a,table), on(b,a), on(c,b)], [on(a,table), on(b,a), on(c,table)]).
+mov([on(a,table), on(b,a), on(c,table)], [on(a,table), on(b,c), on(c,table)]).
+mov([on(a,table), on(b,c), on(c,table)], [on(a,b), on(b,c), on(c,table)]).
+
+/*
 mov(State, Next):-
   execute_state(State),
   move_block(C1, C2),
   put_on(C1, C2),
-  Next = listing(on),
+  next(listing(on)),
+  next(Next),
   delete_state(State).
+*/
 
 move_block(C1, C2):-
   clear(C1),
   clear(C2),
-  C1 /= C2.
+  C1 \= C2.
 
 execute_state([Pred|Preds]):-
-  call(Pred),
+  assert(Pred),
   execute_state(Preds).
 execute_state([]).
 
@@ -119,8 +115,63 @@ add_list_to_queue([H|T], Queue, New_queue) :-
     add_list_to_queue(T, Temp_queue, New_queue).
 
 
-%-----------------------QUEUE--------------------------
+%%%%%%%%%%%%%%%%%%%% stack operations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    % These predicates give a simple, list based implementation of stacks
+
+    % empty stack generates/tests an empty stack
+
+member(X,[X|_]).
+member(X,[_|T]):-member(X,T).
+
+empty_stack([]).
+
+    % member_stack tests if an element is a member of a stack
+
+member_stack(E, S) :- member(E, S).
+
+    % stack performs the push, pop and peek operations
+    % to push an element onto the stack
+        % ?- stack(a, [b,c,d], S).
+    %    S = [a,b,c,d]
+    % To pop an element from the stack
+    % ?- stack(Top, Rest, [a,b,c]).
+    %    Top = a, Rest = [b,c]
+    % To peek at the top element on the stack
+    % ?- stack(Top, _, [a,b,c]).
+    %    Top = a
+
+stack(E, S, [E|S]).
+
+%%%%%%%%%%%%%%%%%%%% queue operations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    % These predicates give a simple, list based implementation of
+    % FIFO queues
+
+    % empty queue generates/tests an empty queue
+
+
+empty_queue([]).
+
+    % member_queue tests if an element is a member of a queue
+
+member_queue(E, S) :- member(E, S).
+
+    % add_to_queue adds a new element to the back of the queue
+
+add_to_queue(E, [], [E]).
+add_to_queue(E, [H|T], [H|Tnew]) :- add_to_queue(E, T, Tnew).
+
+    % remove_from_queue removes the next element from the queue
+    % Note that it can also be used to examine that element
+    % without removing it
+
+remove_from_queue(E, [E|T], T).
+
+append_queue(First, Second, Concatenation) :-
+    append(First, Second, Concatenation).
+
+%%%%%%%%%%%%%%%%%%%% set operations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % These predicates give a simple,
     % list based implementation of sets
@@ -190,4 +241,4 @@ remove_sort_queue(First, [First|Rest], Rest).
 
 % --------------------END QUEUE----------------------------
 
-*/
+?- go([on(a,table), on(b,a), on(c,b)], [on(c, table), on(b,c), on(a,b)]).
