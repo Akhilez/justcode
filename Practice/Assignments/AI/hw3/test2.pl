@@ -2,6 +2,8 @@
 :- dynamic clear/1.
 
 clear(table).
+clear(A):-
+  not(on(_,A)).
 
 exec_state([]).
 exec_state([H|T]):-
@@ -15,13 +17,7 @@ move_block(C1, C2):-
 
 mov(State):-
   exec_state(State),
-  move_block(C1, C2),
-  write(C1), nl,
-  write(C2), nl,
-  create_move(C1, C2, Next),
-  write(Next).
-
-create_move(B1, B2, [B1, B2]).
+  forall(move_block(C1, C2), write([C1,C2])).
 
 delete_state([Pred|Preds]):-
   retract(Pred),

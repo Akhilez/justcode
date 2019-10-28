@@ -1,22 +1,22 @@
-% Try out the BFS algo with simple graph and check if it works and how it works.
+% Try to create static states for blocks world and try bfs on it.
 
-%:- dynamic on/1.
 
-%mov(on([a,b,c,d]), on([c,a,b,d])).
+%:- dynamic on/2.
 
-mov(abcd, abdc).
-mov(abcd, acbd).
-mov(abcd, bacd).
+mov([on(a,table), on(b,a), on(c,b), clear(c)], [on(a, table), on(b,a), on(c,table), clear(c), clear(b)]).
 
-mov(abdc, adbc).
-mov(abdc, badc).
+mov([on(a, table), on(b,a), on(c,table), clear(c), clear(b)], [on(c, table), on(a,table), on(b,table), clear(a), clear(b), clear(c)]).
+mov([on(a, table), on(b,a), on(c,table), clear(c), clear(b)], [on(a,table), on(c,table), on(b,c), clear(a), clear(b)]).
 
-mov(acbd, acdb).
-mov(acbd, cabd).
+mov([on(c, table), on(a,table), on(b,table), clear(a), clear(b), clear(c)], [on(c, table), on(a,b), on(b,table), clear(a), clear(c)]).
+mov([on(c, table), on(a,table), on(b,table), clear(a), clear(b), clear(c)], [on(c, table), on(a,c), on(b,table), clear(a), clear(b)]).
+mov([on(c, table), on(a,table), on(b,table), clear(a), clear(b), clear(c)], [on(c, table), on(b,c), on(a,table), clear(a), clear(b)]).
+mov([on(c, table), on(a,table), on(b,table), clear(a), clear(b), clear(c)], [on(b, table), on(c,a), on(a,table), clear(c), clear(b)]).
+mov([on(c, table), on(a,table), on(b,table), clear(a), clear(b), clear(c)], [on(b, table), on(c,b), on(a,table), clear(a), clear(c)]).
 
-mov(bacd, badc).
-mov(bacd, bcad).
+mov([on(c, table), on(b,c), on(a,table), clear(a), clear(b)], [on(c,table), on(a,b), on(b,c), clear(a)]).
 
+mov([on(a,table), on(c,table), on(b,c), clear(a), clear(b)], [on(c, table), on(b,c), on(a,b), clear(a)]).
 
 %-------------------------BFS------------------------------
 
@@ -197,8 +197,5 @@ remove_sort_queue(First, [First|Rest], Rest).
 
 % --------------------END QUEUE----------------------------
 
-% ?- go([on(a,table), on(b,a), on(c,b)], [on(c, table), on(b,c), on(a,b)]).
+?- go([on(a,table), on(b,a), on(c,b), clear(c)], [on(c, table), on(b,c), on(a,b), clear(a)]).
 
-%?- go(on([a,b,c,d]), on([c,a,b,d])).
-
-?- go(abcd, cabd).

@@ -1,21 +1,22 @@
-% Try out the BFS algo with simple graph and check if it works and how it works.
+% Try simple dynamic states to test bfs
 
-%:- dynamic on/1.
+%:- dynamic mo/2.
 
-%mov(on([a,b,c,d]), on([c,a,b,d])).
+mo(abcd, abdc).
+mo(abcd, acbd).
+mo(abcd, bacd).
 
-mov(abcd, abdc).
-mov(abcd, acbd).
-mov(abcd, bacd).
+mo(abdc, adbc).
+mo(abdc, badc).
 
-mov(abdc, adbc).
-mov(abdc, badc).
+mo(acbd, acdb).
+mo(acbd, cabd).
 
-mov(acbd, acdb).
-mov(acbd, cabd).
+mo(bacd, badc).
+mo(bacd, bcad).
 
-mov(bacd, badc).
-mov(bacd, bcad).
+mov(S,G):-
+  mo(S, G).
 
 
 %-------------------------BFS------------------------------
@@ -197,8 +198,5 @@ remove_sort_queue(First, [First|Rest], Rest).
 
 % --------------------END QUEUE----------------------------
 
-% ?- go([on(a,table), on(b,a), on(c,b)], [on(c, table), on(b,c), on(a,b)]).
-
-%?- go(on([a,b,c,d]), on([c,a,b,d])).
-
 ?- go(abcd, cabd).
+
