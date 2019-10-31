@@ -1,74 +1,87 @@
-% Try out the BFS algo with simple graph and check if it works and how it works.
+% Try to create dynamic states for blocks world
 
-%:- dynamic on/1.
+:- dynamic on/2.
+:- dynamic clear/1.
+:- dynamic mov/2.
 
-%mov(on([a,b,c,d]), on([c,a,b,d])).
+clear(t).
 
-mov(abcd, abdc).
-mov(abcd, acbd).
-mov(abcd, bacd).
+exec_state([]).
+exec_state([H|T]):-
+  assert(H),
+  exec_state(T).
 
-mov(abdc, adbc).
-mov(abdc, badc).
+clear_pairs(C1, C2):-
+  clear(C1),
+  clear(C2),
+  not(on(C1, C2)),
+  not(C1 = t),
+  C1 \== C2.
 
-mov(acbd, acdb).
-mov(acbd, cabd).
+list_state():-
+  listing(on),
+  listing(clear).
 
-mov(bacd, badc).
-mov(bacd, bcad).
+append_clear_bottom(State, B, State):-
+  on(B, t).
+append_clear_bottom(State, B, State2):-
+  on(B, X),
+  not(X = t),
+  append(State, [clear(X)], State2).
 
+assert_transition(State, B1, B2):-
+  delete(State, on(B1, _), State2),
+  delete(State2, clear(B2), State3),
+  append(State3, [on(B1,B2)], State4),
+  append_clear_bottom(State4, B1, State5),
+  write(State),nl,
+  write([B1, B2]),nl,
+  write(State5), nl,nl,
+  assert(mov(State, State5)).
+
+check_equivalence([H|[]], Goal):-
+  member(H, Goal).
+check_equivalence([H|T], Goal):-
+  member(H, Goal),
+  check_equivalence(T, Goal).
+
+assert_child_states(State):-
+  exec_state(State),
+  forall(clear_pairs(C1, C2), assert_transition(State, C1, C2)),
+  delete_state(State).
+
+delete_state([Pred|Preds]):-
+  retract(Pred),
+  delete_state(Preds).
+delete_state([]).
 
 %-------------------------BFS------------------------------
 
-state_record(State, Parent, [State, Parent]).
-
 go(Start, Goal) :-
-    empty_queue(Empty_open),
-    state_record(Start, nil, State),
-    add_to_queue(State, Empty_open, Open),
-    empty_set(Closed),
-    path(Open, Closed, Goal).
+	empty_stack(Empty_been_list),
+	stack(Start, Empty_been_list, Been_list),
+	path(Start, Goal, Been_list).
+	% path implements a depth first search in PROLOG
+	% Current state = goal, print out been list
 
-path(Open,_,_) :- empty_queue(Open),
-                  write('graph searched, no solution found').
+path(Goal, Goal, Been_list) :-
+  write("The solution is: "),nl,
+	reverse_print_stack(Been_list).
 
-path(Open, Closed, Goal) :-
-    remove_from_queue(Next_record, Open, _),
-    state_record(State, _, Next_record),
-    State = Goal,
-    write('Solution path is: '), nl,
-    printsolution(Next_record, Closed).
+path(State, Goal, Been_list) :-
+  assert_child_states(State),
+	mov(State, Next),
+	% not(unsafe(Next)),
+	not(member_stack(Next, Been_list)),
+	stack(Next, Been_list, New_been_list),
+	path(Next, Goal, New_been_list), !.
 
-path(Open, Closed, Goal) :-
-    remove_from_queue(Next_record, Open, Rest_of_open),
-    (bagof(Child, moves(Next_record, Open, Closed, Child), Children);Children = []),
-    add_list_to_queue(Children, Rest_of_open, New_open),
-    add_to_set(Next_record, Closed, New_closed),
-    path(New_open, New_closed, Goal),!.
-
-moves(State_record, Open, Closed, Child_record) :-
-    state_record(State, _, State_record),
-    mov(State, Next),
-    % not (unsafe(Next)),
-    state_record(Next, _, Test),
-    not(member_queue(Test, Open)),
-    not(member_set(Test, Closed)),
-    state_record(Next, State, Child_record).
-
-printsolution(State_record, _):-
-    state_record(State,nil, State_record),
-    write(State), nl.
-printsolution(State_record, Closed) :-
-    state_record(State, Parent, State_record),
-    state_record(Parent, _, Parent_record),
-    member(Parent_record, Closed),
-    printsolution(Parent_record, Closed),
-    write(State), nl.
-
-add_list_to_queue([], Queue, Queue).
-add_list_to_queue([H|T], Queue, New_queue) :-
-    add_to_queue(H, Queue, Temp_queue),
-    add_list_to_queue(T, Temp_queue, New_queue).
+reverse_print_stack(S) :-
+	empty_stack(S).
+reverse_print_stack(S) :-
+	stack(E, Rest, S),
+	reverse_print_stack(Rest),
+	write(E), nl.
 
 
 %%%%%%%%%%%%%%%%%%%% stack operations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -197,8 +210,6 @@ remove_sort_queue(First, [First|Rest], Rest).
 
 % --------------------END QUEUE----------------------------
 
-% ?- go([on(a,table), on(b,a), on(c,b)], [on(c, table), on(b,c), on(a,b)]).
+%-------------Queries--------------------
 
-%?- go(on([a,b,c,d]), on([c,a,b,d])).
-
-?- go(abcd, cabd).
+?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), clear(a), on(b,c), on(a,b)]).
