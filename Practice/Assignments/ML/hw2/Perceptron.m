@@ -4,10 +4,12 @@ classdef Perceptron < handle
    end
    methods
       
-      function errors = train_batch(obj, x, y, epochs, lr)
+      function metrics = train_batch(obj, x, y, epochs, lr)
         size_of_x = size(x);
         x = [x, ones(size_of_x(1), 1)];
         errors = zeros(epochs, 1);
+        weights_data = zeros(epochs, length(obj.weights));
+        cur_record_index = 1;
         for epoch = 1:epochs
           delta = zeros(1, size_of_x(2)+1);
           error = 0;
@@ -17,9 +19,14 @@ classdef Perceptron < handle
             delta = delta + lr * err * x(i, :);
             error = error + err * err;
           end
+          if ismember(epoch, [5, 10, 50, 100])
+            weights_data(cur_record_index, :) = obj.weights;
+            cur_record_index = cur_record_index + 1;
+          end
           obj.weights = obj.weights + delta;
           errors(epoch) = error;
         end
+        metrics = [errors, weights_data];
         return;
       end
       
@@ -67,6 +74,7 @@ classdef Perceptron < handle
         size_of_x = size(x);
         x = [x, ones(size_of_x(1), 1)];
         prev_error = -1;
+        prev_delta = 0;
         errors = zeros(epochs, 1);
         lrs = zeros(epochs, 1);
         epoch = 1;
@@ -82,16 +90,19 @@ classdef Perceptron < handle
           lrs(epoch) = lr;
           if prev_error == -1
             prev_error = error;
+          elseif error - prev_error > 0.1
+            obj.weights = obj.weights - prev_delta;
+            prev_delta = 0;
+            epoch = epoch -1;
+            lr = lr * d;
+            continue;
           else
-            if error - prev_error > 0
-              lr = lr * d;
-              continue;
-            else
-              lr = lr * D;
-            end
+            lr = lr * D;
           end
           obj.weights = obj.weights + delta;
           errors(epoch) = error;
+          prev_error = error;
+          prev_delta = delta;
           epoch = epoch +1;
         end
         figure(5)

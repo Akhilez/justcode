@@ -16,15 +16,15 @@ p.weights = rand(1, 3);
 
 % -------------------TRAINING--------------------
 
-errors = p.train_adaptive_lr(x_train, y_train, 25, 0.001, 0.999, 1.001);
+errors = p.train_adaptive_lr(x_train, y_train, 25, 0.1, 0.7, 1.1);
 
 % ------------------PLOTTING--------------------------
 
 figure(1)
 plot(1:length(errors), errors)
-title('Training Error vs Epochs')
+title('Adaptive rates Epochs vs Error')
 xlabel('Epochs')
-ylabel('Training MSE')
+ylabel('Error')
 saveas(gcf, 'figures/adaptive_rates_error.png');
 
 disp('weights');

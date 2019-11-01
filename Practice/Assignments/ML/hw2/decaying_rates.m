@@ -16,15 +16,15 @@ p.weights = rand(1, 3);
 
 % -------------------TRAINING--------------------
 
-errors = p.train_decaying_lr(x_train, y_train, 25, 0.01, 0.8);
+errors = p.train_decaying_lr(x_train, y_train, 25, 0.01, 0.6);
 
 % ------------------PLOTTING--------------------------
 
 figure(1)
 plot(1:length(errors), errors)
-title('Training Error vs Epochs')
+title('Decaying rate Epochs vs Error')
 xlabel('Epochs')
-ylabel('Training MSE')
+ylabel('Error')
 saveas(gcf, 'figures/decaying_rates_error.png');
 
 disp('weights');

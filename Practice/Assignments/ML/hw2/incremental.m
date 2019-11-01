@@ -28,9 +28,9 @@ disp(toc);
 
 figure(1)
 plot(1:length(errors), errors)
-title('Training Error vs Epochs')
+title('Incremental Error vs Epochs')
 xlabel('Epochs')
-ylabel('Training MSE')
+ylabel('Error')
 saveas(gcf, 'figures/incremental_error.png');
 
 disp('weights');
