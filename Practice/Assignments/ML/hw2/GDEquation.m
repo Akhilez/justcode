@@ -18,8 +18,7 @@ classdef GDEquation < handle
 
     function errors = train(obj, x, y, epochs, lr)
       errors = zeros(epochs, 1);
-      size_of_x = size(x);
-      nrows = size_of_x(1);
+      [nrows, ncols] = size(x);
       for epoch = 1:epochs
         error = 0;
         for i = 1:nrows
@@ -35,6 +34,34 @@ classdef GDEquation < handle
         end
         errors(epoch) = error;
       end
+    end
+
+    function y_pred = test(obj, x)
+      [nrows, ncols] = size(x);
+      y_pred = zeros(nrows, 1);
+      for i = 1:nrows
+        r = obj.equation(x(i,:));
+        if r >= 0.1
+          r = 1;
+        elseif r >= -0.6
+          r = 0;
+        else
+          r = -1;
+        end
+        y_pred(i) = r;
+      end
+      return;
+    end
+
+    function rate = get_hit_rate(obj, y_pred, y_real)
+      rate = 0;
+      for i = 1:length(y_pred)
+        if y_pred(i) == y_real(i)
+          rate = rate + 1;
+        end
+      end
+      rate = rate/length(y_pred);
+      return;
     end
 
   end

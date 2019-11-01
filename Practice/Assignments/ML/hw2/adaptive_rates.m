@@ -14,10 +14,6 @@ y_train = equation(x_train, 1, 2, -2);
 p = Perceptron;
 p.weights = rand(1, 3);
 
-disp('weights');
-disp(p.weights);
-
-
 % -------------------TRAINING--------------------
 
 errors = p.train_adaptive_lr(x_train, y_train, 25, 0.001, 0.999, 1.001);
@@ -39,8 +35,9 @@ disp(p.weights);
 y_pred = p.test(x_train);
 
 confusion_matrix = confusionmat(y_train, y_pred);
+disp('confusion_matrix = ');
 disp(confusion_matrix);
 
 hit_rate = p.get_hit_rate(y_pred, y_train);
-disp('hit_rate:');
+disp('Accuracy:');
 disp(hit_rate);

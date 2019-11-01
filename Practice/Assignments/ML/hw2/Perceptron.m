@@ -68,6 +68,7 @@ classdef Perceptron < handle
         x = [x, ones(size_of_x(1), 1)];
         prev_error = -1;
         errors = zeros(epochs, 1);
+        lrs = zeros(epochs, 1);
         epoch = 1;
         while epoch <= epochs
           delta = zeros(1, size_of_x(2)+1);
@@ -78,11 +79,11 @@ classdef Perceptron < handle
             delta = delta + lr * err * x(i, :);
             error = error + err * err;
           end
-          disp(obj.weights);
+          lrs(epoch) = lr;
           if prev_error == -1
             prev_error = error;
           else
-            if error > prev_error
+            if error - prev_error > 0
               lr = lr * d;
               continue;
             else
@@ -93,6 +94,13 @@ classdef Perceptron < handle
           errors(epoch) = error;
           epoch = epoch +1;
         end
+        figure(5)
+        plot(1:length(lrs), lrs)
+        title('LR vs Epoch')
+        xlabel('Epochs')
+        ylabel('Learning rate')
+        saveas(gcf, 'figures/adaptive_rates.png');
+
         return;
       end
       

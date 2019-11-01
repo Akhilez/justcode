@@ -14,10 +14,6 @@ y_train = equation(x_train, 1, 2, -2);
 p = Perceptron;
 p.weights = rand(1, 3);
 
-disp('weights');
-disp(p.weights);
-
-
 % -------------------TRAINING--------------------
 tic
 
@@ -48,8 +44,9 @@ scatter_classes_with_boundary(x_train, y_train, x_train(:, 1), decision_y_pred, 
 y_pred = p.test(x_train);
 
 confusion_matrix = confusionmat(y_train, y_pred);
+disp('confusion_matrix = ');
 disp(confusion_matrix);
 
 hit_rate = p.get_hit_rate(y_pred, y_train);
-disp('hit_rate:');
+disp('Accuracy:');
 disp(hit_rate);

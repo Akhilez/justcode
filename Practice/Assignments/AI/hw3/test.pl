@@ -55,7 +55,7 @@ delete_state([Pred|Preds]):-
   delete_state(Preds).
 delete_state([]).
 
-%-------------------------BFS------------------------------
+%-------------------------DFS------------------------------
 
 go(Start, Goal) :-
 	empty_stack(Empty_been_list),
@@ -212,4 +212,4 @@ remove_sort_queue(First, [First|Rest], Rest).
 
 %-------------Queries--------------------
 
-?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), clear(a), on(b,c), on(a,b)]).
+?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), on(b, t), on(a, t), clear(c), clear(a), clear(b)]).
