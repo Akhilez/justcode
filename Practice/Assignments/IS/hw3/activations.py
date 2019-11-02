@@ -39,9 +39,9 @@ class SigmoidActivation(ActivationFunction):
 
 
 def get_activation_function(name, **kwargs):
-    if name == 'linear':
+    if name == LinearActivation.name:
         return LinearActivation(**kwargs)
-    elif name == 'sigmoid':
+    elif name == SigmoidActivation.name:
         return SigmoidActivation(**kwargs)
     else:
         raise Exception(f'The activation function {name} not found.')

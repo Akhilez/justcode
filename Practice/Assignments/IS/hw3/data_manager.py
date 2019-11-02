@@ -38,19 +38,36 @@ class DataManager:
 
         return self.x_train, self.y_train, self.x_test, self.y_test
 
-    def load(self, split=False):
+    def load(self, split=False, one_hot=False):
         if self._data_path:
             data = np.loadtxt(self._data_path)
             self.x = data[:, :-1]
             self.y = data[:, -1]
+            if one_hot:
+                self.y = self.get_one_hot(self.y)
+            if split:
+                self.split()
         elif split:
             self.x_train = np.loadtxt(self._x_train_path)
             self.y_train = np.loadtxt(self._y_train_path)
             self.x_test = np.loadtxt(self._x_test_path)
             self.y_test = np.loadtxt(self._y_test_path)
+            if one_hot:
+                self.y_train = self.get_one_hot(self.y_train)
+                self.y_test = self.get_one_hot(self.y_test)
         else:
             self.x = np.loadtxt(self._x_path)
             self.y = np.loadtxt(self._y_path)
+            if one_hot:
+                self.y = self.get_one_hot(self.y)
+
+    @staticmethod
+    def get_one_hot(y):
+        unique_y = np.unique(y)
+        unique_y.sort()
+        codes = np.eye(len(unique_y))
+        mapping = {unique_y[i]: codes[i] for i in range(len(unique_y))}
+        return np.array([mapping[yi] for yi in y])
 
     @staticmethod
     def save(data, file_path):

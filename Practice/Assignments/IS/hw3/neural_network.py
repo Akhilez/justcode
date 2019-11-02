@@ -1,4 +1,5 @@
 from losses import get_loss_function
+from optimizers import get_optimizer
 
 
 class Sequential:
@@ -8,33 +9,52 @@ class Sequential:
         self.layers = []
         self.loss_function = None
         self.metrics_names = None
+        self.optimizer = None
 
     def add(self, layer):
-        if len(layer) > 0:
+        if len(self.layers) > 0:
             prev_layer = self.layers[-1]
             layer.set_input_size(prev_layer.n_units)
         self.layers.append(layer)
 
-    def compile(self, loss, metrics):
+    def compile(self, optimizer, loss, metrics):
         self.loss_function = get_loss_function(loss)
         self.metrics_names = metrics
+        self.optimizer = get_optimizer(optimizer, model=self)
 
     def train(self, x_train, y_train, epochs, lr, validation_set=None):
-        # TODO: Implement method
+        # Input size validation
+        if x_train.shape[1] != self.layers[0].n_units:
+            raise Exception(f"Input shape {x_train.shape} does not match with input layer {self.layers[0].n_units}.")
+
+        self.optimizer.set_training_data(x_train, y_train, lr, validation_set)
+
+        # Start epochs
+        for epoch in range(epochs):
+            xq, yq = self.optimizer.get_data_point()
+            self.optimizer.feed(xq, yq, epoch=epoch)
+
+    def feed(self, x):
         pass
 
     def save(self, model_name, parent_dir):
         from datetime import datetime
         import json
-        model = {
+        model = self.get_structure()
+        timestamp = datetime.now()
+        with open(f'{parent_dir}/{model_name}_{timestamp}.json', 'w', encoding='utf-8') as file:
+            json.dump(model, file)
+
+    def get_structure(self):
+        return {
             'name': self.name,
             'layers': [layer.get_serialized() for layer in self.layers],
             'loss': self.loss_function.name,
             'metrics': self.metrics_names
         }
-        timestamp = datetime.now()
-        with open(f'{parent_dir}/{model_name}_{timestamp}.json', 'w', encoding='utf-8') as file:
-            json.dump(model, file)
+
+    def describe(self):
+        print(self.get_structure())
 
     def load(self, name, parent_dir, find_latest=False):
         import json
