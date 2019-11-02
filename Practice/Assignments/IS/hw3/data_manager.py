@@ -22,7 +22,7 @@ class DataManager:
         self.y_train = None
         self.y_test = None
 
-    def get_split(self, randomized=True, percentage=0.8):
+    def split(self, randomized=True, percentage=0.8):
         if self.x is None:
             raise Exception("Must load the data by calling obj.load() before splitting.")
         n_rows, n_cols = self.x.shape
@@ -31,15 +31,19 @@ class DataManager:
         train_indices = indices[:split_index]
         test_indices = indices[split_index:]
 
-        x_train = np.array([self.x[i] for i in train_indices])
-        y_train = np.array([self.y[i] for i in train_indices])
-        x_test = np.array([self.x[i] for i in test_indices])
-        y_test = np.array([self.y[i] for i in test_indices])
+        self.x_train = np.array([self.x[i] for i in train_indices])
+        self.y_train = np.array([self.y[i] for i in train_indices])
+        self.x_test = np.array([self.x[i] for i in test_indices])
+        self.y_test = np.array([self.y[i] for i in test_indices])
 
-        return x_train, y_train, x_test, y_test
+        return self.x_train, self.y_train, self.x_test, self.y_test
 
     def load(self, split=False):
-        if split:
+        if self._data_path:
+            data = np.loadtxt(self._data_path)
+            self.x = data[:, :-1]
+            self.y = data[:, -1]
+        elif split:
             self.x_train = np.loadtxt(self._x_train_path)
             self.y_train = np.loadtxt(self._y_train_path)
             self.x_test = np.loadtxt(self._x_test_path)
@@ -65,7 +69,7 @@ class DataManager:
     def _load_and_save_split_data():
         dm = DataManager()
         dm.load()
-        x_train, y_train, x_test, y_test = dm.get_split()
+        x_train, y_train, x_test, y_test = dm.split()
         dm.save(x_train, 'data/MNISTxTrain.txt')
         dm.save(y_train, 'data/MNISTyTrain.txt')
         dm.save(x_test, 'data/MNISTxTest.txt')
