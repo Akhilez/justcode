@@ -28,7 +28,7 @@ class Layer(ABC):
             'name': self.name,
             'n_units': self.n_units,
             'activation': self.activation.name,
-            'weights': self.weights,
+            'weights': self.weights.tolist(),
         }
 
 
@@ -55,12 +55,16 @@ class Dense(Layer):
 
         return h
 
-    def back_propagate(self, lr, error, **kwargs):
-        delta = self.weights * error
-        change = self.prev_xq * delta
-        next_delta = self.weights * change
-        self.weights += lr * change
+    def back_propagate(self, lr, error, is_output_layer=False, **kwargs):
+        delta = error * self.activation.f_derivative(self._prev_s)
+        delta_w = np.outer(delta, self.prev_xq)
+        next_delta = delta.dot(self.remove_bias(self.weights))
+        self.weights += lr * delta_w
         return next_delta
+
+    @staticmethod
+    def remove_bias(weights):
+        return weights[:, 1:]
 
     @staticmethod
     def get_augmented_x(xq):
@@ -79,6 +83,7 @@ class Input(Layer):
     def __init__(self, units, activation='linear'):
         super().__init__(units, activation)
         self.x = None
+        self.weights = np.array([])
 
     def feed(self, xq):
         return xq

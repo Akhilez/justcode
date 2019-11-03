@@ -41,7 +41,7 @@ class Sequential:
         from datetime import datetime
         import json
         model = self.get_structure()
-        timestamp = datetime.now()
+        timestamp = str(datetime.now().timestamp()).split('.')[0]
         with open(f'{parent_dir}/{model_name}_{timestamp}.json', 'w', encoding='utf-8') as file:
             json.dump(model, file)
 
