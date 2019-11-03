@@ -16,7 +16,7 @@ class Layer(ABC):
         self.input_size = input_size
 
     @abstractmethod
-    def feed(self, xq):
+    def feed(self, xq, **kwargs):
         pass
 
     @abstractmethod
@@ -40,27 +40,29 @@ class Dense(Layer):
         self.weights = None
         self.prev_xq = None
         self._prev_s = None
-        self._prev_h = None
-        self.prev_weights = None
-        self.delta = []
+        self._prev_weight_change = None
 
-    def feed(self, xq):
+    def feed(self, xq, **kwargs):
         xq = self.get_augmented_x(xq)
         s = self.weights.dot(xq)
         h = self.activation.f(s)
 
         self.prev_xq = xq
         self._prev_s = s
-        self._prev_h = h
 
         return h
 
-    def back_propagate(self, lr, error, is_output_layer=False, **kwargs):
+    def back_propagate(self, lr, error, momentum=None, **kwargs):
         delta = error * self.activation.f_derivative(self._prev_s)
-        delta_w = np.outer(delta, self.prev_xq)
-        delta_w = delta_w * lr
+        delta_w = np.outer(delta, self.prev_xq) * lr
         next_delta = delta.dot(self.remove_bias(self.weights))
+
+        if momentum is not None and self._prev_weight_change is not None:
+            delta_w += momentum * self._prev_weight_change
+        self._prev_weight_change = delta_w
+
         self.weights += delta_w
+
         return next_delta
 
     @staticmethod
@@ -86,7 +88,7 @@ class Input(Layer):
         self.x = None
         self.weights = np.array([])
 
-    def feed(self, xq):
+    def feed(self, xq, **kwargs):
         return xq
 
     def back_propagate(self, lr, error, **kwargs):

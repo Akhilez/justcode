@@ -26,20 +26,22 @@ class StochasticGradientDescent(Optimizer):
         self.x_test = None
         self.y_test = None
         self.lr = None
-        self.deltas = []
+        self.momentum = None
 
-    def set_training_data(self, x_train, y_train, lr, validation_set=None):
+    def set_training_data(self, x_train, y_train, lr, validation_set=None, momentum=None):
         self.x_train = x_train
         self.y_train = y_train
         self._not_seen = [i for i in range(len(x_train))]
         self.x_test, self.y_test = validation_set if validation_set is not None else (None, None)
         self.lr = lr
+        self.momentum = momentum
 
     def feed(self, xq, yq=None, **kwargs):
         hl = xq
         for layer in self.model.layers:
             hl = layer.feed(hl)
 
+        # TODO: Collect metrics
         metrics = {'error': None, 'y_pred': hl}
         if yq is not None:
             self.back_propagate(xq, yq, hl)
@@ -47,7 +49,7 @@ class StochasticGradientDescent(Optimizer):
             for layer in self.model.layers:
                 # print(f'Weights: {layer.weights}')
                 pass
-            #print(f'yq = {yq}. hl= {hl}')
+            # print(f'yq = {yq}. hl= {hl}')
             error = sum((yq - hl) ** 2)
             metrics['error'] = error
 
@@ -56,7 +58,7 @@ class StochasticGradientDescent(Optimizer):
     def back_propagate(self, xq, yq, yh):
         error = self.model.loss_function.f_derivative(yq, yh)
         for layer in self.model.layers.__reversed__():
-            error = layer.back_propagate(self.lr, error)
+            error = layer.back_propagate(self.lr, error, momentum=self.momentum)
 
     def get_data_point(self):
         if len(self._not_seen) == 0:

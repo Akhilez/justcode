@@ -22,19 +22,19 @@ class Sequential:
         self.metrics_names = metrics
         self.optimizer = get_optimizer(optimizer, model=self)
 
-    def train(self, x_train, y_train, epochs, lr, validation_set=None):
+    def train(self, x_train, y_train, epochs, lr, validation_set=None, momentum=None):
         # Input size validation
         if x_train.shape[1] != self.layers[0].n_units:
             raise Exception(f"Input shape {x_train.shape} does not match with input layer {self.layers[0].n_units}.")
 
-        self.optimizer.set_training_data(x_train, y_train, lr, validation_set)
+        self.optimizer.set_training_data(x_train, y_train, lr, validation_set, momentum)
 
         # Start epochs
         for epoch in range(epochs):
             error = 0
             for i in range(len(x_train)):
                 xq, yq = self.optimizer.get_data_point()
-                metrics = self.optimizer.feed(xq, yq, epoch=epoch)
+                metrics = self.optimizer.feed(xq, yq)
                 error += metrics['error']
             print(error)
 

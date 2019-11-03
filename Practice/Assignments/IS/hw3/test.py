@@ -9,13 +9,15 @@ model = Sequential()
 
 model.add(Input(units=4))
 model.add(Dense(units=10, activation='sigmoid'))
+model.add(Dense(units=10, activation='sigmoid'))
 model.add(Dense(units=3, activation='sigmoid'))
 
 model.compile(optimizer='SGD', loss='MSE', metrics=['accuracy', 'error'])
 
-model.train(dm.x_train, dm.y_train, validation_set=(dm.x_test, dm.y_test), epochs=200, lr=0.5)
+model.train(dm.x_train, dm.y_train, validation_set=(dm.x_test, dm.y_test), epochs=200, lr=0.5, momentum=0.01)
 
 y_pred = model.test(dm.x_test)
+y_pred = dm.get_winner_take_all(y_pred)
 
 for i in range(len(y_pred)):
     print(f'{dm.y_test[i]} %%%% {y_pred[i]}')
