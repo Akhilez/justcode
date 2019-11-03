@@ -2,7 +2,6 @@ import numpy as np
 
 
 class DataManager:
-    seed = 1
 
     def __init__(self, data_path=None, x_path='data/MNISTnumImages5000.txt', y_path='data/MNISTnumLabels5000.txt',
                  x_train_path='data/MNISTxTrain.txt', y_train_path='data/MNISTyTrain.txt',
@@ -77,8 +76,6 @@ class DataManager:
     def get_randomized_indices(min_, max_):
         indices = [i for i in range(min_, max_)]
         import random
-        random.seed(DataManager.seed)
-        DataManager.seed += 1
         random.shuffle(indices)
         return indices
 

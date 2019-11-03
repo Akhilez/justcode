@@ -18,7 +18,7 @@ class MseLoss(LossFunction):
         return (yq - yh) ** 2
 
     def f_derivative(self, yq, yh):
-        return -1 * (yq - yh)
+        return yq - yh
 
 
 def get_loss_function(name, **kwargs):

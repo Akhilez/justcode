@@ -58,8 +58,9 @@ class Dense(Layer):
     def back_propagate(self, lr, error, is_output_layer=False, **kwargs):
         delta = error * self.activation.f_derivative(self._prev_s)
         delta_w = np.outer(delta, self.prev_xq)
+        delta_w = delta_w * lr
         next_delta = delta.dot(self.remove_bias(self.weights))
-        self.weights += lr * delta_w
+        self.weights += delta_w
         return next_delta
 
     @staticmethod
@@ -68,7 +69,7 @@ class Dense(Layer):
 
     @staticmethod
     def get_augmented_x(xq):
-        x_aug = np.zeros(len(xq) + 1)
+        x_aug = np.ones(len(xq) + 1)
         x_aug[1:] = xq
         return x_aug
 

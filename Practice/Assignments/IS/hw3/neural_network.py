@@ -31,11 +31,19 @@ class Sequential:
 
         # Start epochs
         for epoch in range(epochs):
-            xq, yq = self.optimizer.get_data_point()
-            self.optimizer.feed(xq, yq, epoch=epoch)
+            error = 0
+            for i in range(len(x_train)):
+                xq, yq = self.optimizer.get_data_point()
+                metrics = self.optimizer.feed(xq, yq, epoch=epoch)
+                error += metrics['error']
+            print(error)
 
-    def feed(self, x):
-        pass
+    def test(self, x_test):
+        y_pred = []
+        for xq in x_test:
+            metrics = self.optimizer.feed(xq)
+            y_pred.append(metrics['y_pred'])
+        return y_pred
 
     def save(self, model_name, parent_dir):
         from datetime import datetime
