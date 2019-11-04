@@ -1,4 +1,4 @@
-% Best fs testing
+% A* testing
 
 
 :- dynamic on/2.
@@ -38,18 +38,11 @@ assert_transition(State, B1, B2):-
   delete(State2, clear(B2), State3),
   append(State3, [on(B1,B2)], State4),
   append_clear_bottom(State4, B1, State5),
-  write(State),nl,
-  write([B1, B2]),nl,
-  write(State5), nl,nl,
   assert(mov(State, State5)).
 
 check_equivalence([H|[]], Goal):-
   member(H, Goal).
 check_equivalence([H|T], Goal):-
-  write('Checking equv'),nl,
-  write(H), nl,
-  write('in'), nl,
-  write(Goal),nl,
   member(H, Goal),
   check_equivalence(T, Goal).
 
@@ -70,7 +63,7 @@ delete_state([]).
 
 
 
-%-----------------------BEST FS------------------------------------
+%----------------------- A* ------------------------------------
 
 state_record(State, Parent, G, H, F, [State, Parent, G, H, F]).
 precedes([_,_,_,_,F1], [_,_,_,_,F2]) :- F1 =< F2.
@@ -90,7 +83,7 @@ path(Open,_,_) :-
 path(Open, Closed, Goal) :-
     remove_sort_queue(First_record, Open, _),
     state_record(State, _, _, _, _, First_record),
-    State = Goal,
+    check_equivalence(State, Goal),
     write('Solution path is: '), nl,
     printsolution(First_record, Closed).
 
@@ -101,13 +94,13 @@ path(Open, Closed, Goal) :-
     add_to_set(First_record, Closed, New_closed),
     path(New_open, New_closed, Goal),!.
 
-moves(State_record, Open, Closed,Child, Goal) :-
+moves(State_record, Open, Closed, Child, Goal) :-
     state_record(State, _, G, _,_, State_record),
-	assert_child_states(State),
+    assert_child_states(State),
     mov(State, Next),
     state_record(Next, _, _, _, _, Test),
-    not(member_sort_queue(Test, Open)),
-    not(member_set(Test, Closed)),
+    not(member_state_stack(Test, Open)),
+    not(member_state_stack(Test, Closed)),
     G_new is G + 1,
     heuristic(Next, Goal, H),
     F is G_new + H,
@@ -258,3 +251,7 @@ remove_sort_queue(First, [First|Rest], Rest).
 
 
 ?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), on(b, t), on(a, b), clear(c), clear(a)]).
+
+
+
+
