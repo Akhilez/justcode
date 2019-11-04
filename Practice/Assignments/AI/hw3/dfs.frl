@@ -1,0 +1,201 @@
+% BFS
+
+((clear t))
+
+((exec_state ()))
+((exec_state (H|T))
+	(addcl (H))
+	(exec_state T))
+	
+((clear_pairs C1 C2)
+	(clear C1)
+	(clear C2)
+	(negg on C1 C2)
+	(negg eq C1 t)
+	(negg eq C1 C2))
+	
+((append () L L))
+((append (H|T) L2 (H|L))(append T L2 L))
+
+((delete A (B) (B)))
+((delete A (A|B) B))
+((delete A (B C|D) (B|E))
+	(delete A (C|D) E))
+	
+((member H (H|_)))
+((member X (H|T))(member X T))
+
+((append_clear_bottom STate B STate) (on B t))
+((append_clear_bottom STate B STate2)
+	(on B X)
+	(negg eq X t)
+	(append STate ((clear X)) STate2))
+
+((assert_transition STate B1 B2)
+  (delete (on B1 _) STate STate2)
+  (delete (clear B2) STate2 STate3)
+  (append STate3 ((on B1 B2)) STate4)
+  (append_clear_bottom STate4 B1 STate5)
+  (addcl ((mov STate STate5))))
+
+((check_equivalence (H|()) GOal)
+  (member H GOal))
+((check_equivalence (H|T) GOal)
+  (member H GOal)
+  (check_equivalence T GOal))
+  
+((assert_child_states STate)
+  (exec_state STate)
+  (forall ((clear_pairs C1 C2)) ((assert_transition STate C1 C2)))
+  (delete_state STate))
+  
+((delete_state (PRed|PReds))
+  (delcl (PRed))
+  (delete_state PReds))
+((delete_state ()))
+
+
+%-------------------------BFS------------------------------
+
+((state_record STate PArent (STate PArent)))
+
+((go STart GOal)
+	(pp "YO! I'm starting!")
+    (empty_queue EMpty_open)
+    (state_record STart nil STate)
+    (add_to_queue STate EMpty_open OPen)
+    (empty_set CLosed)
+    (path OPen CLosed GOal))
+
+((path OPen _ _)
+	(empty_queue OPen)
+    (pp 'graph searched, no solution found'))
+
+((path OPen CLosed GOal)
+    (remove_from_queue NExt_record OPen _)
+    (state_record STate _ NExt_record)
+    % Check the equivalence of the two states.
+    % State = Goal,
+    (check_equivalence STate GOal)
+    (pp 'Solution path is: ')
+    (printsolution NExt_record CLosed))
+
+((path OPen CLosed GOal)
+    (remove_from_queue NExt_record OPen REst_of_open)
+    (findall CHild ((moves NExt_record OPen CLosed CHild)) CHildren)
+    (add_list_to_queue CHildren REst_of_open NEw_open)
+    (add_to_set NExt_record CLosed NEw_closed)
+    (path NEw_open NEw_closed GOal)
+	(!))
+
+((moves STate_record OPen CLosed CHild_record)
+    (state_record STate _ STate_record)
+    % This is where you gotta create dynamic transitions
+    (assert_child_states STate)
+    (mov STate NExt)
+    % not (unsafe(Next)),
+    (state_record NExt _ TEst)
+    (negg member_queue TEst OPen)
+    (negg member_set TEst CLosed)
+    (state_record NExt STate CHild_record))
+
+((printsolution STate_record _)
+    (state_record STate nil STate_record)
+    (pp STate))
+((printsolution STate_record CLosed)
+    (state_record STate PArent STate_record)
+    (state_record PArent _ PArent_record)
+    (member PArent_record CLosed)
+    (printsolution PArent_record CLosed)
+    (pp STate))
+
+((add_list_to_queue () QUeue QUeue))
+((add_list_to_queue (H|T) QUeue NEw_queue)
+    (add_to_queue H QUeue TEmp_queue)
+    (add_list_to_queue T TEmp_queue NEw_queue))
+
+
+%------------------Stack-----------------------
+
+
+((empty_stack ()))
+
+((member_stack E S) (member E S))
+
+((stack E S (E|S)))
+
+%-------------------QUEUE--------------------
+
+((empty_queue ()))
+
+((member_queue E S) (member E S))
+
+((add_to_queue E () (E)))
+((add_to_queue E (H|T) (H|TNew)) (add_to_queue E T TNew))
+
+((remove_from_queue E (E|T) T))
+
+((append_queue FIrst SEcond COncatenation)
+    (append FIrst SEcond COncatenation))
+
+%------------------SET----------------------
+
+((empty_set ()))
+
+((member_set E S) (member E S))
+
+((add_to_set X S S)(member X S) (!))
+((add_to_set X S (X|S)))
+
+((remove_from_set _ () ()))
+((remove_from_set E (E|T) T) (!))
+((remove_from_set E (H|T) (H|T_new))
+    (remove_from_set E T T_new) (!))
+
+((set_union () S S))
+((set_union (H|T) S S_new)
+    (set_union T S S2)
+    (add_to_set H S2 S_new))
+	
+((set_intersection () _ ()))
+((set_intersection (H|T) S (H|S_new))
+    (member_set H S)
+    (set_intersection T S S_new) (!))
+((set_intersection (_|T) S S_new)
+    (set_intersection T S S_new)(!))
+
+((set_diff () _ ()))
+((set_diff (H|T) S T_new)
+    (member_set H S)
+    (set_diff T S T_new) (!))
+((set_diff (H|T) S (H|T_new))
+    (set_diff T S T_new) (!))
+	
+((subset () _))
+((subset (H|T) S)
+    (member_set H S)
+    (subset T S))
+
+((equal_set S1 S2)
+    (subset S1 S2)
+	(subset S2 S1))
+	
+%-------------------------PRIORITY QUEUE--------------------
+
+
+((empty_sort_queue ()))
+
+((member_sort_queue E S) (member E S))
+
+((insert_sort_queue STate () (STate)))
+((insert_sort_queue STtate (H | T) (STate H | T))
+    (precedes STate H))
+((insert_sort_queue STate (H|T) (H | T_new))
+    (insert_sort_queue STate T T_new))
+
+((remove_sort_queue FIrst (FIrst|REst) REst))
+
+%------------------------QUERIES--------------------
+
+
+?((go ((on a t) (on b a) (on c b) (clear c)) ((on c t) (clear a) (on b c) (on a b))))
