@@ -250,7 +250,7 @@ remove_sort_queue(First, [First|Rest], Rest).
 %------------------------ QUERIES --------------------------------------------
 
 
-?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), on(b, t), on(a, b), clear(c), clear(a)]).
+?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), clear(a), on(b,c), on(a,b)]).
 
 
 

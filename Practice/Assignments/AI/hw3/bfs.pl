@@ -34,9 +34,6 @@ assert_transition(State, B1, B2):-
   delete(State2, clear(B2), State3),
   append(State3, [on(B1,B2)], State4),
   append_clear_bottom(State4, B1, State5),
-  write(State),nl,
-  write([B1, B2]),nl,
-  write(State5), nl,nl,
   assert(mov(State, State5)).
 
 check_equivalence([H|[]], Goal):-
@@ -44,6 +41,11 @@ check_equivalence([H|[]], Goal):-
 check_equivalence([H|T], Goal):-
   member(H, Goal),
   check_equivalence(T, Goal).
+
+member_state_stack(Next, [H|_]):-
+  check_equivalence(Next, H).
+member_state_stack(Next, [_|T]):-
+  member_state_stack(Next, T).
 
 assert_child_states(State):-
   exec_state(State),
@@ -92,8 +94,8 @@ moves(State_record, Open, Closed, Child_record) :-
     mov(State, Next),
     % not (unsafe(Next)),
     state_record(Next, _, Test),
-    not(member_queue(Test, Open)),
-    not(member_set(Test, Closed)),
+    not(member_state_stack(Test, Open)),
+    not(member_state_stack(Test, Closed)),
     state_record(Next, State, Child_record).
 
 printsolution(State_record, _):-
@@ -241,3 +243,4 @@ remove_sort_queue(First, [First|Rest], Rest).
 %-------------Queries--------------------
 
 ?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), clear(a), on(b,c), on(a,b)]).
+
