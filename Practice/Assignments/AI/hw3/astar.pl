@@ -1,4 +1,4 @@
-% A* testing
+% A* search
 
 
 :- dynamic on/2.
@@ -50,6 +50,12 @@ member_state_stack(Next, [H|_]):-
   check_equivalence(Next, H).
 member_state_stack(Next, [_|T]):-
   member_state_stack(Next, T).
+  
+member_state_record(Next, [H|_]):-
+  state_record(State, _, _, _, _, H),
+  check_equivalence(Next, State).
+member_state_record(Next, [_|T]):-
+  member_state_stack(Next, T).
 
 assert_child_states(State):-
   exec_state(State),
@@ -84,7 +90,7 @@ path(Open, Closed, Goal) :-
     remove_sort_queue(First_record, Open, _),
     state_record(State, _, _, _, _, First_record),
     check_equivalence(State, Goal),
-    write('Solution path is: '), nl,
+    nl, write('Solution path is: '), nl,
     printsolution(First_record, Closed).
 
 path(Open, Closed, Goal) :-
@@ -250,8 +256,6 @@ remove_sort_queue(First, [First|Rest], Rest).
 %------------------------ QUERIES --------------------------------------------
 
 
+?- write("?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), clear(a), on(b,c), on(a,b)]).").
 ?- go([on(a,t), on(b,a), on(c,b), clear(c)], [on(c, t), clear(a), on(b,c), on(a,b)]).
-
-
-
 
