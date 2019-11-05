@@ -53,7 +53,11 @@ class State:
 
 def visualize_from_input():
     state = input("Enter a state in the form: ((on a T)(on b a)) where T is the table: ")
-    State(state).visualize()
+    try:
+        State(state).visualize()
+    except Exception as e:
+        print("Exception has occured")
+        print(e)
     next_ = input("Visualize a new state? (y/n): ")
     if next_ == 'y':
         visualize_from_input()
@@ -70,7 +74,7 @@ def visualize_from_file(file_name='states.txt'):
 if __name__ == "__main__":
     print("Sample states:")
     state = '((on a T)(on b a)(on c T)(on d b)(on e c)(on f T))'
-    print(f'Input = {state}')
+    print('Input = %s' % state)
     State(state).visualize()
     print('Sample states from "states.txt":')
     visualize_from_file('states.txt')
