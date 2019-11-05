@@ -66,7 +66,7 @@ delete_state([]).
 %-----------------------BEST FS------------------------------------
 
 state_record(State, Parent, G, H, F, [State, Parent, G, H, F]).
-precedes([_,_,_,_,F1], [_,_,_,_,F2]) :- F1 =< F2.
+precedes([_,_,_,_,F1], [_,_,_,_,F2]) :- F1 >= F2.
 
 go(Start, Goal) :-
     empty_set(Closed),
