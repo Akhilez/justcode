@@ -174,5 +174,5 @@
 %------------------------QUERIES--------------------
 
 
-?((go ((on a t) (on b a) (on c b) (clear c)) ((on c t) (clear a) (on b c) (on a b))))
+% ?((go ((on a t) (on b a) (on c b) (clear c)) ((on c t) (clear a) (on b c) (on a b))))
 
