@@ -12,10 +12,15 @@
 	(negg on C1 C2)
 	(negg eq C1 t)
 	(negg eq C1 C2))
+	
+((length () 0))
+((length (_|T) N)
+	(length T NT)
+	(sum 1 NT N))
 
 ((heuristic L1 L2 J)
-  (ints L1 L2 INT) (length INT LINT)
-  (uni L1 L2 UNI) (length UNI LUNI)
+  (set_intersection L1 L2 INT) (length INT LINT)
+  (set_union L1 L2 UNI) (length UNI LUNI)
   (times LUNI J LINT))
 
 ((append () L L))
@@ -52,8 +57,14 @@
 
 ((member_state_stack NExt (H|_))
   (check_equivalence NExt H))
-((member_state_stack NExt (H|T))
+((member_state_stack NExt (_|T))
   (member_state_stack NExt T))
+  
+((member_of_list STate (H|_))
+	(state_record STate2 _ _ _ _ H)
+	(check_equivalence STate STate2))
+((member_of_list REcord (_|T))
+	(member_of_list REcord T))
 
 ((assert_child_states STate)
   (exec_state STate)
@@ -69,7 +80,7 @@
 %-------------------------A*------------------------------
 
 ((state_record STate PArent G H F (STate PArent G H F)))
-((precedes (_ _ _ _ F1) (_ _ _ _ F2))  (negg less F1 F2))
+((precedes (_ _ _ _ F1) (_ _ _ _ F2)) (negg less F1 F2))
 
 ((go STart GOal)
     (empty_set CLosed)
@@ -77,7 +88,7 @@
     (heuristic STart GOal H)
     (state_record STart nil 0 H H FIrst_record)
     (insert_sort_queue FIrst_record EMpty_open OPen)
-    (path OPenCLosed GOal))
+    (path OPen CLosed GOal))
 
 ((path OPen _ _)
     (empty_sort_queue OPen)
@@ -87,23 +98,22 @@
     (remove_sort_queue FIrst_record OPen _)
     (state_record STate _ _ _ _ FIrst_record)
     (check_equivalence STate GOal)
-    (pp 'SOlution path is: ') nl
+    (pp 'SOlution path is: ')
     (printsolution FIrst_record CLosed))
 
 ((path OPen CLosed GOal)
     (remove_sort_queue FIrst_record OPen REst_of_open)
-    (findall CHild (moves FIrst_record OPen CLosed CHild GOal) CHildren)
+    (findall CHild ((moves FIrst_record OPen CLosed CHild GOal)) CHildren)
     (insert_list CHildren REst_of_open NEw_open)
     (add_to_set FIrst_record CLosed NEw_closed)
-    (path NEw_open NEw_closed GOal)!)
+    (path NEw_open NEw_closed GOal)(!))
 
 ((moves STate_record OPen CLosed CHild GOal)
     (state_record STate _ G _ _ STate_record)
-    (assert_child_states STate)
+	(assert_child_states STate)
     (mov STate NExt)
-    (state_record NExt _ _ _ _ TEst)
-    (negg (member_state_stack TEst OPen))
-    (negg (member_state_stack TEst CLosed))
+    (negg (member_of_list NExt OPen))
+    (negg (member_of_list NExt CLosed))
     (sum G 1 G_new)
     (heuristic NExt GOal H)
     (sum G_new H F)
@@ -115,14 +125,14 @@
     (insert_list TAil L2 NEw_L))
 
 ((printsolution NExt_record _)
-    (state_record STate nil _ __ NExt_record)
-    (pp STate) nl)
+    (state_record STate nil _ _ _ NExt_record)
+    (pp STate))
 ((printsolution NExt_record CLosed)
     (state_record STate PArent _ _ _ NExt_record)
     (state_record PArent _ _ _ _ PArent_record)
     (member_set PArent_record CLosed)
     (printsolution PArent_record CLosed)
-    (pp STate) nl)
+    (pp STate))
 
 %------------------STack-----------------------
 
