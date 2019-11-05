@@ -60,7 +60,6 @@
 ((state_record STate PArent (STate PArent)))
 
 ((go STart GOal)
-	(pp "YO! I'm starting!")
     (empty_queue EMpty_open)
     (state_record STart nil STate)
     (add_to_queue STate EMpty_open OPen)
@@ -198,4 +197,4 @@
 %------------------------QUERIES--------------------
 
 
-?((go ((on a t) (on b a) (on c b) (clear c)) ((on c t) (clear a) (on b c) (on a b))))
+% ?((go ((on a t) (on b a) (on c b) (clear c)) ((on c t) (clear a) (on b c) (on a b))))
