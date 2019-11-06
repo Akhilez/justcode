@@ -3,9 +3,8 @@ import numpy as np
 
 class DataManager:
 
-    def __init__(self, data_path=None, x_path='data/MNISTnumImages5000.txt', y_path='data/MNISTnumLabels5000.txt',
-                 x_train_path='data/MNISTxTrain.txt', y_train_path='data/MNISTyTrain.txt',
-                 x_test_path='data/MNISTxTest.txt', y_test_path='data/MNISTyTest.txt'):
+    def __init__(self, data_path=None, x_path=None, y_path=None, x_train_path=None, y_train_path=None, x_test_path=None,
+                 y_test_path=None):
         self._x_path = x_path
         self._y_path = y_path
         self._data_path = data_path
@@ -47,10 +46,10 @@ class DataManager:
             if split:
                 self.split()
         elif split:
-            self.x_train = np.loadtxt(self._x_train_path)
-            self.y_train = np.loadtxt(self._y_train_path)
-            self.x_test = np.loadtxt(self._x_test_path)
-            self.y_test = np.loadtxt(self._y_test_path)
+            self.x_train = np.load(self._x_train_path)
+            self.y_train = np.load(self._y_train_path)
+            self.x_test = np.load(self._x_test_path)
+            self.y_test = np.load(self._y_test_path)
             if one_hot:
                 self.y_train = self.get_one_hot(self.y_train)
                 self.y_test = self.get_one_hot(self.y_test)
@@ -70,7 +69,7 @@ class DataManager:
 
     @staticmethod
     def save(data, file_path):
-        np.savetxt(file_path, data)
+        np.save(file_path, data)
 
     @staticmethod
     def get_randomized_indices(min_, max_):
@@ -80,12 +79,11 @@ class DataManager:
         return indices
 
     @staticmethod
-    def _load_and_save_split_data():
-        dm = DataManager()
+    def load_and_save_split_data(data_set_name, parent_dir, data_path=None, x_path=None, y_path=None):
+        dm = DataManager(data_path=data_path, x_path=x_path, y_path=y_path)
         dm.load()
         x_train, y_train, x_test, y_test = dm.split()
-        dm.save(x_train, 'data/MNISTxTrain.txt')
-        dm.save(y_train, 'data/MNISTyTrain.txt')
-        dm.save(x_test, 'data/MNISTxTest.txt')
-        dm.save(y_test, 'data/MNISTyTest.txt')
-
+        dm.save(x_train, f'{parent_dir}/{data_set_name}xTrain.npy')
+        dm.save(y_train, f'{parent_dir}/{data_set_name}yTrain.npy')
+        dm.save(x_test, f'{parent_dir}/{data_set_name}xTest.npy')
+        dm.save(y_test, f'{parent_dir}/{data_set_name}yTest.npy')

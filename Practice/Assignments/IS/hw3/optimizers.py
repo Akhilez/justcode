@@ -44,7 +44,10 @@ class StochasticGradientDescent(Optimizer):
         if yq is not None:
             self.back_propagate(xq, yq, hl)
 
-        metrics.collect_iteration_metrics(xq=xq, yq=yq, yh=hl)
+        if metrics is not None:
+            metrics.collect_iteration_metrics(xq=xq, yq=yq, yh=hl)
+
+        return hl
 
     def back_propagate(self, xq, yq, yh):
         error = self.model.loss_function.f_derivative(yq, yh)

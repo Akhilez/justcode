@@ -5,7 +5,9 @@ class Metrics:
     ERROR = 'error'
     ACCURACY = 'accuracy'
     HIT_RATE = 'hit-rate'
+    CLASSIFICATION_ERROR = 'classification_error'
     EVERY_TENTH_HIT_RATE = 'every_tenth_hit_rate'
+    EVERY_TENTH_CLASSIFICATION_ERROR = 'every_tenth_classification_error'
 
     def __init__(self, to_collect, model=None):
         self.to_collect = to_collect
@@ -26,18 +28,20 @@ class Metrics:
         self._hit_rate = None
 
         # Every 10th epoch
-        self.every_tenth_indices = []
-        self.every_tenth_error = []
-        self.tenth_epochs_hit_rates = []
-        self.tenth_hit_rates = []
+        self.tenth_epoch_indices = []
+        self.tenth_epoch_errors = []
+        self.tenth_epoch_hit_rates = []
+        self.tenth_epoch_classification_error = []
 
     def _collect_tenth_epoch_metrics(self):
         if self.EVERY_TENTH_HIT_RATE in self.to_collect:
-            self.every_tenth_indices.append(self.current_epoch)
+            self.tenth_epoch_indices.append(self.current_epoch)
             if self.ERROR in self.to_collect:
-                self.every_tenth_error.append(self._epoch_error)
+                self.tenth_epoch_errors.append(self._epoch_error)
             if self.EVERY_TENTH_HIT_RATE in self.to_collect:
-                self.tenth_hit_rates.append(self._get_hit_rate())
+                self.tenth_epoch_hit_rates.append(self._get_hit_rate())
+            if self.EVERY_TENTH_CLASSIFICATION_ERROR in self.to_collect:
+                self.tenth_epoch_classification_error.append(1 - self._get_hit_rate())
 
     def _get_hit_rate(self):
         if self._hit_rate is not None:
@@ -45,9 +49,9 @@ class Metrics:
         hits = 0
         y_preds_winners = self.get_winner_take_all(self._iter_y_preds)
         for yi in range(len(y_preds_winners)):
-            if self._iter_y_train == y_preds_winners:
+            if all(self._iter_y_train[yi] == y_preds_winners[yi]):
                 hits += 1
-        self._hit_rate = hits/len(y_preds_winners)
+        self._hit_rate = hits / len(y_preds_winners)
         return self._hit_rate
 
     def collect_iteration_metrics(self, xq, yq, yh=None):
@@ -81,6 +85,7 @@ class Metrics:
         self.current_iteration = -1
         self._iter_y_train.clear()
         self._iter_y_preds.clear()
+        self._iter_x_train.clear()
         self._epoch_error = -1
         self._hit_rate = None
 
@@ -94,5 +99,11 @@ class Metrics:
 
     @staticmethod
     def get_confusion_matrix(y_test, y_pred):
-        # TODO: Get confusion matrix
-        pass
+        (n_rows, n_cols) = y_test.shape
+        classes = np.unique(y_test, axis=0)
+        matrix = np.zeros((n_cols, n_cols))
+        for i in range(n_rows):
+            desired_index = [j for j in range(n_cols) if all(y_test[i] == classes[j])][0]
+            pred_index = [j for j in range(n_cols) if all(y_pred[i] == classes[j])][0]
+            matrix[pred_index][desired_index] += 1
+        return matrix

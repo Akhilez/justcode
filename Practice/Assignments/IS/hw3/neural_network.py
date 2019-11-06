@@ -2,6 +2,8 @@ from losses import get_loss_function
 from metrics import Metrics
 from optimizers import get_optimizer
 
+import numpy as np
+
 
 class Sequential:
     name = 'sequential'
@@ -42,11 +44,16 @@ class Sequential:
         return metrics
 
     def test(self, x_test):
+
+        # metrics = Metrics(self.metrics_names, model=self)
+
         y_pred = []
         for xq in x_test:
-            metrics = self.optimizer.feed(xq)
-            y_pred.append(metrics['y_pred'])
-        return y_pred
+            y_pred_i = self.optimizer.feed(xq)  # , metrics=metrics)
+            y_pred.append(y_pred_i)
+
+        # metrics.collect_post_epoch()
+        return np.array(y_pred)
 
     def save(self, model_name, parent_dir):
         from datetime import datetime
