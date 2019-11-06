@@ -28,15 +28,17 @@ class Sequential:
             raise Exception(f"Input shape {x_train.shape} does not match with input layer {self.layers[0].n_units}.")
 
         self.optimizer.set_training_data(x_train, y_train, lr, validation_set, momentum)
+        metrics = Metrics(self.metrics_names, model=self)
 
         # Start epochs
         for epoch in range(epochs):
-            error = 0
             for i in range(len(x_train)):
                 xq, yq = self.optimizer.get_data_point()
-                metrics = self.optimizer.feed(xq, yq)
-                error += metrics['error']
-            print(error)
+                self.optimizer.feed(xq, yq, metrics=metrics)
+
+            metrics.collect_post_epoch(x_train=x_train, y_train=y_train, validation_set=validation_set)
+
+        return metrics
 
     def test(self, x_test):
         y_pred = []
@@ -95,3 +97,68 @@ def get_neural_network(name):
         return Sequential()
     else:
         raise Exception(f"Model not found for {name}")
+
+
+class Metrics:
+    ERROR = 'error'
+    ACCURACY = 'accuracy'
+    HIT_RATE = 'hit-rate'
+    EVERY_TENTH_HIT_RATE = 'every_tenth_hit_rate'
+
+    def __init__(self, to_collect, model=None):
+        self.to_collect = to_collect
+        self.model = model
+
+        # Each epoch
+        self.current_epoch = -1
+        self.errors = []
+        self._epoch_error = -1
+        self.hit_rates = []
+
+        # Each iteration
+        self.current_iteration = -1
+        self.iter_error = []
+        self._iter_y_train = []
+        self._iter_y_preds = []
+
+        # Every 10th epoch
+        self.every_tenth_indices = []
+        self.every_tenth_error = []
+        self.tenth_epochs_hit_rates = []
+
+    def _collect_tenth_epoch_metrics(self):
+        self.every_tenth_error.append(self._epoch_error)
+        self.every_tenth_indices.append(self.current_epoch)
+
+    def collect_iteration_metrics(self, xq, yq, yh=None):
+        self.current_iteration += 1
+        error = self.model.loss_function.f(yq, yh)
+        self.iter_error.append(error)
+        self._iter_y_preds.append(yh)
+        self._iter_y_train.append(yq)
+
+    def collect_post_epoch(self, x_train=None, y_train=None, validation_set=None):
+        self.current_epoch += 1
+
+        self._epoch_error = sum(self.iter_error)
+
+        if self.ERROR in self.to_collect:
+            self.errors.append(self._epoch_error)
+
+        if self.EVERY_TENTH_HIT_RATE in self.to_collect:
+            if self.current_epoch == 0 or self.current_epoch % 10 == 0:
+                self._collect_tenth_epoch_metrics()
+
+        # TODO: Implement metrics for validation set.
+        # TODO: Calculate hit_rate
+
+        self._clear_post_epoch()
+
+    def _clear_post_epoch(self):
+        self.iter_error.clear()
+        self.current_iteration = -1
+        self._iter_y_train.clear()
+        self._iter_y_preds.clear()
+        self._epoch_error = -1
+
+

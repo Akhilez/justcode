@@ -36,24 +36,15 @@ class StochasticGradientDescent(Optimizer):
         self.lr = lr
         self.momentum = momentum
 
-    def feed(self, xq, yq=None, **kwargs):
+    def feed(self, xq, yq=None, metrics=None, **kwargs):
         hl = xq
         for layer in self.model.layers:
             hl = layer.feed(hl)
 
-        # TODO: Collect metrics
-        metrics = {'error': None, 'y_pred': hl}
         if yq is not None:
             self.back_propagate(xq, yq, hl)
 
-            for layer in self.model.layers:
-                # print(f'Weights: {layer.weights}')
-                pass
-            # print(f'yq = {yq}. hl= {hl}')
-            error = sum((yq - hl) ** 2)
-            metrics['error'] = error
-
-        return metrics
+        metrics.collect_iteration_metrics(xq=xq, yq=yq, yh=hl)
 
     def back_propagate(self, xq, yq, yh):
         error = self.model.loss_function.f_derivative(yq, yh)
