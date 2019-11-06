@@ -1,18 +1,22 @@
-from data_manager import DataManager
-from grapher import Grapher
-from layers import Input, Dense
-from neural_network import Sequential, Metrics
+from utils.data_manager import DataManager
+from utils.grapher import Grapher
+from akipy.layers import Input, Dense
+from akipy.neural_network import Sequential, Metrics
+
+import os
 
 # --------------PRE_PROCESSING-----------------------
 
-# DataManager.load_and_save_split_data(x_path='data/MNISTnumImages5000.txt', y_path='data/MNISTnumLabels5000.txt',
-#                                      data_set_name='Mnist', parent_dir='data')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# DataManager.load_and_save_split_data(x_path='data/MNISTnumImages5000.txt', y_path='data/MNISTnumLabels5000.txt', data_set_name='Mnist', parent_dir='data')
 
 # dm = DataManager(data_path='data/iris.data')
-# dm.load(split=True, one_hot=True)
 
-dm = DataManager(x_train_path='data/irisxTrain.npy', y_train_path='data/irisyTrain.npy',
-                 x_test_path='data/irisxTest.npy', y_test_path='data/irisyTest.npy')
+dm = DataManager(x_train_path='data/irisxTrain.npy', y_train_path='data/irisyTrain.npy', x_test_path='data/irisxTest.npy', y_test_path='data/irisyTest.npy')
+
+# dm = DataManager(x_train_path='data/MnistxTrain.npy', y_train_path='data/MnistyTrain.npy', x_test_path='data/MnistxTest.npy', y_test_path='data/MnistyTest.npy')
+
 dm.load(split=True, one_hot=True)
 
 # ---------------MODEL DESIGN------------------------
@@ -23,11 +27,11 @@ model.add(Input(units=4))
 model.add(Dense(units=10, activation='sigmoid'))
 model.add(Dense(units=3, activation='sigmoid'))
 
-model.compile(optimizer='SGD', loss='MSE', metrics=['every_tenth_hit_rate', 'every_tenth_classification_error'])
+model.compile(optimizer='SGD', loss='MSE', metrics=['error', 'every_tenth_hit_rate', 'every_tenth_classification_error'])
 
 # ----------------TRAINING--------------------------------
 
-metrics = model.train(dm.x_train, dm.y_train, validation_set=(dm.x_test, dm.y_test), epochs=101, lr=0.1, momentum=0.01)
+metrics = model.train(dm.x_train, dm.y_train, validation_set=(dm.x_test, dm.y_test), epochs=51, lr=0.1, momentum=0.01)
 
 # ---------------TESTING-------------------------------
 

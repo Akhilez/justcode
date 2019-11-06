@@ -1,6 +1,6 @@
-from losses import get_loss_function
-from metrics import Metrics
-from optimizers import get_optimizer
+from akipy.losses import get_loss_function
+from akipy.metrics import Metrics
+from akipy.optimizers import get_optimizer
 
 import numpy as np
 
@@ -96,7 +96,7 @@ class Sequential:
         model.loss_function = get_loss_function(structure['loss'])
         model.metrics_names = structure['metrics']
 
-        import layers
+        from akipy import layers
         model.layers = [layers.create_layer_from_structure(layer) for layer in structure['layers']]
 
 

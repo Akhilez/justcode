@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from activations import get_activation_function
+from akipy.activations import get_activation_function
 
 
 class Layer(ABC):

@@ -1,4 +1,5 @@
 import numpy as np
+from utils.logger import logger
 
 
 class Metrics:
@@ -18,6 +19,7 @@ class Metrics:
         self.errors = []
         self._epoch_error = -1
         self.hit_rates = []
+        self.print_message = []
 
         # Each iteration
         self.current_iteration = -1
@@ -36,10 +38,9 @@ class Metrics:
     def _collect_tenth_epoch_metrics(self):
         if self.EVERY_TENTH_HIT_RATE in self.to_collect:
             self.tenth_epoch_indices.append(self.current_epoch)
-            if self.ERROR in self.to_collect:
-                self.tenth_epoch_errors.append(self._epoch_error)
             if self.EVERY_TENTH_HIT_RATE in self.to_collect:
                 self.tenth_epoch_hit_rates.append(self._get_hit_rate())
+                self.print_message.append(f'HitRate: {self._get_hit_rate()}')
             if self.EVERY_TENTH_CLASSIFICATION_ERROR in self.to_collect:
                 self.tenth_epoch_classification_error.append(1 - self._get_hit_rate())
 
@@ -57,18 +58,20 @@ class Metrics:
     def collect_iteration_metrics(self, xq, yq, yh=None):
         self.current_iteration += 1
         error = self.model.loss_function.f(yq, yh)
-        self.iter_error.append(error)
+        self.iter_error.append(sum(error))
         self._iter_x_train.append(xq)
         self._iter_y_train.append(yq)
         self._iter_y_preds.append(yh)
 
     def collect_post_epoch(self, x_train=None, y_train=None, validation_set=None):
         self.current_epoch += 1
+        self.print_message.append(f'Epoch: {self.current_epoch}')
 
         self._epoch_error = sum(self.iter_error)
 
         if self.ERROR in self.to_collect:
             self.errors.append(self._epoch_error)
+            self.print_message.append(f'Error: {self._epoch_error}')
 
         if self.current_epoch == 0 or self.current_epoch % 10 == 0:
             self._collect_tenth_epoch_metrics()
@@ -78,6 +81,8 @@ class Metrics:
 
         # TODO: Implement metrics for validation set.
 
+        if len(self.print_message) > 0:
+            logger.info(' | '.join(self.print_message))
         self._clear_post_epoch()
 
     def _clear_post_epoch(self):
@@ -88,6 +93,7 @@ class Metrics:
         self._iter_x_train.clear()
         self._epoch_error = -1
         self._hit_rate = None
+        self.print_message.clear()
 
     @staticmethod
     def get_winner_take_all(y):

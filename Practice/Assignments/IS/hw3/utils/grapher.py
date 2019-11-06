@@ -54,6 +54,6 @@ class Grapher:
         for i in range(len(x)):
             grapher.record(x[i], y[i])
 
-        grapher.plot(axs, title=title, xlabel=x_label, ylabel=y_label, xticks=grapher.x)
+        grapher.plot(axs, title=title, xlabel=x_label, ylabel=y_label)
         grapher.save_figure(f'figures/{fig_name}.png')
         grapher.show()
