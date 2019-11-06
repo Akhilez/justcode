@@ -73,19 +73,6 @@ class DataManager:
         np.savetxt(file_path, data)
 
     @staticmethod
-    def get_winner_take_all(y):
-        winner_y = []
-        for yq in y:
-            max_index = yq.argmax()
-            winner_y.append([1 if i == max_index else 0 for i in range(len(yq))])
-        return np.array(winner_y)
-
-    @staticmethod
-    def get_confusion_matrix(y_test, y_pred):
-        # TODO: Get confusion matrix
-        pass
-
-    @staticmethod
     def get_randomized_indices(min_, max_):
         indices = [i for i in range(min_, max_)]
         import random
