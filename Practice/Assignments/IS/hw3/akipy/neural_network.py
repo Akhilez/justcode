@@ -8,11 +8,12 @@ import numpy as np
 class Sequential:
     name = 'sequential'
 
-    def __init__(self):
+    def __init__(self, name='sequential'):
         self.layers = []
         self.loss_function = None
         self.metrics_names = None
         self.optimizer = None
+        self.model_name = name
 
     def add(self, layer):
         if len(self.layers) > 0:
@@ -55,29 +56,31 @@ class Sequential:
         # metrics.collect_post_epoch()
         return np.array(y_pred)
 
-    def save(self, model_name, parent_dir):
-        from datetime import datetime
-        import json
+    def save(self, parent_dir):
         model = self.get_structure()
-        timestamp = str(datetime.now().timestamp()).split('.')[0]
-        with open(f'{parent_dir}/{model_name}_{timestamp}.json', 'w', encoding='utf-8') as file:
+        with open(f'{parent_dir}/{self.model_name}_{model["timestamp"]}.json', 'w', encoding='utf-8') as file:
+            import json
             json.dump(model, file)
 
     def get_structure(self):
+        from datetime import datetime
         return {
             'name': self.name,
+            'model_name': self.model_name,
             'layers': [layer.get_serialized() for layer in self.layers],
             'loss': self.loss_function.name,
-            'metrics': self.metrics_names
+            'optimizer': self.optimizer.name,
+            'metrics': self.metrics_names,
+            'timestamp': str(datetime.now().timestamp()).split('.')[0]
         }
 
     def describe(self):
         print(self.get_structure())
 
     def load(self, name, parent_dir, find_latest=False):
-        import json
         model_name = name if not find_latest else self._get_latest_model_name(name, parent_dir)
         with open(f'{parent_dir}/{model_name}', 'w', encoding='utf-8') as json_file:
+            import json
             structure = json.load(json_file)
             return self._create_model_from_structure(structure)
 
@@ -93,8 +96,10 @@ class Sequential:
     @staticmethod
     def _create_model_from_structure(structure):
         model = get_neural_network(structure['name'])
+        model.model_name = structure['model_name']
         model.loss_function = get_loss_function(structure['loss'])
         model.metrics_names = structure['metrics']
+        model.optimizer = get_optimizer(structure['optimizer'])
 
         from akipy import layers
         model.layers = [layers.create_layer_from_structure(layer) for layer in structure['layers']]
