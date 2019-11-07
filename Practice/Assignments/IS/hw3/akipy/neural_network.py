@@ -77,12 +77,13 @@ class Sequential:
     def describe(self):
         print(self.get_structure())
 
-    def load(self, name, parent_dir, find_latest=False):
-        model_name = name if not find_latest else self._get_latest_model_name(name, parent_dir)
-        with open(f'{parent_dir}/{model_name}', 'w', encoding='utf-8') as json_file:
+    @staticmethod
+    def load(name, parent_dir, find_latest=False):
+        model_name = name if not find_latest else Sequential._get_latest_model_name(name, parent_dir)
+        with open(f'{parent_dir}/{model_name}', 'r', encoding='utf-8') as json_file:
             import json
             structure = json.load(json_file)
-            return self._create_model_from_structure(structure)
+            return Sequential._create_model_from_structure(structure)
 
     @staticmethod
     def _get_latest_model_name(model_name, parent_dir):
@@ -99,10 +100,12 @@ class Sequential:
         model.model_name = structure['model_name']
         model.loss_function = get_loss_function(structure['loss'])
         model.metrics_names = structure['metrics']
-        model.optimizer = get_optimizer(structure['optimizer'])
+        model.optimizer = get_optimizer(structure['optimizer'], model=model)
 
         from akipy import layers
         model.layers = [layers.create_layer_from_structure(layer) for layer in structure['layers']]
+
+        return model
 
 
 def get_neural_network(name):

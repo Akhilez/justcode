@@ -21,7 +21,7 @@ dm.load(split=True, one_hot=True)
 
 # ---------------MODEL DESIGN------------------------
 
-model = Sequential()
+model = Sequential(name='iris')
 
 model.add(Input(units=4))
 model.add(Dense(units=10, activation='sigmoid'))
@@ -50,6 +50,6 @@ Grapher.plot_generic(metrics.tenth_epoch_indices, metrics.tenth_epoch_classifica
 
 # ------------------SAVING MODEL--------------------------
 
-# model.save('test', parent_dir='models')
+model.save(parent_dir='models')
 
 # model = model.load('test', parent_dir='models')

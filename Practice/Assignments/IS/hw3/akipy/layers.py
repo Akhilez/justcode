@@ -132,7 +132,7 @@ class Input(Layer):
 
 
 def create_layer_from_structure(layer):
-    activation = get_activation_function(layer['activation'])
+    activation = layer['activation']
     n_units = layer['n_units']
     name = layer['name']
     if name == Dense.name:
