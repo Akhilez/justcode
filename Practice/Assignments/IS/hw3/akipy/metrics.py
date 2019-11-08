@@ -9,6 +9,7 @@ class Metrics:
     CLASSIFICATION_ERROR = 'classification_error'
     EVERY_TENTH_HIT_RATE = 'every_tenth_hit_rate'
     EVERY_TENTH_CLASSIFICATION_ERROR = 'every_tenth_classification_error'
+    ITER_ERRORS = 'iter_errors'
 
     def __init__(self, to_collect, model=None):
         self.to_collect = to_collect
@@ -24,6 +25,7 @@ class Metrics:
         # Each iteration
         self.current_iteration = -1
         self.iter_error = []
+        self.iter_errors = []
         self._iter_x_train = []
         self._iter_y_train = []
         self._iter_y_preds = []
@@ -78,6 +80,9 @@ class Metrics:
 
         if self.HIT_RATE in self.to_collect:
             self.hit_rates.append(self._get_hit_rate())
+
+        if self.ITER_ERRORS in self.to_collect:
+            self.iter_errors.append(list(self.iter_error))
 
         # TODO: Implement metrics for validation set.
 

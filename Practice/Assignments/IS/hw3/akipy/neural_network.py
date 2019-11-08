@@ -51,7 +51,7 @@ class Sequential:
         y_pred = []
         for q in range(len(x_test)):
             yq = None if y_test is None else y_test[q]
-            y_pred_i = self.optimizer.feed(x_test[q], yq=yq, metrics=metrics)
+            y_pred_i = self.optimizer.feed(x_test[q], yq=yq, metrics=metrics, learn=False)
             y_pred.append(y_pred_i)
 
         if y_test is not None:

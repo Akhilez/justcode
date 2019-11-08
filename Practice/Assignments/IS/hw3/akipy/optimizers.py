@@ -36,12 +36,12 @@ class StochasticGradientDescent(Optimizer):
         self.lr = lr
         self.momentum = momentum
 
-    def feed(self, xq, yq=None, metrics=None, **kwargs):
+    def feed(self, xq, yq=None, metrics=None, learn=True, **kwargs):
         hl = xq
         for layer in self.model.layers:
             hl = layer.feed(hl)
 
-        if yq is not None:
+        if yq is not None and learn:
             self.back_propagate(xq, yq, hl)
 
         if metrics is not None:

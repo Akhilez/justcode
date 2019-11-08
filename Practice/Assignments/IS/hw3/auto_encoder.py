@@ -1,3 +1,5 @@
+import numpy as np
+
 from utils.data_manager import DataManager
 from utils.grapher import Grapher
 from akipy.layers import Input, Dense
@@ -11,7 +13,8 @@ import matplotlib.pyplot as plt
 
 # dm = DataManager(data_path='data/iris.data')
 
-dm = DataManager(x_train_path='data/irisxTrain.npy', y_train_path='data/irisyTrain.npy', x_test_path='data/irisxTest.npy', y_test_path='data/irisyTest.npy')
+dm = DataManager(x_train_path='data/irisxTrain.npy', y_train_path='data/irisyTrain.npy',
+                 x_test_path='data/irisxTest.npy', y_test_path='data/irisyTest.npy')
 
 # dm = DataManager(x_train_path='data/MnistxTrain.npy', y_train_path='data/MnistyTrain.npy', x_test_path='data/MnistxTest.npy', y_test_path='data/MnistyTest.npy')
 
@@ -25,16 +28,16 @@ model.add(Input(units=4))
 model.add(Dense(units=10, activation='sigmoid'))
 model.add(Dense(units=4, activation='linear'))
 
-model.compile(optimizer='SGD', loss='MSE', metrics=['error'])
+model.compile(optimizer='SGD', loss='MSE', metrics=['error', 'iter_errors'])
 
 # -----------------OR LOAD MODEL--------------------------
 
-model = Sequential.load('iris_auto_encoder', 'models', find_latest=True)
+# model = Sequential.load('iris_auto_encoder', 'models', find_latest=True)
 
 # ----------------TRAINING--------------------------------
 
-# metrics = model.train(dm.x_train, dm.x_train, validation_set=(dm.x_test, dm.x_test), epochs=51, lr=0.01, momentum=0.01)
-# model.save(parent_dir='models')
+metrics = model.train(dm.x_train, dm.x_train, validation_set=(dm.x_test, dm.x_test), epochs=51, lr=0.01, momentum=0.01)
+model.save(parent_dir='models')
 
 # ---------------TESTING-------------------------------
 
@@ -56,13 +59,31 @@ fig.show()
 '''
 
 # Get errors for each class
+x_classes = []
 x_train_errors = []
 x_test_errors = []
+classes = np.unique(dm.y_test, axis=0)
+for class_i in classes:
+    x_train_error = 0
+    x_test_error = 0
+    for i in range(len(dm.y_train)):
+        if all(dm.y_train[i] == class_i):
+            x_train_error += x_train_metrics.iter_errors[0][i]
+
+    for i in range(len(dm.y_test)):
+        if all(dm.y_test[i] == class_i):
+            x_test_error += x_test_metrics.iter_errors[0][i]
+    x_train_errors.append(x_train_error)
+    x_test_errors.append(x_test_error)
+    x_classes.append(class_i.argmax())
 
 # Plot errors for each class
-fig, axs = Grapher.create_figure(2, 5)
-fig.suptitle('Errors for each class')
-axs = axs.flatten()
-for i in range(len(axs)):
-    axs.bar(['Train', 'Test'], [x_train_errors[i], x_test_errors[i]], align='center')
+fig, axs = Grapher.create_figure(1, 1, figsize=(7, 5))
+axs.set_title('Errors for each class')
+axs.bar(x_classes, [x_train_errors[i] for i in range(len(classes))], label='Train', width=0.35)
+axs.bar([class_i + 0.35 for class_i in x_classes], [x_test_errors[i] for i in range(len(x_classes))], label='Test', width=0.35)
+axs.set_xticks(x_classes)
+axs.set_xlabel('Classes')
+axs.legend(['Train', 'Test'])
+
 fig.show()
