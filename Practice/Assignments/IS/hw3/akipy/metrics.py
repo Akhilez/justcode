@@ -96,6 +96,14 @@ class Metrics:
         self.print_message.clear()
 
     @staticmethod
+    def get_hit_rate(predicted, actual):
+        hits = 0
+        for i in range(len(predicted)):
+            if all(predicted[i] == actual[i]):
+                hits += 1
+        return hits / len(predicted)
+
+    @staticmethod
     def get_winner_take_all(y):
         winner_y = []
         for yq in y:

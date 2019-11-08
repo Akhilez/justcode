@@ -44,16 +44,20 @@ class Sequential:
 
         return metrics
 
-    def test(self, x_test):
+    def test(self, x_test, y_test=None):
 
-        # metrics = Metrics(self.metrics_names, model=self)
+        metrics = None if y_test is None else Metrics(self.metrics_names, model=self)
 
         y_pred = []
-        for xq in x_test:
-            y_pred_i = self.optimizer.feed(xq)  # , metrics=metrics)
+        for q in range(len(x_test)):
+            yq = None if y_test is None else y_test[q]
+            y_pred_i = self.optimizer.feed(x_test[q], yq=yq, metrics=metrics)
             y_pred.append(y_pred_i)
 
-        # metrics.collect_post_epoch()
+        if y_test is not None:
+            metrics.collect_post_epoch()
+            return np.array(y_pred), metrics
+
         return np.array(y_pred)
 
     def save(self, parent_dir):

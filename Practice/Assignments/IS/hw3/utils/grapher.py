@@ -29,8 +29,8 @@ class Grapher:
         self.__init__()
 
     @staticmethod
-    def create_figure(num_rows, num_columns, figure_number, figsize=(16, 10)):
-        return plt.subplots(num_rows, num_columns, num=figure_number, figsize=figsize, dpi=80, constrained_layout=True)
+    def create_figure(num_rows, num_columns, figsize=(16, 10)):
+        return plt.subplots(num_rows, num_columns, num=Grapher.get_new_fig_number(), figsize=figsize, dpi=80, constrained_layout=True)
 
     @staticmethod
     def show():
@@ -49,7 +49,7 @@ class Grapher:
     @staticmethod
     def plot_generic(x, y, title, x_label, y_label, fig_name):
         grapher = Grapher()
-        fig, axs = grapher.create_figure(1, 1, Grapher.get_new_fig_number(), figsize=(6, 5))
+        fig, axs = grapher.create_figure(1, 1, figsize=(6, 5))
 
         for i in range(len(x)):
             grapher.record(x[i], y[i])
