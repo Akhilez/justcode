@@ -40,7 +40,7 @@ class Sequential:
                 xq, yq = self.optimizer.get_data_point()
                 self.optimizer.feed(xq, yq, metrics=metrics)
 
-            metrics.collect_post_epoch(x_train=x_train, y_train=y_train, validation_set=validation_set)
+            metrics.collect_post_epoch(validation_set=validation_set)
 
         return metrics
 

@@ -9,6 +9,7 @@ class Metrics:
     CLASSIFICATION_ERROR = 'classification_error'
     EVERY_TENTH_HIT_RATE = 'every_tenth_hit_rate'
     EVERY_TENTH_CLASSIFICATION_ERROR = 'every_tenth_classification_error'
+    EVERY_TENTH_ERROR = 'every_tenth_error'
     ITER_ERRORS = 'iter_errors'
 
     def __init__(self, to_collect, model=None):
@@ -38,13 +39,15 @@ class Metrics:
         self.tenth_epoch_classification_error = []
 
     def _collect_tenth_epoch_metrics(self):
+        self.tenth_epoch_indices.append(self.current_epoch)
+        if self.EVERY_TENTH_ERROR in self.to_collect:
+            self.tenth_epoch_errors.append(self._epoch_error)
+            self.print_message.append(f'Tenth Error: {self._epoch_error}')
         if self.EVERY_TENTH_HIT_RATE in self.to_collect:
-            self.tenth_epoch_indices.append(self.current_epoch)
-            if self.EVERY_TENTH_HIT_RATE in self.to_collect:
-                self.tenth_epoch_hit_rates.append(self._get_hit_rate())
-                self.print_message.append(f'HitRate: {self._get_hit_rate()}')
-            if self.EVERY_TENTH_CLASSIFICATION_ERROR in self.to_collect:
-                self.tenth_epoch_classification_error.append(1 - self._get_hit_rate())
+            self.tenth_epoch_hit_rates.append(self._get_hit_rate())
+            self.print_message.append(f'HitRate: {self._get_hit_rate()}')
+        if self.EVERY_TENTH_CLASSIFICATION_ERROR in self.to_collect:
+            self.tenth_epoch_classification_error.append(1 - self._get_hit_rate())
 
     def _get_hit_rate(self):
         if self._hit_rate is not None:
@@ -65,7 +68,7 @@ class Metrics:
         self._iter_y_train.append(yq)
         self._iter_y_preds.append(yh)
 
-    def collect_post_epoch(self, x_train=None, y_train=None, validation_set=None):
+    def collect_post_epoch(self, validation_set=None):
         self.current_epoch += 1
         self.print_message.append(f'Epoch: {self.current_epoch}')
 
@@ -75,7 +78,7 @@ class Metrics:
             self.errors.append(self._epoch_error)
             self.print_message.append(f'Error: {self._epoch_error}')
 
-        if self.current_epoch == 0 or self.current_epoch % 10 == 0:
+        if self.current_epoch % 10 == 0:
             self._collect_tenth_epoch_metrics()
 
         if self.HIT_RATE in self.to_collect:
@@ -84,11 +87,20 @@ class Metrics:
         if self.ITER_ERRORS in self.to_collect:
             self.iter_errors.append(list(self.iter_error))
 
+        if validation_set is not None:
+            self._set_validation_error(validation_set)
+
         # TODO: Implement metrics for validation set.
 
         if len(self.print_message) > 0:
             logger.info(' | '.join(self.print_message))
         self._clear_post_epoch()
+
+    def _set_validation_error(self, validation_set):
+        x_test, y_test = validation_set
+        y_pred = self.model.test(x_test)
+        error = sum(sum(self.model.loss_function.f(y_test, y_pred)))
+        self.print_message.append(f'Validation Error: {error}')
 
     def _clear_post_epoch(self):
         self.iter_error.clear()

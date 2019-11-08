@@ -10,23 +10,14 @@ LOGGING = {
             'style': '{',
         },
         'simple': {
-            'format': '{levelname} | {asctime} | {module} | {funcName} | {lineno} | {message}',
-            'style': '{',
-        },
-        'basic': {
             'format': '{levelname} | {asctime} | {module} | {message}',
             'style': '{',
         },
     },
     'handlers': {
-        'basic_console': {
-            'class': 'logging.StreamHandler',
-            'level': 'DEBUG',
-            'formatter': 'basic'
-        },
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'simple'
         },
         'file': {
@@ -40,7 +31,7 @@ LOGGING = {
     },
     'loggers': {
         'basic': {
-            'handlers': ['basic_console'],
+            'handlers': ['console', 'file'],
             'level': 'DEBUG',
             'propagate': True,
         },
