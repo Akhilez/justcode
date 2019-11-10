@@ -31,7 +31,7 @@ model.compile(optimizer='SGD', loss='MSE', metrics=['error', 'every_tenth_hit_ra
 
 # ----------------TRAINING--------------------------------
 
-metrics = model.train(dm.x_train, dm.y_train, validation_set=(dm.x_test, dm.y_test), epochs=41, lr=0.5, momentum=0.1)
+metrics = model.train(dm.x_train, dm.y_train, validation_set=(dm.x_test, dm.y_test), epochs=11, lr=0.4, momentum=0.1)
 model.save(parent_dir='models')
 
 # ---------------TESTING-------------------------------

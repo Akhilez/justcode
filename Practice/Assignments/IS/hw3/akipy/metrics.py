@@ -22,6 +22,8 @@ class Metrics:
         self._epoch_error = -1
         self.hit_rates = []
         self.print_message = []
+        self._epoch_validation_error = -1
+        self._epoch_validation_y_pred = None
 
         # Each iteration
         self.current_iteration = -1
@@ -36,9 +38,10 @@ class Metrics:
         self.tenth_epoch_indices = []
         self.tenth_epoch_errors = []
         self.tenth_epoch_hit_rates = []
+        self.tenth_epoch_validation_hit_rates = []
         self.tenth_epoch_classification_error = []
 
-    def _collect_tenth_epoch_metrics(self):
+    def _collect_tenth_epoch_metrics(self, validation_set=None):
         self.tenth_epoch_indices.append(self.current_epoch)
         if self.EVERY_TENTH_ERROR in self.to_collect:
             self.tenth_epoch_errors.append(self._epoch_error)
@@ -46,18 +49,19 @@ class Metrics:
         if self.EVERY_TENTH_HIT_RATE in self.to_collect:
             self.tenth_epoch_hit_rates.append(self._get_hit_rate())
             self.print_message.append(f'HitRate: {self._get_hit_rate()}')
+            if validation_set is not None:
+                validation_set_tenth_hit_rate = self.get_hit_rate(
+                    self.get_winner_take_all(self._epoch_validation_y_pred), validation_set[1])
+                self.tenth_epoch_validation_hit_rates.append(validation_set_tenth_hit_rate)
+                self.print_message.append(f'Validation Hit-Rate: {validation_set_tenth_hit_rate}')
         if self.EVERY_TENTH_CLASSIFICATION_ERROR in self.to_collect:
             self.tenth_epoch_classification_error.append(1 - self._get_hit_rate())
 
     def _get_hit_rate(self):
         if self._hit_rate is not None:
             return self._hit_rate
-        hits = 0
         y_preds_winners = self.get_winner_take_all(self._iter_y_preds)
-        for yi in range(len(y_preds_winners)):
-            if all(self._iter_y_train[yi] == y_preds_winners[yi]):
-                hits += 1
-        self._hit_rate = hits / len(y_preds_winners)
+        self._hit_rate = self.get_hit_rate(y_preds_winners, self._iter_y_train)
         return self._hit_rate
 
     def collect_iteration_metrics(self, xq, yq, yh=None):
@@ -73,22 +77,23 @@ class Metrics:
         self.print_message.append(f'Epoch: {self.current_epoch}')
 
         self._epoch_error = sum(self.iter_error)
+        if validation_set is not None:
+            self._set_validation_error(validation_set)
 
         if self.ERROR in self.to_collect:
             self.errors.append(self._epoch_error)
             self.print_message.append(f'Error: {self._epoch_error}')
+            if validation_set is not None:
+                self.print_message.append(f'Validation Error: {self._epoch_validation_error}')
 
         if self.current_epoch % 10 == 0:
-            self._collect_tenth_epoch_metrics()
+            self._collect_tenth_epoch_metrics(validation_set)
 
         if self.HIT_RATE in self.to_collect:
             self.hit_rates.append(self._get_hit_rate())
 
         if self.ITER_ERRORS in self.to_collect:
             self.iter_errors.append(list(self.iter_error))
-
-        if validation_set is not None:
-            self._set_validation_error(validation_set)
 
         # TODO: Implement metrics for validation set.
 
@@ -98,9 +103,8 @@ class Metrics:
 
     def _set_validation_error(self, validation_set):
         x_test, y_test = validation_set
-        y_pred = self.model.test(x_test)
-        error = sum(sum(self.model.loss_function.f(y_test, y_pred)))
-        self.print_message.append(f'Validation Error: {error}')
+        self._epoch_validation_y_pred = self.model.test(x_test)
+        self._epoch_validation_error = sum(sum(self.model.loss_function.f(y_test, self._epoch_validation_y_pred)))
 
     def _clear_post_epoch(self):
         self.iter_error.clear()
@@ -109,8 +113,10 @@ class Metrics:
         self._iter_y_preds.clear()
         self._iter_x_train.clear()
         self._epoch_error = -1
+        self._epoch_validation_error = -1
         self._hit_rate = None
         self.print_message.clear()
+        self._epoch_validation_y_pred = None
 
     @staticmethod
     def get_hit_rate(predicted, actual):
