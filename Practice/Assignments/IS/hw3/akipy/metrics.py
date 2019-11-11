@@ -76,7 +76,7 @@ class Metrics:
         self.current_epoch += 1
         self.print_message.append(f'Epoch: {self.current_epoch}')
 
-        self._epoch_error = sum(self.iter_error)
+        self._epoch_error = sum(self.iter_error)/len(self.iter_error)
         if validation_set is not None:
             self._set_validation_error(validation_set)
 
@@ -104,7 +104,8 @@ class Metrics:
     def _set_validation_error(self, validation_set):
         x_test, y_test = validation_set
         self._epoch_validation_y_pred = self.model.test(x_test)
-        self._epoch_validation_error = sum(sum(self.model.loss_function.f(y_test, self._epoch_validation_y_pred)))
+        errors = sum(self.model.loss_function.f(y_test, self._epoch_validation_y_pred).T)
+        self._epoch_validation_error = sum(errors)/len(errors)
 
     def _clear_post_epoch(self):
         self.iter_error.clear()

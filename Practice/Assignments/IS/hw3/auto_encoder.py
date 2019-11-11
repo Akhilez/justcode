@@ -35,7 +35,7 @@ model = Sequential.load('mnist_auto_encoder', 'models.bkp', find_latest=True)
 
 # ----------------TRAINING--------------------------------
 
-metrics = model.train(dm.x_train, dm.x_train, validation_set=(dm.x_test, dm.x_test), epochs=11, lr=0.1, momentum=0.1)
+metrics = model.train(dm.x_train, dm.x_train, validation_set=(dm.x_test, dm.x_test), epochs=1, lr=0.1, momentum=0.1)
 model.save(parent_dir='models')
 
 # ---------------TESTING-------------------------------
@@ -47,6 +47,8 @@ x_train_pred, x_train_metrics = model.test(dm.x_train, dm.x_train)
 
 # Plotting error
 Grapher.plot_generic(metrics.tenth_epoch_indices, metrics.tenth_epoch_errors, "Auto Encoder: Epoch vs Error", "Epochs", "Error", 'auto_encoder_error')
+
+# -----------------------------------------------------------------------
 
 # Get errors
 x_train_error = x_train_metrics.errors[-1]
@@ -61,23 +63,24 @@ fig.savefig('figures/auto_encoder_bars_1.png')
 fig.show()
 
 # -----------------------------------------------------------------------
+
 # Get errors for each class
 x_classes = []
 x_train_errors = []
 x_test_errors = []
 classes = np.unique(dm.y_test, axis=0)
 for class_i in classes:
-    x_train_error = 0
-    x_test_error = 0
+    x_train_error = []
+    x_test_error = []
     for i in range(len(dm.y_train)):
         if all(dm.y_train[i] == class_i):
-            x_train_error += x_train_metrics.iter_errors[0][i]
+            x_train_error.append(x_train_metrics.iter_errors[0][i])
 
     for i in range(len(dm.y_test)):
         if all(dm.y_test[i] == class_i):
-            x_test_error += x_test_metrics.iter_errors[0][i]
-    x_train_errors.append(x_train_error)
-    x_test_errors.append(x_test_error)
+            x_test_error.append(x_test_metrics.iter_errors[0][i])
+    x_train_errors.append(sum(x_train_error)/len(x_train_error))
+    x_test_errors.append(sum(x_test_error)/len(x_test_error))
     x_classes.append(class_i.argmax())
 
 # Plot errors for each class
