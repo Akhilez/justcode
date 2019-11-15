@@ -7,9 +7,10 @@ class Layer(ABC):
     name = None
     _next_layer_number = 1
 
-    def __init__(self, units, activation='linear'):
+    def __init__(self, units, activation='linear', lr=None):
         self.n_units = units
         self.activation = get_activation_function(activation)
+        self.lr = lr
         self.input_size = None
         self.weights = None
         self.layer_name = f'{self.name}_layer_{self.get_next_layer_number()}'
@@ -51,8 +52,8 @@ class Layer(ABC):
 class Dense(Layer):
     name = 'dense'
 
-    def __init__(self, units, activation='linear'):
-        super().__init__(units, activation)
+    def __init__(self, units, activation='linear', lr=None):
+        super().__init__(units, activation, lr=lr)
         self.weights = None
         self.prev_xq = None
         self._prev_s = None
@@ -70,7 +71,7 @@ class Dense(Layer):
 
     def back_propagate(self, lr, error, momentum=None, **kwargs):
         delta = error * self.activation.f_derivative(self._prev_s)
-        delta_w = np.outer(delta, self.prev_xq) * lr
+        delta_w = np.outer(delta, self.prev_xq) * (lr if self.lr is None else self.lr)
         next_delta = delta.dot(self.remove_bias(self.weights))
 
         if momentum is not None and self._prev_weight_change is not None:
