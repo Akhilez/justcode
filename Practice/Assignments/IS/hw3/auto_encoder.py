@@ -31,11 +31,11 @@ model.compile(optimizer='SGD', loss='MSE', metrics=['error', 'iter_errors', 'eve
 
 # -----------------OR LOAD MODEL--------------------------
 
-model = Sequential.load('mnist_auto_encoder', 'models.bkp', find_latest=True)
+# model = Sequential.load('mnist_auto_encoder', 'models.bkp', find_latest=True)
 
 # ----------------TRAINING--------------------------------
 
-metrics = model.train(dm.x_train, dm.x_train, validation_set=(dm.x_test, dm.x_test), epochs=1, lr=0.1, momentum=0.1)
+metrics = model.train(dm.x_train, dm.x_train, validation_set=(dm.x_test, dm.x_test), epochs=11, lr=0.5, momentum=0.1)
 model.save(parent_dir='models')
 
 # ---------------TESTING-------------------------------

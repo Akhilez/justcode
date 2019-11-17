@@ -1,3 +1,4 @@
+from akipy.layers import Input, Dense
 from utils.data_manager import DataManager
 from utils.grapher import Grapher
 from akipy.neural_network import Sequential, Metrics
@@ -10,14 +11,15 @@ dm.load(split=True, one_hot=True)
 
 # ---------------MODEL DESIGN------------------------
 
-model = Sequential.load('mnist_classification', 'models.bkp', find_latest=True)
-encoder_model = Sequential.load('mnist_auto_encoder', 'models.bkp', find_latest=True)
-
+encoder_model = Sequential.load('mnist_auto_encoder', 'models', find_latest=True)
 encoder_hidden_layer = encoder_model.layers[1]
 encoder_hidden_layer.lr = 0  # So that it will not learn from back-propagation.
 
-model.layers[1] = encoder_hidden_layer
-model.model_name = 'mnist_hybrid_classifier'
+model = Sequential(name='mnist_hybrid_classifier')
+
+model.add(Input(units=784))
+model.add(encoder_hidden_layer)
+model.add(Dense(units=10, activation='sigmoid'))
 
 model.compile(optimizer='SGD', loss='MSE', metrics=['error', 'every_tenth_hit_rate', 'every_tenth_classification_error'])
 
