@@ -13,3 +13,12 @@ svm = Smo(x, y);
 
 svm.train();
 
+x_test = [0.2,0.2;0.4,0.2;0.2,0.6; 0.8,0.3; 0.7,0.6; 0.6,0.4; 0.5,0.7];
+y_test = [-1, -1, -1, 1, 1, 1, 1];
+
+y_preds = svm.classify(x_test);
+
+disp(y_test);
+disp(y_preds);
+
+disp("Test");

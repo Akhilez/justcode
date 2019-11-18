@@ -16,15 +16,15 @@ classdef Smo < handle
         obj.x = x;
         obj.y = y;
         [obj.nrows, obj.ncols] = size(x);
-        obj.epsilon = 0.5;
-        obj.C = 1;
+        obj.epsilon = 0.01;
+        obj.C = 3;
         obj.alpha = obj.get_init_alpha();
         obj.b = 0;
       end
 
       function res = train(self)
         itr = 0;
-        while itr < 1000
+        while itr < 10
           itr = itr + 1;
 
           % Step 2
@@ -69,7 +69,7 @@ classdef Smo < handle
           self.alpha(i1) = self.alpha(i1) + self.y(i1) * self.y(i2) * alpha2_change;
 
           % Step 7
-          self.make_lower_alphas_zero();
+          self.adjust_alpha_extremes();
 
           % Step 8
           if self.alpha(i1) < self.C && self.alpha(i1) > 0
@@ -91,7 +91,8 @@ classdef Smo < handle
             break;
           end
 
-          disp("hiii");
+          disp("Iteration: ");
+          disp(itr);
 
         end
       end
@@ -109,10 +110,12 @@ classdef Smo < handle
         end
       end
 
-      function none = make_lower_alphas_zero(self)
+      function none = adjust_alpha_extremes(self)
         for i = 1:self.nrows
           if self.alpha(i) < self.epsilon
             self.alpha(i) = 0;
+          elseif self.alpha(i) > self.C
+            self.alpha(i) = self.C;
           end
         end
       end
@@ -142,9 +145,9 @@ classdef Smo < handle
       function error = get_error_i(obj, i)
         sum_term = 0;
         for j = 1:obj.nrows
-          sum_term = sum_term + obj.alpha(j) * obj.y(j) * obj.get_kernel_value(i, j) + obj.b;
+          sum_term = sum_term + obj.alpha(j) * obj.y(j) * obj.get_kernel_value(i, j);
         end
-        error = sum_term - obj.y(i);
+        error = sum_term + obj.b - obj.y(i);
       end
 
       function kernel_out = get_kernel_value(self, i, j)
