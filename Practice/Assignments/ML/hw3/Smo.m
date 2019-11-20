@@ -17,7 +17,7 @@ classdef Smo < handle
         obj.y = y;
         [obj.nrows, obj.ncols] = size(x);
         obj.epsilon = 0.01;
-        obj.C = 3;
+        obj.C = 5;
         obj.alpha = obj.get_init_alpha();
         obj.b = 0;
       end
@@ -62,7 +62,7 @@ classdef Smo < handle
           alpha2_prev = self.alpha(i2);
 
           % Step 5
-          alpha2_change = self.y(i2) * errors(i2) / k;
+          alpha2_change = self.y(i2) * relative_errors(i2) / k;
           self.alpha(i2) = self.alpha(i2) + alpha2_change;
 
           % Step 6
