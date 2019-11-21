@@ -1,0 +1,130 @@
+
+% CPU Time
+((run 0) (!))
+((run X)(sum X -1 Y) (run Y))
+
+?((cputime SYS1 START)
+  (run 100000)
+  (cputime SYS2 ELAPSED)
+  (p program execution time: ELAPSED seconds))
+
+
+
+% Bubble sort
+
+/* ((greater_than X Y)) holds when X > Y */
+((greater_than X Y)
+ (less Y X))
+/*swap the first two elements if they are not in order*/
+((swap (X Y|T) (Y X | T))
+ (greater_than X Y))
+/*swap elements in the tail*/
+((swap (H | T) (H | T1))
+ (swap T T1))
+/*Note that swap assumes that it will never be called on the empty list*/
+((bubbleSort L SL)
+ (swap L FILLINHERE) % at least one swap is needed
+ (!)
+ (bubbleSort L1 FILLINHERE))
+((bubbleSort L FILLINHERE)) % the list is already sorted
+
+% Insertion
+/*
+(insert E SL SLE) holds when SLE is the list obtained by inserting the element E in
+the sorted list SL. An element smaller than H is inserted at the front of the list
+ */
+((insert X () (FILLINHERE)))
+((insert E (H | T) (E H | T))
+ (ordered T less)
+ (less E FILLINHERE)
+(!))
+((insert E (H|T) (H|T1))
+ (ordered T less)
+ (insert E T FILLINHERE))
+
+((ordered () _ )) %the empty list is ordered in ANY order
+((ordered (_) _ )) %the list with 1 element is ordered in ANY order
+((ordered (E1 E2 |T) ORDER )
+ (ORDER E1 E2) /*notice the use of a variable as predicate name; this
+is in fact a feature of 2nd order logic */
+ (ordered (E2|T) FILLINHERE))
+/* insertion sort makes use of insert */
+((insertionSort () ())) %the empty list is sorted
+((insertionSort (H|T) SORTED) %insert the head of the list into the sorted
+ (insertionSort T FILLINHERE) %tail of the list
+ (insert H T1 SORTED))
+
+
+% Merge sort
+
+?((reload my_list_pro)) %or just define append
+/*(mergeSort L SORTED) holds when SORTED is the sorted version of L; SORTED is
+obtained by splitting the list L into two approximately equal sublists, sort them
+(using mergeSort) and merge their sorted versions. */
+((mergeSort () ())) %the empty list is sorted
+((mergeSort (X) (X))(!))
+((mergeSort L SL)
+ (split_in_half L FILLINHERE FILLINHERE)
+ (mergeSort L1 S1)
+ (mergeSort FILLINHERE S2)
+ (merge S1 S2 FILLINHERE))
+((split_in_half (X) () (X)))
+((split_in_half L L1 L2)
+ (length L N)
+ (division N 2 N1)
+ (length L1 N1)
+ (append L1 L2 L))
+/*(merge S1 S2 S) S1 interleaved with S2 results in S */
+((merge () L L))
+((merge L () L))
+((merge (H1|T1) (H2|T2) (H1 | T))
+(less H1 H2)
+(merge T1 (H2|T2) T))
+((merge (H1|T1) (H2|T2) (H2|T))
+(negg less H1 H2)
+(FILLINHERE (H1|T1) T2 T))
+
+% Quick sort
+/*
+((quickSort L SORTED)) when SORTED is obtained from L by using the quick sort
+approach:
+(1) Split the list into two sublists – SMALL and BIG – of elements < than the 1st
+element of L ; >= than the 1st element go into BIG
+(2) Sort each of the sublists (using quicksort) to obtain S_SMALL, and S_BIG
+(3) and then obtain SORTED by putting together S_SMALL + 1st element + S_BIG
+*/
+/* split: pivot is the list Head */
+((split _ () () ()))
+((split X (H|T) (H | FILLINHERE) BIG)
+(less H X )
+(!)
+(split X T SMALL BIG))
+((split X (H|T) SMALL (H | BIG))
+(split X T FILLINHERE BIG))
+((quickSort () () ))
+((quickSort (H | T) SORTED)
+ (split H T SMALL BIG)
+ (quickSort FILLINHERE S)
+ (quickSort FILLINHERE B)
+ (append S (H|B) SORTED))
+
+
+% Hybrid sort
+/* Write here the correct description of hybridSort */
+((hybridSort LIST SMALL BIG THRESHOLD SLIST)
+(length LIST L)
+(less L THRESHOLD)(!) % try it with and w/o the cut to understand its role
+(SMALL LIST SLIST))
+((hybridSort LIST SMALL mergeSort THRESHOLD SLIST)
+(split_in_half LIST L 1 L2)
+(hybridSort L1 SMALL mergeSort THRESHOLD S1)
+(FILLINHERE L2 SMALL mergeSort THRESHOLD S2)
+(merge S1 S2 FILLINHERE))
+((hybridSort LIST SMALL quickSort THRESHOLD SLIST)
+FILL IN HERE THE COMPLETE & CORRECT BODY OF THIS CLAUSE: Please
+be very careful!
+
+
+
+
+

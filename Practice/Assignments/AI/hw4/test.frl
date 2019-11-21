@@ -1,0 +1,23 @@
+
+
+
+% Bubble sort
+
+/*swap the first two elements if they are not in order*/
+((swap (X Y|T) (Y X | T))
+ (less Y X))
+
+/*swap elements in the tail*/
+((swap (H | T) (H | T1))
+ (swap T T1))
+
+/*Note that swap assumes that it will never be called on the empty list*/
+((bubbleSort L SL)
+ (swap L L1) % at least one swap is needed
+ (!)
+ (bubbleSort L1 SL))
+((bubbleSort L L)) % the list is already sorted
+
+
+?((bubbleSort (5 1 2 3 7) SL) (pp SL))
+
