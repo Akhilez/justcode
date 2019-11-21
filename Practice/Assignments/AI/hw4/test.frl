@@ -1,23 +1,60 @@
 
+% Merge sort
+
+((append () L L))  %when L1 is () L is the same as L2
+
+((append (H1|T1) L2 (H1|T))
+            (append T1 L2 T))
+
+((length () 0 ))
+((length (_|T) N)
+           (length T N1)
+           (sum N1 1 N))
+
+/*(mergeSort L SORTED) holds when SORTED is the sorted version of L; SORTED is
+obtained by splitting the list L into two approximately equal sublists, sort them
+(using mergeSort) and merge their sorted versions. */
 
 
-% Bubble sort
+((mergeSort () ())(pp "MergeSort 1"))       %the empty list is sorted
 
-/*swap the first two elements if they are not in order*/
-((swap (X Y|T) (Y X | T))
- (less Y X))
+((mergeSort (X) (X))(pp "MergeSort 2")(!))
 
-/*swap elements in the tail*/
-((swap (H | T) (H | T1))
- (swap T T1))
+((mergeSort L SL)
+  (pp "MergeSort 3")
+  (split_in_half L L1 L2)
+  (mergeSort L1 S1)
+  (mergeSort L2 S2)
+  (merge S1 S2 SL))
 
-/*Note that swap assumes that it will never be called on the empty list*/
-((bubbleSort L SL)
- (swap L L1) % at least one swap is needed
- (!)
- (bubbleSort L1 SL))
-((bubbleSort L L)) % the list is already sorted
+((split_in_half (X) () (X))(pp "Split 1"))
+
+((split_in_half L L1 L2)
+ (pp "Split 2")
+ (length L N)
+ (division N 2 N1)
+ (pp "IN Split ")
+ (length L1 N1)
+ (append L1 L2 L))
 
 
-?((bubbleSort (5 1 2 3 7) SL) (pp SL))
+/*(merge S1 S2 S) S1 interleaved with S2 results in S */
+((merge () L L)(pp "Merge 1"))
+
+((merge L () L)(pp "Merge 2"))
+
+((merge (H1|T1) (H2|T2) (H1 | T))
+  (pp "Merge 3")
+  (less H1 H2)
+  (merge T1 (H2|T2) T))
+
+((merge (H1|T1) (H2|T2) (H2|T))
+  (pp "Merge 3")
+  (negg less H1 H2)
+  (merge (H1|T1) T2 T))
+
+
+
+?((mergeSort (5 1 2 3 7) SL) (pp SL))
+
 
