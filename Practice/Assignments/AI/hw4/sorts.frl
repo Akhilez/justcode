@@ -86,34 +86,62 @@ the sorted list SL. An element smaller than H is inserted at the front of the li
 % -----------------------------------MERGE SORT----------------------------
 
 
+
 % Merge sort
 
-?((reload my_list_pro)) %or just define append
+((append () L L))  %when L1 is () L is the same as L2
+
+((append (H1|T1) L2 (H1|T))
+            (append T1 L2 T))
+
+((length () 0 ))
+((length (_|T) N)
+           (length T N1)
+           (sum N1 1 N))
+
 /*(mergeSort L SORTED) holds when SORTED is the sorted version of L; SORTED is
 obtained by splitting the list L into two approximately equal sublists, sort them
 (using mergeSort) and merge their sorted versions. */
-((mergeSort () ())) %the empty list is sorted
+
+
+((mergeSort () ()))       %the empty list is sorted
+
 ((mergeSort (X) (X))(!))
+
 ((mergeSort L SL)
- (split_in_half L FILLINHERE FILLINHERE)
- (mergeSort L1 S1)
- (mergeSort FILLINHERE S2)
- (merge S1 S2 FILLINHERE))
+  (split_in_half L L1 L2)
+  (mergeSort L1 S1)
+  (mergeSort L2 S2)
+  (merge S1 S2 SL))
+
 ((split_in_half (X) () (X)))
+
 ((split_in_half L L1 L2)
  (length L N)
  (division N 2 N1)
  (length L1 N1)
  (append L1 L2 L))
+
+
 /*(merge S1 S2 S) S1 interleaved with S2 results in S */
 ((merge () L L))
+
 ((merge L () L))
+
 ((merge (H1|T1) (H2|T2) (H1 | T))
-(less H1 H2)
-(merge T1 (H2|T2) T))
+  (less H1 H2)
+  (merge T1 (H2|T2) T))
+
 ((merge (H1|T1) (H2|T2) (H2|T))
-(negg less H1 H2)
-(FILLINHERE (H1|T1) T2 T))
+  (negg less H1 H2)
+  (merge (H1|T1) T2 T))
+
+
+
+?((mergeSort (5 1 2 3 7) SL) (pp SL))
+
+
+
 
 
 
@@ -132,36 +160,65 @@ element of L ; >= than the 1st element go into BIG
 */
 /* split: pivot is the list Head */
 ((split _ () () ()))
-((split X (H|T) (H | FILLINHERE) BIG)
-(less H X )
-(!)
-(split X T SMALL BIG))
+
+((split X (H|T) (H | SMALL) BIG)
+	(less H X )
+	(!)
+	(split X T SMALL BIG))
+
 ((split X (H|T) SMALL (H | BIG))
-(split X T FILLINHERE BIG))
+	(split X T SMALL BIG))
+
+
 ((quickSort () () ))
+
 ((quickSort (H | T) SORTED)
- (split H T SMALL BIG)
- (quickSort FILLINHERE S)
- (quickSort FILLINHERE B)
- (append S (H|B) SORTED))
+	(split H T SMALL BIG)
+	(quickSort SMALL S)
+	(quickSort BIG B)
+	(append S (H|B) SORTED))
+
+
+
+?((quickSort (5 1 2 3 7) SL) (pp SL))
+
+
+% -----------------------------------Hybrid SORT----------------------------
+
 
 
 % Hybrid sort
 /* Write here the correct description of hybridSort */
+
 ((hybridSort LIST SMALL BIG THRESHOLD SLIST)
-(length LIST L)
-(less L THRESHOLD)(!) % try it with and w/o the cut to understand its role
-(SMALL LIST SLIST))
+	(length LIST L)
+	(less L THRESHOLD)(!) % try it with and w/o the cut to understand its role
+	(SMALL LIST SLIST))
+
+((hybridSort () _ mergeSort _ ()))
+
+((hybridSort (X) SMALL mergeSort THRESHOLD (X))(!))
+
 ((hybridSort LIST SMALL mergeSort THRESHOLD SLIST)
-(split_in_half LIST L 1 L2)
-(hybridSort L1 SMALL mergeSort THRESHOLD S1)
-(FILLINHERE L2 SMALL mergeSort THRESHOLD S2)
-(merge S1 S2 FILLINHERE))
-((hybridSort LIST SMALL quickSort THRESHOLD SLIST)
-FILL IN HERE THE COMPLETE & CORRECT BODY OF THIS CLAUSE: Please
-be very careful!
+	(split_in_half LIST L1 L2)
+	(hybridSort L1 SMALL mergeSort THRESHOLD S1)
+	(hybridSort L2 SMALL mergeSort THRESHOLD S2)
+	(merge S1 S2 SLIST))
 
 
+((hybridSort () _ quickSort _ ()))
+
+((hybridSort (H|T) SMALLSORT quickSort THRESHOLD SLIST)
+	(split H T SMALL BIG)
+	(hybridSort SMALL SMALLSORT quickSort THRESHOLD S)
+	(hybridSort BIG SMALLSORT quickSort THRESHOLD B)
+	(append S (H|B) SLIST))
+
+
+?((hybridSort (5 1 2 3 7) bubbleSort mergeSort 100 SL) (pp SL))  % Should do bubble sort
+?((hybridSort (5 1 2 3 7) insertionSort mergeSort 100 SL) (pp SL))  % Should do insertion sort
+?((hybridSort (5 1 2 3 7) bubbleSort mergeSort 3 SL) (pp SL))  % Should do merge sort
+?((hybridSort (5 1 2 3 7) bubbleSort quickSort 3 SL) (pp SL))  % Should do quick sort
 
 
 
