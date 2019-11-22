@@ -1,17 +1,4 @@
 
-% -----------------------------------CPU TIME----------------------------
-
-% CPU Time
-((run 0) (!))
-((run X)(sum X -1 Y) (run Y))
-
-?((cputime SYS1 START)
-  (run 100000)
-  (cputime SYS2 ELAPSED)
-  (p program execution time: ELAPSED seconds))
-
-
-
 % -----------------------------------BUBBLE SORT----------------------------
 
 
@@ -215,10 +202,76 @@ element of L ; >= than the 1st element go into BIG
 	(append S (H|B) SLIST))
 
 
-?((hybridSort (5 1 2 3 7) bubbleSort mergeSort 100 SL) (pp SL))  % Should do bubble sort
-?((hybridSort (5 1 2 3 7) insertionSort mergeSort 100 SL) (pp SL))  % Should do insertion sort
-?((hybridSort (5 1 2 3 7) bubbleSort mergeSort 3 SL) (pp SL))  % Should do merge sort
-?((hybridSort (5 1 2 3 7) bubbleSort quickSort 3 SL) (pp SL))  % Should do quick sort
+% -----------------------------8 RUNS-------------------------------------
+
+
+?((hybridSort (6 14 5 9 13 19 20 7 15 10 4 17 11 8 16 12 3 2 18 1) bubbleSort mergeSort 100 SL) (pp SL))  % Should do bubble sort
+?((hybridSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) bubbleSort quickSort 100 SL) (pp SL))  % Should do bubble sort
+
+?((hybridSort (6 14 5 9 13 19 20 7 15 10 4 17 11 8 16 12 3 2 18 1) insertionSort mergeSort 100 SL) (pp SL))  % Should do insertion sort
+?((hybridSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort quickSort 100 SL) (pp SL))  % Should do insertion sort
+
+?((hybridSort (6 14 5 9 13 19 20 7 15 10 4 17 11 8 16 12 3 2 18 1) bubbleSort mergeSort 3 SL) (pp SL))  % Should do merge sort
+?((hybridSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort mergeSort 3 SL) (pp SL))  % Should do merge sort
+
+?((hybridSort (6 14 5 9 13 19 20 7 15 10 4 17 11 8 16 12 3 2 18 1) bubbleSort quickSort 3 SL) (pp SL))  % Should do quick sort
+?((hybridSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort quickSort 3 SL) (pp SL))  % Should do quick sort
+
+
+% -------------------------- CPU TIME ----------------------------------
+
+
+((runSort 0 SORTER DATA) (!))
+((runSort X SORTER DATA)
+	(sum X -1 Y)
+	(SORTER DATA SL)
+	(runSort Y SORTER DATA))
+	
+((runSortHybrid 0 DATA SMALL BIG THRESHOLD) (!))
+((runSortHybrid X DATA SMALL BIG THRESHOLD)
+	(sum X -1 Y)
+	(hybridSort DATA SMALL BIG THRESHOLD SL)
+	(runSortHybrid Y DATA SMALL BIG THRESHOLD))
+  
+?((cputime SYS1 START)
+  (runSort 1000 bubbleSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19))
+  (cputime SYS2 ELAPSED)
+  (pp)(p bubbleSort execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSort 100 insertionSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19))
+  (cputime SYS2 ELAPSED)
+  (pp)(p insertionSort execution time: ELAPSED seconds))
+
+?((cputime SYS1 START)
+  (runSort 100 mergeSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19))
+  (cputime SYS2 ELAPSED)
+  (pp)(p mergeSort execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSort 100 quickSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19))
+  (cputime SYS2 ELAPSED)
+  (pp)(p quickSort execution time: ELAPSED seconds))
+
+?((cputime SYS1 START)
+  (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) bubbleSort mergeSort 3)
+  (cputime SYS2 ELAPSED)
+  (pp)(p hybridSort bubbleSort-mergeSort execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort mergeSort 3)
+  (cputime SYS2 ELAPSED)
+  (pp)(p hybridSort insertionSort-mergeSort program execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) bubbleSort quickSort 3)
+  (cputime SYS2 ELAPSED)
+  (pp)(p hybridSort bubbleSort-quickSort program execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort quickSort 3)
+  (cputime SYS2 ELAPSED)
+  (pp)(p hybridSort insertionSort-quickSort program execution time: ELAPSED seconds))
 
 
 
