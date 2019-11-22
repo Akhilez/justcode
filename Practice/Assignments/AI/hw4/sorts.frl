@@ -1,4 +1,71 @@
+/*
 
+Artificial Intelligence Assignment 4
+
+Group: DevarashettiGhotra
+Members:
+    1. Akhil Devarashetti
+    2. Sandeep Ghotra
+Date: 11/19/2019
+
+-----------------------------
+
+Problem in testing:
+  The bip division doesn't work in Linux. And the bip cputime doesn't work in Windows.
+  So I tested my code partially in Windows and Partially in Linux
+
+-----------------------------
+Sample Execution:
+WINDOWS:
+Fril >load sorts
+Hybrid Sort with bubbleSort
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+Hybrid Sort with insertionSort
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+Hybrid Sort with mergeSort
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+Hybrid Sort with quickSort
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+program execution time : 0 seconds
+bubbleSort execution time : 0 seconds
+mergeSort execution time: 0 seconds
+quickSort execution time: 0 seconds
+hybridSort bubbleSort-mergeSort execution time: 0 seconds
+hybridSort insertionSort-mergeSort program execution time: 0 seconds
+hybridSort bubbleSort-quickSort program execution time: 0 seconds
+hybridSort insertionSort-quickSort program execution time: 0 seconds
+
+----------------------------
+LINUX Execution:
+Fril >load sorts
+Hybrid Sort with bubbleSort
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+Hybrid Sort with insertionSort
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+Hybrid Sort with mergeSort
+Segmentation fault (core dumped)
+
+---------------------------
+LINUX Execution without calling the sorts 8 times to check the execution time:
+
+Fril >load sorts
+program execution time : 0.026214 seconds
+bubbleSort execution time : 0.299801 seconds
+Segmentation fault (core dumped)
+
+*/
 % -----------------------------------BUBBLE SORT----------------------------
 
 
@@ -20,7 +87,7 @@
 ((bubbleSort L L)) % the list is already sorted
 
 
-?((bubbleSort (5 1 2 3 7) SL) (pp SL))
+% ?((bubbleSort (5 1 2 3 7) SL) (pp SL))
 
 
 
@@ -67,7 +134,7 @@ the sorted list SL. An element smaller than H is inserted at the front of the li
  (insert H T1 SORTED))
 
 
-?((insertionSort (5 1 2 3 7) SL) (pp SL))
+% ?((insertionSort (5 1 2 3 7) SL) (pp SL))
 
 
 % -----------------------------------MERGE SORT----------------------------
@@ -125,7 +192,7 @@ obtained by splitting the list L into two approximately equal sublists, sort the
 
 
 
-?((mergeSort (5 1 2 3 7) SL) (pp SL))
+% ?((mergeSort (5 1 2 3 7) SL) (pp SL))
 
 
 
@@ -167,7 +234,7 @@ element of L ; >= than the 1st element go into BIG
 
 
 
-?((quickSort (5 1 2 3 7) SL) (pp SL))
+% ?((quickSort (5 1 2 3 7) SL) (pp SL))
 
 
 % -----------------------------------Hybrid SORT----------------------------
@@ -204,16 +271,19 @@ element of L ; >= than the 1st element go into BIG
 
 % -----------------------------8 RUNS-------------------------------------
 
-
+?((p Hybrid Sort with bubbleSort)(pp))
 ?((hybridSort (6 14 5 9 13 19 20 7 15 10 4 17 11 8 16 12 3 2 18 1) bubbleSort mergeSort 100 SL) (pp SL))  % Should do bubble sort
 ?((hybridSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) bubbleSort quickSort 100 SL) (pp SL))  % Should do bubble sort
 
+?((pp)(p Hybrid Sort with insertionSort)(pp))
 ?((hybridSort (6 14 5 9 13 19 20 7 15 10 4 17 11 8 16 12 3 2 18 1) insertionSort mergeSort 100 SL) (pp SL))  % Should do insertion sort
 ?((hybridSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort quickSort 100 SL) (pp SL))  % Should do insertion sort
 
+?((pp)(p Hybrid Sort with mergeSort)(pp))
 ?((hybridSort (6 14 5 9 13 19 20 7 15 10 4 17 11 8 16 12 3 2 18 1) bubbleSort mergeSort 3 SL) (pp SL))  % Should do merge sort
 ?((hybridSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort mergeSort 3 SL) (pp SL))  % Should do merge sort
 
+?((pp)(p Hybrid Sort with quickSort)(pp))
 ?((hybridSort (6 14 5 9 13 19 20 7 15 10 4 17 11 8 16 12 3 2 18 1) bubbleSort quickSort 3 SL) (pp SL))  % Should do quick sort
 ?((hybridSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort quickSort 3 SL) (pp SL))  % Should do quick sort
 
@@ -272,6 +342,3 @@ element of L ; >= than the 1st element go into BIG
   (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort quickSort 3)
   (cputime SYS2 ELAPSED)
   (pp)(p hybridSort insertionSort-quickSort program execution time: ELAPSED seconds))
-
-
-
