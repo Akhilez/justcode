@@ -1,4 +1,72 @@
 
+% -----------------------------------BUBBLE SORT----------------------------
+
+
+% Bubble sort
+
+/*swap the first two elements if they are not in order*/
+((swap (X Y|T) (Y X | T))
+ (less Y X))
+
+/*swap elements in the tail*/
+((swap (H | T) (H | T1))
+ (swap T T1))
+
+/*Note that swap assumes that it will never be called on the empty list*/
+((bubbleSort L SL)
+ (swap L L1) % at least one swap is needed
+ (!)
+ (bubbleSort L1 SL))
+((bubbleSort L L)) % the list is already sorted
+
+
+% -----------------------------------INSERTION SORT----------------------------
+
+
+% Insertion
+
+
+
+/*
+(insert E SL SLE) holds when SLE is the list obtained by inserting the element E in
+the sorted list SL. An element smaller than H is inserted at the front of the list
+ */
+
+((insert X () (X)))
+
+((insert E (H | T) (E H | T))
+ (ordered T less)
+ (less E H)
+(!))
+
+((insert E (H|T) (H|T1))
+ (ordered T less)
+ (insert E T T1))
+
+
+
+((ordered () _ )) %the empty list is ordered in ANY order
+
+((ordered (_) _ )) %the list with 1 element is ordered in ANY order
+
+((ordered (E1 E2 |T) ORDER )
+ (ORDER E1 E2)
+ /*notice the use of a variable as predicate name; this is in fact a feature of 2nd order logic */
+ (ordered (E2|T) ORDER))
+
+
+/* insertion sort makes use of insert */
+((insertionSort () ())) %the empty list is sorted
+
+((insertionSort (H|T) SORTED) %insert the head of the list into the sorted
+ (insertionSort T T1) %tail of the list
+ (insert H T1 SORTED))
+
+
+% -----------------------------------MERGE SORT----------------------------
+
+
+
 % Merge sort
 
 ((append () L L))  %when L1 is () L is the same as L2
@@ -16,45 +84,169 @@ obtained by splitting the list L into two approximately equal sublists, sort the
 (using mergeSort) and merge their sorted versions. */
 
 
-((mergeSort () ())(pp "MergeSort 1"))       %the empty list is sorted
+((mergeSort () ()))       %the empty list is sorted
 
-((mergeSort (X) (X))(pp "MergeSort 2")(!))
+((mergeSort (X) (X))(!))
 
 ((mergeSort L SL)
-  (pp "MergeSort 3")
   (split_in_half L L1 L2)
   (mergeSort L1 S1)
   (mergeSort L2 S2)
   (merge S1 S2 SL))
 
-((split_in_half (X) () (X))(pp "Split 1"))
+((split_in_half (X) () (X)))
 
 ((split_in_half L L1 L2)
- (pp "Split 2")
  (length L N)
  (division N 2 N1)
- (pp "IN Split ")
  (length L1 N1)
  (append L1 L2 L))
 
 
 /*(merge S1 S2 S) S1 interleaved with S2 results in S */
-((merge () L L)(pp "Merge 1"))
+((merge () L L))
 
-((merge L () L)(pp "Merge 2"))
+((merge L () L))
 
 ((merge (H1|T1) (H2|T2) (H1 | T))
-  (pp "Merge 3")
   (less H1 H2)
   (merge T1 (H2|T2) T))
 
 ((merge (H1|T1) (H2|T2) (H2|T))
-  (pp "Merge 3")
   (negg less H1 H2)
   (merge (H1|T1) T2 T))
 
 
 
-?((mergeSort (5 1 2 3 7) SL) (pp SL))
 
+% -----------------------------------QUICK SORT----------------------------
+
+
+
+% Quick sort
+/*
+((quickSort L SORTED)) when SORTED is obtained from L by using the quick sort
+approach:
+(1) Split the list into two sublists – SMALL and BIG – of elements < than the 1st
+element of L ; >= than the 1st element go into BIG
+(2) Sort each of the sublists (using quicksort) to obtain S_SMALL, and S_BIG
+(3) and then obtain SORTED by putting together S_SMALL + 1st element + S_BIG
+*/
+/* split: pivot is the list Head */
+((split _ () () ()))
+
+((split X (H|T) (H | SMALL) BIG)
+	(less H X )
+	(!)
+	(split X T SMALL BIG))
+
+((split X (H|T) SMALL (H | BIG))
+	(split X T SMALL BIG))
+
+
+((quickSort () () ))
+
+((quickSort (H | T) SORTED)
+	(split H T SMALL BIG)
+	(quickSort SMALL S)
+	(quickSort BIG B)
+	(append S (H|B) SORTED))
+
+
+
+
+% -----------------------------------Hybrid SORT----------------------------
+
+
+
+% Hybrid sort
+/* Write here the correct description of hybridSort */
+
+((hybridSort LIST SMALL BIG THRESHOLD SLIST)
+	(length LIST L)
+	(less L THRESHOLD)(!) % try it with and w/o the cut to understand its role
+	(SMALL LIST SLIST))
+
+((hybridSort () _ mergeSort _ ()))
+
+((hybridSort (X) SMALL mergeSort THRESHOLD (X))(!))
+
+((hybridSort LIST SMALL mergeSort THRESHOLD SLIST)
+	(split_in_half LIST L1 L2)
+	(hybridSort L1 SMALL mergeSort THRESHOLD S1)
+	(hybridSort L2 SMALL mergeSort THRESHOLD S2)
+	(merge S1 S2 SLIST))
+
+
+((hybridSort () _ quickSort _ ()))
+
+((hybridSort (H|T) SMALLSORT quickSort THRESHOLD SLIST)
+	(split H T SMALL BIG)
+	(hybridSort SMALL SMALLSORT quickSort THRESHOLD S)
+	(hybridSort BIG SMALLSORT quickSort THRESHOLD B)
+	(append S (H|B) SLIST))
+
+
+% -------------------------- CPU TIME ----------------------------------
+
+
+((run 0) (!))
+((run X)(sum X -1 Y) (run Y))
+
+((runSort 0 SORTER DATA) (!))
+((runSort X SORTER DATA)
+	(sum X -1 Y)
+	(SORTER DATA SL)
+	(runSort Y SORTER DATA))
+	
+((runSortHybrid 0 DATA SMALL BIG THRESHOLD) (!))
+((runSortHybrid X DATA SMALL BIG THRESHOLD)
+	(sum X -1 Y)
+	(hybridSort DATA SMALL BIG THRESHOLD SL)
+	(runSortHybrid Y DATA SMALL BIG THRESHOLD))
+	
+?((cputime SYS1 START)
+  (run 100000)
+  (cputime SYS2 ELAPSED)
+  (p program execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSort 1000 bubbleSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19))
+  (cputime SYS2 ELAPSED)
+  (pp)(p bubbleSort execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSort 100 insertionSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19))
+  (cputime SYS2 ELAPSED)
+  (pp)(p insertionSort execution time: ELAPSED seconds))
+
+?((cputime SYS1 START)
+  (runSort 100 mergeSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19))
+  (cputime SYS2 ELAPSED)
+  (pp)(p mergeSort execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSort 100 quickSort (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19))
+  (cputime SYS2 ELAPSED)
+  (pp)(p quickSort execution time: ELAPSED seconds))
+
+?((cputime SYS1 START)
+  (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) bubbleSort mergeSort 3)
+  (cputime SYS2 ELAPSED)
+  (pp)(p hybridSort bubbleSort-mergeSort execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort mergeSort 3)
+  (cputime SYS2 ELAPSED)
+  (pp)(p hybridSort insertionSort-mergeSort program execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) bubbleSort quickSort 3)
+  (cputime SYS2 ELAPSED)
+  (pp)(p hybridSort bubbleSort-quickSort program execution time: ELAPSED seconds))
+  
+?((cputime SYS1 START)
+  (runSortHybrid 100 (11 13 6 14 9 7 15 16 10 17 20 8 5 4 12 3 2 18 1 19) insertionSort quickSort 3)
+  (cputime SYS2 ELAPSED)
+  (pp)(p hybridSort insertionSort-quickSort program execution time: ELAPSED seconds))
 
