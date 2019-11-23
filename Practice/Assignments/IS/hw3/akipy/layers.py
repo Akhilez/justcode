@@ -132,6 +132,40 @@ class Input(Layer):
         pass
 
 
+class Som2D(Layer):
+    name = 'input'
+
+    def __init__(self, units):
+        super().__init__(units)
+        self.r = None
+        self.weights = None
+        self.prev_yh = None
+
+    def feed(self, xq, **kwargs):
+        yh = self.weights - xq
+        self.prev_yh = yh
+        return yh
+
+    def init_weights(self, weights=None):
+        if weights is None:
+            size = list(self.n_units)
+            size.extend(self.input_size)
+            self.weights = np.random.uniform(low=-0.5, high=0.5, size=tuple(size))
+        else:
+            self.weights = np.array(weights)
+
+    def back_propagate(self, lr, error, **kwargs):
+        (n_rows, n_cols) = self.n_units
+        for row_i in range(n_rows):
+            for col_j in range(n_cols):
+                pass
+        # TODO: Learn with hebbian
+        pass
+
+    def get_serialized_weights(self):
+        pass
+
+
 def create_layer_from_structure(layer):
     activation = layer['activation']
     n_units = layer['n_units']
@@ -140,6 +174,9 @@ def create_layer_from_structure(layer):
         layer_obj = Dense(units=n_units, activation=activation)
     elif name == Input.name:
         layer_obj = Input(units=n_units, activation=activation)
+    elif name == Som2D.name:
+        # TODO: Return Som
+        layer_obj = Som2D()
     else:
         raise Exception(f'The layer {layer["name"]} cannot be created.')
     layer_obj.init_weights(layer['weights'])
