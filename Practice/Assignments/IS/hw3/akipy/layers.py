@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from akipy.activations import get_activation_function
+import math
 
 
 class Layer(ABC):
@@ -135,16 +136,21 @@ class Input(Layer):
 class Som2D(Layer):
     name = 'input'
 
-    def __init__(self, units):
-        super().__init__(units)
+    def __init__(self, units, lr=None, decay=None, **kwargs):
+        super().__init__(units, lr=lr, **kwargs)
         self.r = None
         self.weights = None
         self.prev_yh = None
+        self.prev_xq = None
+        self.prev_min = None
+        from akipy.losses import GaussianRateDecay
+        self.decay = decay if decay is None else GaussianRateDecay()
 
     def feed(self, xq, **kwargs):
-        yh = self.weights - xq
-        self.prev_yh = yh
-        return yh
+        self.prev_min = self.get_minimum_distance_neuron_index(xq)
+        self.prev_yh = self.create_output_map(self.prev_min)
+        self.prev_xq = xq
+        return self.prev_yh
 
     def init_weights(self, weights=None):
         if weights is None:
@@ -154,16 +160,47 @@ class Som2D(Layer):
         else:
             self.weights = np.array(weights)
 
-    def back_propagate(self, lr, error, **kwargs):
+    def back_propagate(self, lr, error, epoch=None, **kwargs):
         (n_rows, n_cols) = self.n_units
         for row_i in range(n_rows):
             for col_j in range(n_cols):
-                pass
-        # TODO: Learn with hebbian
-        pass
+                lr = lr if self.lr is None else self.lr
+                neuron_distance = self.euclidean_distance((row_i, col_j), self.prev_min)
+                decay = self.decay.decay(neuron_distance ** 2, epoch)
+                error = (self.prev_xq[col_j] - self.weights[row_i][col_j])
+
+                change = lr * decay * error
+                self.weights[row_i][col_j] += change
+
+        return self.prev_yh
+
+    @staticmethod
+    def euclidean_distance(x1, x2):
+        square_sum = 0
+        for i in range(len(x1)):
+            square_sum += (x1[i] - x2[i]) ** 2
+        return square_sum ** 0.5
 
     def get_serialized_weights(self):
-        pass
+        return self.weights.tolist()
+
+    def get_minimum_distance_neuron_index(self, xq):
+        (n_rows, n_cols) = self.n_units
+        min_distance = None
+        min_i, min_j = None, None
+        for row_i in range(n_rows):
+            for col_j in range(n_cols):
+                distance = self.euclidean_distance(self.weights[row_i][col_j], xq)
+                if min_distance is None:
+                    min_distance = distance
+                elif distance < min_distance:
+                    min_i, min_j = row_i, col_j
+        return min_i, min_j
+
+    def create_output_map(self, min_indices):
+        zeros = np.zeros(shape=self.n_units)
+        zeros[min_indices[0]][min_indices[1]] = 1
+        return zeros
 
 
 def create_layer_from_structure(layer):

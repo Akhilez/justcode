@@ -36,23 +36,23 @@ class StochasticGradientDescent(Optimizer):
         self.lr = lr
         self.momentum = momentum
 
-    def feed(self, xq, yq=None, metrics=None, learn=True, **kwargs):
+    def feed(self, xq, yq=None, metrics=None, learn=True, epoch=None, **kwargs):
         hl = xq
         for layer in self.model.layers:
             hl = layer.feed(hl)
 
         if yq is not None and learn:
-            self.back_propagate(xq, yq, hl)
+            self.back_propagate(xq, yq, hl, epoch=epoch)
 
         if metrics is not None:
             metrics.collect_iteration_metrics(xq=xq, yq=yq, yh=hl)
 
         return hl
 
-    def back_propagate(self, xq, yq, yh):
+    def back_propagate(self, xq, yq, yh, epoch=None):
         error = self.model.loss_function.f_derivative(yq, yh)
         for layer in self.model.layers.__reversed__():
-            error = layer.back_propagate(self.lr, error, momentum=self.momentum)
+            error = layer.back_propagate(self.lr, error, momentum=self.momentum, epoch=epoch)
 
     def get_data_point(self):
         if len(self._not_seen) == 0:

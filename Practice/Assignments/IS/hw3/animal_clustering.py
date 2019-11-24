@@ -1,6 +1,7 @@
 import numpy as np
 
-from akipy.layers import Input
+from akipy.layers import Input, Som2D
+from akipy.losses import GaussianRateDecay
 from akipy.neural_network import Sequential
 from utils.data_manager import DataManager
 
@@ -40,6 +41,8 @@ dm.x_test = np.array(test_set)
 
 model = Sequential('som_animal_clusters')
 model.add(Input(units=29))
-model.add(Som(units=(10, 10)))
+model.add(Som2D(units=(10, 10), decay=GaussianRateDecay(sigma=0.5, time_constant=1000)))
 
 model.compile(optimizer='SGD', loss='MSE', metrics=['error'])
+
+model.train(epochs=10, lr=0.1)

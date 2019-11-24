@@ -38,7 +38,7 @@ class Sequential:
         for epoch in range(epochs):
             for i in range(len(x_train)):
                 xq, yq = self.optimizer.get_data_point()
-                self.optimizer.feed(xq, yq, metrics=metrics)
+                self.optimizer.feed(xq, yq, metrics=metrics, epoch=epoch)
 
             metrics.collect_post_epoch(validation_set=validation_set)
 
