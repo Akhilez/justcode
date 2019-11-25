@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
 import math
 
+import numpy as np
+
 
 class LossFunction(ABC):
+    name = None
+
     @abstractmethod
     def f(self, yq, yh):
         pass
@@ -15,6 +19,9 @@ class LossFunction(ABC):
 class MseLoss(LossFunction):
     name = 'MSE'
 
+    def __init__(self, **kwargs):
+        pass
+
     def f(self, yq, yh):
         return (yq - yh) ** 2
 
@@ -22,9 +29,30 @@ class MseLoss(LossFunction):
         return yq - yh
 
 
+class WinnerTakeAllLoss(LossFunction):
+    name = 'WTA'
+
+    def __init__(self, min_is_winner=False, **kwargs):
+        self.min_is_winner = min_is_winner
+
+    def f(self, yq, yh):
+        winner_map = np.zeros(yh.shape)
+        extreme = np.argmin(yh) if self.min_is_winner else np.argmax(yh)
+        arg_ex = np.unravel_index(extreme, yh.shape)
+        winner_map[arg_ex] = 1
+        return winner_map - yh
+
+    def f_derivative(self, yq, yh):
+        return np.zeros(yh.shape)
+
+
 def get_loss_function(name, **kwargs):
     if name == MseLoss.name:
         return MseLoss(**kwargs)
+    elif name == WinnerTakeAllLoss.name:
+        return WinnerTakeAllLoss(**kwargs)
+    elif name == "WTA-min":
+        return WinnerTakeAllLoss(min_is_winner=True, **kwargs)
     else:
         raise Exception(f"Loss function {name} is not found.")
 

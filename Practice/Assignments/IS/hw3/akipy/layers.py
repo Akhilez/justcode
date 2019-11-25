@@ -147,15 +147,16 @@ class Som2D(Layer):
         self.decay = decay if decay is None else GaussianRateDecay()
 
     def feed(self, xq, **kwargs):
-        self.prev_min = self.get_minimum_distance_neuron_index(xq)
-        self.prev_yh = self.create_output_map(self.prev_min)
+        distance_map = self.get_distance_map(xq)
+        self.prev_yh = distance_map
         self.prev_xq = xq
+        self.prev_min = np.unravel_index(distance_map.argmin(), distance_map.shape)
         return self.prev_yh
 
     def init_weights(self, weights=None):
         if weights is None:
             size = list(self.n_units)
-            size.extend(self.input_size)
+            size.append(self.input_size)
             self.weights = np.random.uniform(low=-0.5, high=0.5, size=tuple(size))
         else:
             self.weights = np.array(weights)
@@ -174,6 +175,10 @@ class Som2D(Layer):
 
         return self.prev_yh
 
+    def set_input_size(self, input_size):
+        super().set_input_size(input_size)
+        self.init_weights()
+
     @staticmethod
     def euclidean_distance(x1, x2):
         square_sum = 0
@@ -184,18 +189,14 @@ class Som2D(Layer):
     def get_serialized_weights(self):
         return self.weights.tolist()
 
-    def get_minimum_distance_neuron_index(self, xq):
+    def get_distance_map(self, xq):
+        distance_map = np.zeros(self.n_units)
         (n_rows, n_cols) = self.n_units
-        min_distance = None
-        min_i, min_j = None, None
         for row_i in range(n_rows):
             for col_j in range(n_cols):
                 distance = self.euclidean_distance(self.weights[row_i][col_j], xq)
-                if min_distance is None:
-                    min_distance = distance
-                elif distance < min_distance:
-                    min_i, min_j = row_i, col_j
-        return min_i, min_j
+                distance_map[row_i][col_j] = distance
+        return distance_map
 
     def create_output_map(self, min_indices):
         zeros = np.zeros(shape=self.n_units)

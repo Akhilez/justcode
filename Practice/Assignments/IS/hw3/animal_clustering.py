@@ -41,8 +41,8 @@ dm.x_test = np.array(test_set)
 
 model = Sequential('som_animal_clusters')
 model.add(Input(units=29))
-model.add(Som2D(units=(10, 10), decay=GaussianRateDecay(sigma=0.5, time_constant=1000)))
+model.add(Som2D(units=(10, 10), decay=GaussianRateDecay(sigma=0.9, time_constant=1000)))
 
-model.compile(optimizer='SGD', loss='MSE', metrics=['error'])
+model.compile(optimizer='SGD', loss='WTA-min', metrics=['error'])
 
-model.train(epochs=10, lr=0.1)
+model.train(x_train=dm.x_train, y_train=dm.x_train, epochs=100, lr=0.1)
