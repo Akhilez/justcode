@@ -160,7 +160,7 @@ class Som2D(Layer):
         if weights is None:
             size = list(self.n_units)
             size.append(self.input_size)
-            self.weights = np.random.uniform(low=-0.5, high=0.5, size=tuple(size))
+            self.weights = np.random.uniform(low=0, high=1, size=tuple(size))
         else:
             self.weights = np.array(weights)
 
@@ -176,8 +176,6 @@ class Som2D(Layer):
                 lr = lr if self.lr is None else self.lr
                 lr = lr * decay
                 error = (self.prev_xq - self.weights[row_i][col_j])
-
-                min_error = min(error**2)
 
                 change = lr * gaussian_distance * error
                 self.weights[row_i][col_j] += change
@@ -222,8 +220,7 @@ def create_layer_from_structure(layer):
     elif name == Input.name:
         layer_obj = Input(units=n_units, activation=activation)
     elif name == Som2D.name:
-        # TODO: Return Som
-        layer_obj = Som2D()
+        layer_obj = Som2D(units=n_units)
     else:
         raise Exception(f'The layer {layer["name"]} cannot be created.')
     layer_obj.init_weights(layer['weights'])
