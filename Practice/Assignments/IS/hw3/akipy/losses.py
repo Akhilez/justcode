@@ -36,11 +36,9 @@ class WinnerTakeAllLoss(LossFunction):
         self.min_is_winner = min_is_winner
 
     def f(self, yq, yh):
-        winner_map = np.zeros(yh.shape)
         extreme = np.argmin(yh) if self.min_is_winner else np.argmax(yh)
         arg_ex = np.unravel_index(extreme, yh.shape)
-        winner_map[arg_ex] = 1
-        return winner_map - yh
+        return yh[arg_ex]
 
     def f_derivative(self, yq, yh):
         return np.zeros(yh.shape)
@@ -59,15 +57,14 @@ def get_loss_function(name, **kwargs):
 
 class RateDecay(ABC):
     @abstractmethod
-    def decay(self, value, time_i, **kwargs):
+    def decay(self, time_i, **kwargs):
         pass
 
 
-class GaussianRateDecay(RateDecay):
-    def __init__(self, sigma=0.5, time_constant=1000):
-        self.sigma = sigma
+class ReverseExponentialDecay(RateDecay):
+    def __init__(self, time_constant=5):
         self.time_constant = time_constant
 
-    def decay(self, value, time_i, **kwargs):
-        sigma_square = 2 * (self.sigma * math.exp(-1 * time_i / self.time_constant)) ** 2
-        return math.exp(-1 * value / sigma_square)
+    def decay(self, time_i, **kwargs):
+        return math.exp(-1 * time_i / self.time_constant)
+

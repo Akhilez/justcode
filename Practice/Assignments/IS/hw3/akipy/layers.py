@@ -3,6 +3,8 @@ import numpy as np
 from akipy.activations import get_activation_function
 import math
 
+from akipy.losses import ReverseExponentialDecay
+
 
 class Layer(ABC):
     name = None
@@ -136,15 +138,16 @@ class Input(Layer):
 class Som2D(Layer):
     name = 'input'
 
-    def __init__(self, units, lr=None, decay=None, **kwargs):
+    def __init__(self, units, lr=None, sigma=0.5, time_constant=10, decay=None, **kwargs):
         super().__init__(units, lr=lr, **kwargs)
         self.r = None
         self.weights = None
         self.prev_yh = None
         self.prev_xq = None
         self.prev_min = None
-        from akipy.losses import GaussianRateDecay
-        self.decay = decay if decay is None else GaussianRateDecay()
+        self.sigma = sigma
+        self.time_constant = time_constant
+        self.decay = decay if decay is not None else ReverseExponentialDecay()
 
     def feed(self, xq, **kwargs):
         distance_map = self.get_distance_map(xq)
@@ -165,12 +168,18 @@ class Som2D(Layer):
         (n_rows, n_cols) = self.n_units
         for row_i in range(n_rows):
             for col_j in range(n_cols):
-                lr = lr if self.lr is None else self.lr
                 neuron_distance = self.euclidean_distance((row_i, col_j), self.prev_min)
-                decay = self.decay.decay(neuron_distance ** 2, epoch)
-                error = (self.prev_xq[col_j] - self.weights[row_i][col_j])
+                sigma_square = 2 * (self.sigma * math.exp(-1 * epoch / self.time_constant)) ** 2
+                gaussian_distance = math.exp(-1 * neuron_distance / sigma_square)
 
-                change = lr * decay * error
+                decay = self.decay.decay(epoch)
+                lr = lr if self.lr is None else self.lr
+                lr = lr * decay
+                error = (self.prev_xq - self.weights[row_i][col_j])
+
+                min_error = min(error**2)
+
+                change = lr * gaussian_distance * error
                 self.weights[row_i][col_j] += change
 
         return self.prev_yh

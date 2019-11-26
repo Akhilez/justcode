@@ -67,7 +67,7 @@ class Metrics:
     def collect_iteration_metrics(self, xq, yq, yh=None):
         self.current_iteration += 1
         error = self.model.loss_function.f(yq, yh)
-        self.iter_error.append(sum(error))
+        self.iter_error.append(error)
         self._iter_x_train.append(xq)
         self._iter_y_train.append(yq)
         self._iter_y_preds.append(yh)
