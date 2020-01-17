@@ -1,0 +1,8 @@
+.DS_Store
+tools
+*_old
+data/
+
+p2ch10_explore_data.ipynb
+p2ch12_explore_data.ipynb
+p2ch13_explore_data.ipynb
