@@ -9,8 +9,8 @@ class Walker {
   }
   
   void step() {
-    float stepX = int(random(-1,1));
-    float stepY = int(random(-1,1));
+    float stepX = random(-1,1);
+    float stepY = random(-1,1);
     x += stepX;
     y += stepY;;
   }
