@@ -1,7 +1,7 @@
 class Walker {
   
-  int x;
-  int y;
+  float x;
+  float y;
   
   Walker(){
     x = width/2;
@@ -9,17 +9,10 @@ class Walker {
   }
   
   void step() {
-    int choice = int(random(4));
-    switch(choice){
-      case 0:
-        x += 1; break;
-      case 1:
-        y += 1; break;
-      case 2:
-        x -= 1; break;
-      case 3:
-        y -= 1; break;
-    }
+    float stepX = int(random(-1,1));
+    float stepY = int(random(-1,1));
+    x += stepX;
+    y += stepY;;
   }
   
   void display(){
