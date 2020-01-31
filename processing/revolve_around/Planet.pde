@@ -27,14 +27,27 @@ class Planet {
   
   public void update() {
     updateAcceleration();
-    velocity.add(acceleration);
+    setVelocity(PVector.add(velocity, acceleration));
     location.add(velocity);
+    checkEdges();
   }
   
   public void display() {
     stroke(0);
     fill(175);
     ellipse(location.x, location.y, 10, 10);
+  }
+  
+  private void checkEdges() {
+    if (location.x > width)
+      location.x = 0;
+    else if (location.x < 0)
+      location.x = width;
+    
+    if (location.y > height)
+      location.y = 0;
+    else if (location.y < 0)
+      location.y = height;
   }
   
 }
