@@ -45,3 +45,4 @@ for epoch in range(n_epochs):
         if int(torch.argmax(model2(data))) == int(target[0]):
             m = m + 1
     print("test", epoch, m, "among", test_size, "correctly classified")
+
