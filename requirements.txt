@@ -1,3 +1,4 @@
+torch==1.4.0+cpu
 matplotlib
 keras==2.0.8
 tflearn==0.3.2
