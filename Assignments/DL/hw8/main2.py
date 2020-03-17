@@ -121,9 +121,11 @@ epochs = 5
 # At any point you can hit Ctrl + C to break out of training early.
 try:
     for epoch in range(1, epochs + 1):
+
         train()
         val_loss = evaluate(val_data)
         print('-' * 89)
+
         print('| end of epoch {:3d} | valid loss {:5.2f} | '
               'valid ppl {:8.2f}'.format(epoch, val_loss, math.exp(val_loss)))
         print('-' * 89)
