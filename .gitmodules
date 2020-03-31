@@ -5,3 +5,7 @@
 [submodule "NeuralNetworks/TicTacToe"]
 	path = NeuralNetworks/TicTacToe
 	url = git@github.com:Akhilez/tic-tac-toe.git
+
+[submodule "Practice/quarantine-coding"]
+	path = Practice/quarantine-coding
+	url = git@github.com:Raviezz/quarantine-coding-PYTHON.git
