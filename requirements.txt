@@ -6,7 +6,7 @@ tensorflow==1.0
 numpy==1.16.1
 h5py==2.9.0
 scikit-learn==0.20.2
-ipython==7.3.0
+ipython==7.16.3
 pygame==1.9.4
 tensorboard==1.11
 pydot==1.4.1
